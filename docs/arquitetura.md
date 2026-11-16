@@ -53,6 +53,10 @@
 - **Chave secreta:** `SUPABASE_SECRET_KEY` fica só no `.env` e só a API lê. O `next.config.ts` repassa ao navegador apenas as variáveis `NEXT_PUBLIC_*`.
 - **Limitação:** o SMTP padrão do Supabase só entrega para membros da equipe do projeto. Para uso real, é preciso SMTP próprio (README › E-mail do convite). O convite vale mesmo quando o e-mail não sai.
 
+### 2026-11-16 · Identidade visual B · Casa Nova
+- **Escolhida pelo dono do projeto** entre três direções (`docs/design/identidade/`).
+- As cores ficam só em variáveis CSS no começo de `globals.css`. As regras não usam cores soltas, o que permite trocar a identidade sem mexer nas telas.
+
 ## Estrutura do repositório
 
 ```

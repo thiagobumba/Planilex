@@ -39,7 +39,7 @@ export default function LinkDoEmail() {
   }, [router]);
 
   return (
-    <main className="login">
+    <main className="login-simples">
       <div className="login-cartao">
         <Logo />
         <p role="status" className="suave">

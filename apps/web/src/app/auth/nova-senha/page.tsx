@@ -14,7 +14,7 @@ export default async function NovaSenha({ searchParams }: { searchParams: Promis
   const email = data?.claims?.email as string | undefined;
 
   return (
-    <main className="login">
+    <main className="login-simples">
       <div className="login-cartao">
         <Logo />
         <h1>{boasVindas ? "Bem-vindo ao Planilex!" : "Criar nova senha"}</h1>

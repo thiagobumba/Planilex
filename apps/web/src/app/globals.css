@@ -1,25 +1,33 @@
 /* Estilos do Planilex. Cores e medidas seguem os modelos de telas (docs/design). */
 :root {
-  --cor-fundo: #f6f5f1;
+  /* Identidade B · Casa Nova (docs/design/identidade) */
+  --cor-fundo: #f4f6f3;
   --cor-superficie: #ffffff;
-  --cor-superficie-2: #faf9f6;
-  --cor-texto: #1d1c1a;
-  --cor-texto-2: #3d3a35;
-  --cor-texto-suave: #5e5b55;
-  --cor-borda: #e3e0d8;
-  --cor-borda-forte: #d9d5cb;
-  --cor-primaria: #2e5e4e;
-  --cor-primaria-escura: #1f4a3c;
-  --cor-primaria-suave: #e6efea;
-  --cor-primaria-media: #8db3a2;
-  --cor-alerta: #9a3d0e;
-  --cor-alerta-forte: #b4541a;
-  --cor-alerta-suave: #fbede2;
-  --cor-atencao: #c98a2e;
+  --cor-superficie-2: #f8faf8;
+  --cor-texto: #16211c;
+  --cor-texto-2: #2c3a33;
+  --cor-texto-suave: #4a5752;
+  --cor-borda: #e2e8e4;
+  --cor-borda-forte: #d5dcd7;
+  --cor-linha: #eef2ef;
+  --cor-trilho: #edf1ee;
+  --cor-primaria: #1f5c46;
+  --cor-primaria-escura: #164433;
+  --cor-primaria-suave: #dcefe5;
+  --cor-primaria-borda: #b9dcc9;
+  --cor-primaria-media: #7fb59b;
+  --cor-alerta: #b04a2e;
+  --cor-alerta-texto: #8f3a22;
+  --cor-alerta-forte: #e8704f;
+  --cor-alerta-suave: #fce9e3;
+  --cor-alerta-borda: #f2b9a6;
+  --cor-atencao: #d69a2d;
+  --cor-atencao-suave: #fbf2df;
+  --cor-atencao-texto: #6b4a0e;
   --cor-azul: #1e4a7a;
   --cor-azul-suave: #e3ecf6;
-  --raio: 14px;
-  --raio-p: 10px;
+  --raio: 16px;
+  --raio-p: 12px;
 }
 
 * {
@@ -55,7 +63,7 @@ a {
   color: var(--cor-primaria-escura);
 }
 a:hover {
-  color: #143327;
+  color: var(--cor-primaria-escura);
 }
 
 :focus-visible {
@@ -238,13 +246,13 @@ code {
 }
 .cartao-destaque {
   background: var(--cor-primaria-suave);
-  border-color: #c5d9ce;
+  border-color: var(--cor-primaria-borda);
   color: var(--cor-primaria-escura);
 }
 .cartao-alerta {
   background: var(--cor-alerta-suave);
-  border-color: #e7b48f;
-  color: #7a300a;
+  border-color: var(--cor-alerta-borda);
+  color: var(--cor-alerta-texto);
 }
 .cartoes-resumo {
   display: grid;
@@ -285,7 +293,7 @@ code {
   color: var(--cor-texto);
 }
 .cartao-comodo.acima {
-  border-color: #e7b48f;
+  border-color: var(--cor-alerta-borda);
 }
 .texto-alerta {
   color: var(--cor-alerta);
@@ -299,7 +307,7 @@ code {
   height: 8px;
   border-radius: 999px;
   overflow: hidden;
-  background: #eceae4;
+  background: var(--cor-trilho);
 }
 .barra-grande {
   height: 14px;
@@ -341,7 +349,7 @@ code {
   display: inline-block;
 }
 .amostra-livre {
-  background: #eceae4;
+  background: var(--cor-trilho);
   border: 1px solid var(--cor-borda-forte);
 }
 
@@ -358,10 +366,10 @@ code {
 .aviso-erro,
 .aviso-alerta {
   background: var(--cor-alerta-suave);
-  color: #7a300a;
+  color: var(--cor-alerta-texto);
 }
 .aviso-alerta a {
-  color: #7a300a;
+  color: var(--cor-alerta-texto);
 }
 .aviso-ok {
   background: var(--cor-primaria-suave);
@@ -454,7 +462,7 @@ select:focus {
 }
 .botao-perigo {
   background: var(--cor-superficie);
-  border-color: #e7b48f;
+  border-color: var(--cor-alerta-borda);
   color: var(--cor-alerta);
 }
 .botao-perigo:hover {
@@ -531,7 +539,7 @@ select:focus {
 }
 .tabela td {
   padding: 12px;
-  border-bottom: 1px solid #efede7;
+  border-bottom: 1px solid var(--cor-linha);
 }
 .tabela .num {
   text-align: right;
@@ -563,7 +571,7 @@ select:focus {
   font-weight: 600;
 }
 .etiqueta-pesquisando {
-  background: #eceae4;
+  background: var(--cor-trilho);
   color: var(--cor-texto-2);
 }
 .etiqueta-escolhido {
@@ -612,20 +620,145 @@ select:focus {
   justify-content: flex-end;
 }
 
-/* ---------- Login ---------- */
+/* ---------- Login (identidade B · Casa Nova) ---------- */
 .login {
   min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+}
+.login-lado {
+  background: var(--cor-superficie);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: 48px 32px;
 }
+.login-conteudo {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.login-conteudo .logo {
+  padding: 0 0 8px;
+}
+.login-titulo h1 {
+  font-size: 38px;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+.login-titulo p {
+  margin: 10px 0 0;
+  font-size: 16px;
+}
+.login-vitrine {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--cor-primaria);
+  background-image: radial-gradient(rgba(220, 239, 229, 0.12) 1px, transparent 1px);
+  background-size: 22px 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  padding: 48px;
+}
+.vitrine-cartao {
+  margin: 0;
+  width: 100%;
+  max-width: 470px;
+  background: var(--cor-superficie);
+  border-radius: 20px;
+  padding: 26px;
+  box-shadow: 0 30px 60px rgba(8, 30, 22, 0.35);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transform: rotate(-2deg);
+}
+.vitrine-nome {
+  font-family: var(--fonte-titulo), sans-serif;
+  font-size: 18px;
+}
+.vitrine-saldo {
+  background: var(--cor-primaria-suave);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: var(--cor-primaria);
+  font-size: 13px;
+  font-weight: 600;
+}
+.vitrine-saldo strong {
+  font-family: var(--fonte-titulo), sans-serif;
+  font-size: 30px;
+  color: var(--cor-primaria-escura);
+}
+.vitrine-barras {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 14px;
+}
+.vitrine-barras li {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.vitrine-recursos {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  max-width: 520px;
+}
+.vitrine-recursos li {
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(220, 239, 229, 0.14);
+  color: #eaf6ef;
+  font-size: 14px;
+}
+.botao-google {
+  background: var(--cor-superficie);
+  border-color: var(--cor-borda-forte);
+  color: var(--cor-texto);
+  width: 100%;
+  min-height: 50px;
+}
+.botao-google:hover {
+  background: var(--cor-fundo);
+}
+/* Celular e telas estreitas: só o login, sem a vitrine. */
+@media (max-width: 900px) {
+  .login {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .login-vitrine {
+    display: none;
+  }
+  .login-titulo h1 {
+    font-size: 30px;
+  }
+}
+/* Telas de "nova senha" e "link do e-mail" continuam com o cartão centralizado. */
 .login-cartao {
   width: 100%;
   max-width: 440px;
+  margin: auto;
   background: var(--cor-superficie);
   border: 1px solid var(--cor-borda);
-  border-radius: 18px;
+  border-radius: 20px;
   padding: 32px;
   display: flex;
   flex-direction: column;
@@ -639,25 +772,6 @@ select:focus {
 }
 .login-cartao p {
   margin: 0;
-}
-.botao-google {
-  background: var(--cor-superficie);
-  border-color: var(--cor-borda-forte);
-  color: var(--cor-texto);
-  width: 100%;
-  min-height: 48px;
-}
-.botao-google:hover {
-  background: var(--cor-fundo);
-}
-.detalhe-tecnico {
-  margin-top: 8px !important;
-  font-size: 12px;
-  opacity: 0.85;
-  word-break: break-word;
-}
-.aviso-erro p + p {
-  margin-top: 8px;
 }
 
 /* ---------- Login por e-mail ---------- */
@@ -747,7 +861,7 @@ select:focus {
   align-items: center;
   gap: 8px 16px;
   padding: 12px 0;
-  border-bottom: 1px solid #efede7;
+  border-bottom: 1px solid var(--cor-linha);
 }
 .lista-pessoas li > div {
   display: flex;
@@ -773,8 +887,8 @@ select:focus {
   color: var(--cor-azul);
 }
 .aviso-atencao {
-  background: #fbf3e3;
-  color: #5c3f0a;
+  background: var(--cor-atencao-suave);
+  color: var(--cor-atencao-texto);
 }
 .acoes-convite {
   display: flex;
@@ -783,4 +897,11 @@ select:focus {
 }
 .acoes-convite form .aviso {
   flex-basis: 100%;
+}
+.login-simples {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
 }

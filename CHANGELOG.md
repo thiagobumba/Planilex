@@ -12,6 +12,24 @@ Cada entrada informa:
 
 ## [Não lançado]
 
+### 2026-11-16 · Identidade visual B · Casa Nova aplicada
+**Alterado**
+- `globals.css`:
+  - novas variáveis de cor (floresta `#1F5C46`, menta `#DCEFE5`, grafite `#16211C`, mostarda para atenção, coral para limite estourado);
+  - raios maiores;
+  - nenhuma cor solta fora das variáveis (só o `#fff` dos textos sobre verde).
+- Tela de login redesenhada: login à esquerda e, no computador, uma vitrine verde à direita com um exemplo do painel (marcado como "exemplo") e os três recursos principais. No celular aparece só o login.
+- `Logo.tsx` e `icon.svg`: logo da casinha num quadrado verde.
+- "Nova senha" e "link do e-mail" mantêm o cartão centralizado (classe `login-simples`).
+- `docs/design/identidade/README.md`: direção B marcada como escolhida, com a tabela de variáveis.
+- `docs/arquitetura.md` (decisão) e `docs/ux-8-regras.md` atualizados.
+
+**Por quê:** o dono do projeto escolheu a direção B entre as três propostas.
+
+**Impacto:**
+- Só visual: nenhuma regra, rota ou dado mudou.
+- Verificado no Chrome: login no computador e no celular, painel e lista de itens.
+
 ### 2026-11-16 · Propostas de identidade visual e correção do botão do Google
 **Adicionado**
 - `docs/design/identidade/`: três direções de identidade para a tela inicial e o app (A · Papelaria, B · Casa Nova, C · Livro-caixa noturno, inspirada no APIcanvas). Cada uma tem a tela de login e um quadro com logo, paleta, tipografia e componentes. Também estão no canvas de design, na página "Identidade visual". Nenhuma foi aplicada ao app ainda.
