@@ -113,6 +113,14 @@ O login é feito pelo Supabase Auth com o provedor Google. Configuração (uma v
 
 Enquanto o app estiver em modo de teste no Google, só os e-mails da lista de usuários de teste conseguem entrar.
 
+**Se o login falhar**, a tela de login mostra o que fazer e o "detalhe técnico" (a mensagem original do Supabase/Google). O motivo também aparece no terminal do `npm run dev:web`, numa linha `[login] falhou: ...`.
+
+| Detalhe técnico contém | O que fazer |
+|------------------------|-------------|
+| `Unable to exchange external code` | ID do cliente ou chave secreta do Google errados no Supabase |
+| `access_denied` | E-mail fora da lista de usuários de teste no Google Cloud |
+| `PKCE code verifier not found` | Login começou e terminou em endereços diferentes (use sempre `http://localhost:3000`) |
+
 ## Documentação e histórico
 
 - Todas as alterações ficam registradas em [`CHANGELOG.md`](CHANGELOG.md).

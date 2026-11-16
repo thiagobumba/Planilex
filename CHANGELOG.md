@@ -12,6 +12,19 @@ Cada entrada informa:
 
 ## [Não lançado]
 
+### 2026-11-16 · Motivo real das falhas de login na tela
+**Alterado**
+- `apps/web/src/app/auth/callback/route.ts`: guarda o motivo da falha, vindo do Google/Supabase (`error_description`) ou da troca do código, e repassa para `/login`. Também registra `[login] falhou: ...` no terminal do site.
+- `apps/web/src/app/login/page.tsx`: mostra uma orientação em português e o detalhe técnico original.
+
+**Adicionado**
+- `apps/web/src/app/login/erros.ts`: traduz os motivos mais comuns (chave do Google errada, e-mail fora dos usuários de teste, endereços diferentes no início e no fim do login, URL de retorno não liberada, provedor desativado).
+- `README.md`: tabela de diagnóstico na seção "Login com Google".
+
+**Por quê:** o primeiro login real voltou para a tela de entrada com uma mensagem genérica, sem indicar a causa.
+
+**Impacto:** nenhum no fluxo de login que funciona. Verificado simulando os retornos de erro do Supabase.
+
 ### 2026-11-16 · Site não lia o `.env` da raiz
 **Corrigido**
 - A tela de login mostrava "O login ainda não está configurado" mesmo com o `.env` preenchido. O `@next/env` guarda em memória a primeira leitura de variáveis (a de `apps/web`, onde não há `.env`) e ignorava a segunda chamada, feita no `next.config.ts` para a raiz.

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Logo } from "@/components/Logo";
 import { supabaseConfigurado } from "@/lib/supabase/config";
 import { BotaoGoogle } from "./BotaoGoogle";
+import { explicarErroLogin } from "./erros";
 
 export const metadata: Metadata = { title: "Entrar · Planilex" };
 
@@ -22,9 +23,10 @@ export default async function Login({ searchParams }: { searchParams: Promise<{ 
           </p>
         )}
         {erro && (
-          <p role="alert" className="aviso aviso-erro">
-            O login não foi concluído. Tente de novo; se continuar, confira se o seu e-mail está como usuário de teste no Google Cloud.
-          </p>
+          <div role="alert" className="aviso aviso-erro">
+            <p>{explicarErroLogin(erro)}</p>
+            <p className="detalhe-tecnico">Detalhe técnico: {erro}</p>
+          </div>
         )}
       </div>
     </main>

@@ -25,7 +25,7 @@ Atualizado em 2026-11-16, com login, painel, itens, cômodos e configurações p
 |---|-------|--------------|----------|
 | 1 | Consistência | Menu lateral, cores, botões e etiquetas iguais em todas as telas (`globals.css`) | — |
 | 2 | Atalhos | Abas por cômodo e filtros na lista de itens; cartões do painel levam direto aos itens do cômodo | `Ctrl K` para buscar; ações em lote |
-| 3 | Feedback | Mensagem de sucesso ou erro em todo formulário; botão mostra "Salvando…"; barras de uso por cômodo e aviso de limite estourado | Status da busca de preços |
+| 3 | Feedback | Mensagem de sucesso ou erro em todo formulário; falha de login explica a causa e o que fazer; botão mostra "Salvando…"; barras de uso por cômodo e aviso de limite estourado | Status da busca de preços |
 | 4 | Fechamento | Mensagens específicas ("“Micro-ondas” adicionado.", "“Cama box” foi salvo."); botão de excluir diz o nome do item | Impacto no limite antes de adicionar (tela 3 do modelo) |
 | 5 | Prevenção de erros | Valor pago só aparece e é obrigatório quando o item é "Comprado"; cômodo com itens não pode ser excluído; exclusão de item pede confirmação | Filtro de voltagem nas ofertas |
 | 6 | Desfazer | — | "Desfazer" depois de excluir ou alterar, usando a tabela `atividades` |
