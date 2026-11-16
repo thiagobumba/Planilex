@@ -76,6 +76,18 @@ O arquivo `.env` tem senha do banco e **nunca** vai para o GitHub (está no `.gi
 | `npm run db:migrate` | Cria uma nova migração depois de alterar o `schema.prisma` |
 | `npm run db:deploy` | Aplica as migrações pendentes no banco |
 | `npm run db:studio` | Abre o Prisma Studio para ver os dados |
+| `npm run db:testar` | Testa as conexões `DATABASE_URL` e `DIRECT_URL` e mostra a mensagem exata do servidor, sem exibir a senha |
+
+### Problemas de conexão com o banco
+
+Se o `npm run db:deploy` mostrar `P1001: Can't reach database server`, rode `npm run db:testar`. O Prisma esconde o motivo real; esse comando mostra a mensagem do servidor. Causas comuns:
+
+| Mensagem do `db:testar` | Causa provável | O que fazer |
+|-------------------------|----------------|-------------|
+| `password authentication failed` | Senha errada ou desatualizada no `.env` | Copie de novo a senha (ou gere outra em Supabase › Connect › Reset database password) |
+| `Tenant or user not found` | Endereço do pooler ou usuário errado | Copie de novo o endereço em Supabase › Connect; o host pode ser `aws-0-...` ou `aws-1-...` |
+| `endereço inválido` | Colchetes ou caracteres especiais (`@ # / ? $`) na senha | Tire os colchetes; use uma senha só com letras e números |
+| `timeout` ou `ECONNREFUSED` | Rede, firewall ou VPN bloqueando a porta | Teste no PowerShell: `Test-NetConnection <host> -Port 5432` |
 
 ## Documentação e histórico
 

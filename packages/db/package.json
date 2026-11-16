@@ -17,12 +17,14 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "migrate:dev": "prisma migrate dev",
     "migrate:deploy": "prisma migrate deploy",
-    "studio": "prisma studio"
+    "studio": "prisma studio",
+    "testar": "node scripts/testar-conexao.mjs"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.1",
     "@prisma/client": "^7.10.1",
     "dotenv": "^18.0.10",
+    "pg": "^8.23.1",
     "prisma": "^7.10.1"
   },
   "devDependencies": {

@@ -12,6 +12,16 @@ Cada entrada informa:
 
 ## [Não lançado]
 
+### 2026-11-16 · Comando para diagnosticar a conexão com o banco
+**Adicionado**
+- `packages/db/scripts/testar-conexao.mjs` e o comando `npm run db:testar`: testa `DATABASE_URL` e `DIRECT_URL` separadamente e mostra a mensagem exata do servidor, com a senha mascarada.
+- Dependência `pg` no pacote `@planilex/db` (usada pelo script; já vinha junto do `@prisma/adapter-pg`).
+- `README.md`: o novo comando na tabela de comandos e a seção "Problemas de conexão com o banco", com as causas mais comuns.
+
+**Por quê:** o `prisma migrate deploy` falhou com `P1001: Can't reach database server`, apesar de as portas 5432 e 6543 estarem acessíveis. Esse erro do Prisma é genérico e esconde o motivo real.
+
+**Impacto:** nenhum no app. Novo comando de diagnóstico para quem configura o `.env`.
+
 ### 2026-11-16 · Estrutura do projeto: site, API e banco
 **Adicionado**
 - `package.json` na raiz com npm workspaces e os comandos `dev:web`, `dev:api`, `build`, `typecheck` e `db:*`.

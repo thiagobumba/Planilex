@@ -17,6 +17,7 @@
     "db:generate": "npm run generate -w @planilex/db",
     "db:migrate": "npm run migrate:dev -w @planilex/db",
     "db:deploy": "npm run migrate:deploy -w @planilex/db",
-    "db:studio": "npm run studio -w @planilex/db"
+    "db:studio": "npm run studio -w @planilex/db",
+    "db:testar": "npm run testar -w @planilex/db"
   }
 }
