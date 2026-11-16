@@ -25,9 +25,9 @@ Atualizado em 2026-11-16, com login (Google e e-mail/senha), painel, itens, côm
 |---|-------|--------------|----------|
 | 1 | Consistência | Menu lateral, cores, botões e etiquetas iguais em todas as telas (`globals.css`) | — |
 | 2 | Atalhos | Abas por cômodo e filtros na lista de itens; cartões do painel levam direto aos itens do cômodo | `Ctrl K` para buscar; ações em lote |
-| 3 | Feedback | Mensagem de sucesso ou erro em todo formulário; falha de login explica a causa e o que fazer; botão mostra "Salvando…"; barras de uso por cômodo e aviso de limite estourado | Status da busca de preços |
+| 3 | Feedback | Mensagem de sucesso ou erro em todo formulário; página que não carrega explica o motivo e oferece "Tentar de novo"; falha de login explica a causa e o que fazer; botão mostra "Salvando…"; barras de uso por cômodo e aviso de limite estourado | Status da busca de preços |
 | 4 | Fechamento | Mensagens específicas ("“Micro-ondas” adicionado.", "“Cama box” foi salvo."); botão de excluir diz o nome do item | Impacto no limite antes de adicionar (tela 3 do modelo) |
 | 5 | Prevenção de erros | Criar conta pede a senha duas vezes; exemplos nos campos começam com "Ex.:" para não parecerem valores preenchidos; valor pago só aparece e é obrigatório quando o item é "Comprado"; cômodo com itens não pode ser excluído; exclusão de item pede confirmação | Filtro de voltagem nas ofertas |
 | 6 | Desfazer | — | "Desfazer" depois de excluir ou alterar, usando a tabela `atividades` |
-| 7 | Controle do usuário | Nada muda sem o usuário confirmar; tudo editável depois | — |
+| 7 | Controle do usuário | Nada muda sem o usuário confirmar; tudo editável depois; "Sair" sempre visível, mesmo se a API falhar | — |
 | 8 | Menos memória | Trilha de navegação; saldo disponível sempre visível no menu; contagem de dias até o casamento | Data da consulta de preço |

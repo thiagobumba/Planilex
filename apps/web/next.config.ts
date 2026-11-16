@@ -15,6 +15,8 @@ const publicas = Object.fromEntries(
 
 const nextConfig: NextConfig = {
   env: publicas,
+  // O indicador do Next (só em desenvolvimento) cobria o "Sair" no canto esquerdo.
+  devIndicators: { position: "bottom-right" },
 };
 
 export default nextConfig;

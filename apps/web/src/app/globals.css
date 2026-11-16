@@ -713,3 +713,21 @@ select:focus {
   flex-direction: column;
   gap: 14px;
 }
+
+/* ---------- Sair ---------- */
+.botao-sair {
+  width: 100%;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+/* Menu fixo na altura da tela no computador: "Sair" sempre visível, sem rolar. */
+@media (min-width: 821px) {
+  .menu {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    align-self: flex-start;
+  }
+}

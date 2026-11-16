@@ -12,6 +12,26 @@ Cada entrada informa:
 
 ## [Não lançado]
 
+### 2026-11-16 · Botão "Sair" sempre visível
+**Alterado**
+- `(app)/layout.tsx`:
+  - "Sair" virou um botão de verdade, com ícone e largura total, abaixo de "Conectado como <e-mail>".
+  - Se a API falhar, o menu continua aparecendo (o erro é tratado só na página).
+- `globals.css`: no computador, o menu fica fixo na altura da tela (`position: sticky`), então o "Sair" aparece sem rolar a página.
+- `next.config.ts`: o indicador do Next.js, que só aparece em desenvolvimento, passou para o canto inferior direito. No esquerdo ele cobria o "Sair".
+
+**Adicionado**
+- `(app)/error.tsx`: quando a página não carrega (por exemplo, com a API fora do ar), mostra "Não foi possível carregar esta página", diz qual terminal conferir e oferece "Tentar de novo". O menu e o "Sair" continuam disponíveis.
+
+**Por quê:**
+- O "Sair" ficava escondido atrás do indicador do Next.js e, em páginas longas, abaixo da dobra.
+- Nos testes, uma falha da API derrubava a tela inteira, inclusive o "Sair".
+
+**Impacto:** só visual e de robustez. Verificado no Chrome:
+- "Sair" visível depois de rolar até o fim da página;
+- no celular, aparece no topo;
+- sair leva a `/login` e bloqueia as páginas internas, tanto com a API funcionando quanto com ela falhando.
+
 ### 2026-11-16 · Login com e-mail e senha
 **Adicionado**
 - `apps/web/src/app/login/FormEmail.tsx`: abas "Entrar" e "Criar conta" e o modo "Esqueci a senha". Criar conta pede a senha duas vezes (mínimo 8 caracteres) e envia o e-mail de confirmação.
