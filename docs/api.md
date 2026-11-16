@@ -104,7 +104,9 @@ Filtros opcionais na query: `comodoId`, `situacao` (`PESQUISANDO`, `ESCOLHIDO`, 
 ```json
 [{ "id": "uuid", "nome": "Micro-ondas 32L Inox", "comodoId": "uuid", "comodo": "Cozinha",
    "quantidade": 1, "situacao": "COMPRADO", "valorPrevisto": 689.9, "valorPago": 650,
-   "alertaPreco": true, "atualizadoEm": "2026-11-16T12:00:00.000Z" }]
+   "alertaPreco": true, "atualizadoEm": "2026-11-16T12:00:00.000Z",
+   "ofertaEscolhida": { "loja": "Magazine Luiza", "titulo": "Micro-ondas 32L Inox", "preco": 689.9,
+                        "link": "https://...", "consultadoEm": "2026-11-16T16:17:00.000Z" } }]
 ```
 Ordenados pela ordem do cômodo e pela data de criação.
 
@@ -118,8 +120,10 @@ Ordenados pela ordem do cômodo e pela data de criação.
 | `valorPrevisto` | número ≥ 0 ou `null` | não |
 | `valorPago` | número ≥ 0 ou `null` | só quando `COMPRADO` |
 | `alertaPreco` | booleano | não (padrão `true`) |
+| `oferta` | `{ loja, titulo, preco, link, consultadoEm? }` ou `null` | não. A oferta escolhida na busca de preços; `null` (no PATCH) remove |
 
 Regras:
+- Com `oferta`, a API grava a oferta (tabela `ofertas`), liga ao item (`ofertaEscolhida` na resposta) e registra o menor preço do dia em `historico_precos`.
 - `COMPRADO` exige `valorPago` (senão **400**).
 - Fora de `COMPRADO`, o `valorPago` é descartado.
 
@@ -169,9 +173,29 @@ Cancela um convite pendente. **204**.
 ### `DELETE /orcamentos/:id/membros/:usuarioId` (só DONO)
 Remove o acesso de alguém. **204** · **409** ao tentar remover a si mesmo.
 
+## Busca de preços
+
+### `GET /precos?q=<termo>[&atualizar=1]`
+Busca o termo no Google Shopping pelo SerpApi (`engine=google_shopping`, `gl=br`, `hl=pt-br`). Código: `apps/api/src/precos.ts`.
+
+- `q`: de 3 a 120 caracteres. É normalizado (minúsculo, espaços simples) e usado como chave do cache.
+- O resultado fica guardado por **24 h** na tabela `buscas_preco`; nesse prazo a mesma busca não chama o SerpApi. `atualizar=1` força uma busca nova.
+- Só entram ofertas com preço numérico e link, sem repetições (mesma loja, título e preço), ordenadas do menor preço para o maior, no máximo 20.
+
+**200**
+```json
+{ "termo": "micro-ondas 30l inox", "consultadoEm": "2026-11-16T16:17:00.000Z", "emCache": false,
+  "ofertas": [{ "titulo": "Micro-ondas 30L Branco", "loja": "Mercado Livre", "preco": 599,
+                "precoTexto": "R$ 599,00", "entrega": "Entrega amanhã",
+                "link": "https://...", "imagem": "https://..." }] }
+```
+Sem resultados, `ofertas` vem vazio.
+
+**400** termo curto · **503** sem `SERPAPI_KEY` no `.env` · **502** o SerpApi recusou (chave inválida, cota do mês esgotada) ou não respondeu. Em todos os casos a mensagem vem em português.
+
 ## Testes
 
-`apps/api/test/api.test.ts` (13 testes) testa todas as rotas contra um PostgreSQL de teste (nunca o banco real):
+`apps/api/test/api.test.ts` (15 testes, com um SerpApi simulado) testa todas as rotas contra um PostgreSQL de teste (nunca o banco real):
 
 ```bash
 TEST_DATABASE_URL="postgresql://postgres@localhost:5432/planilex_teste" npm test -w @planilex/api

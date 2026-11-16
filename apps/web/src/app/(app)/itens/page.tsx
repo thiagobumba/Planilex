@@ -147,7 +147,14 @@ export default async function Itens({
             )}
             {itens.map((i) => (
               <tr key={i.id}>
-                <td className="forte">{i.nome}</td>
+                <td className="forte">
+                  {i.nome}
+                  {i.ofertaEscolhida && (
+                    <a className="oferta-na-tabela" href={i.ofertaEscolhida.link} target="_blank" rel="noopener noreferrer">
+                      {i.ofertaEscolhida.loja} · {reais(i.ofertaEscolhida.preco)} ↗
+                    </a>
+                  )}
+                </td>
                 <td>{i.comodo}</td>
                 <td>
                   <span className={`etiqueta etiqueta-${i.situacao.toLowerCase()}`}>{NOMES_SITUACAO[i.situacao]}</span>

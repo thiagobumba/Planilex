@@ -11,5 +11,9 @@ export const env = {
   supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
   supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   /** Chave secreta (só no servidor): usada para enviar o e-mail de convite. Opcional. */
+  /** Chave do SerpApi (busca de preços no Google Shopping). Opcional. */
+  serpApiKey: process.env.SERPAPI_KEY?.trim() || undefined,
+  /** Endereço do SerpApi; só muda nos testes. */
+  serpApiUrl: process.env.SERPAPI_URL ?? "https://serpapi.com",
   supabaseSecretKey: process.env.SUPABASE_SECRET_KEY?.trim() || undefined,
 };

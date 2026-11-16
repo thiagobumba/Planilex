@@ -57,6 +57,11 @@
 - **Escolhida pelo dono do projeto** entre três direções (`docs/design/identidade/`).
 - As cores ficam só em variáveis CSS no começo de `globals.css`. As regras não usam cores soltas, o que permite trocar a identidade sem mexer nas telas.
 
+### 2026-11-16 · Busca de preços pelo SerpApi (Google Shopping)
+- **Escolhida pelo dono do projeto** entre SerpApi, Claude com busca na web, API do Mercado Livre e leitura direta dos sites.
+- **Motivo:** cobre várias lojas brasileiras numa chamada, devolve dados estruturados (preço numérico, loja, link) e o plano grátis basta para um orçamento de casamento.
+- A chave (`SERPAPI_KEY`) fica só na API. O site chama `GET /precos` por uma server action e nunca fala direto com o SerpApi.
+
 ## Estrutura do repositório
 
 ```
@@ -81,6 +86,7 @@ planilex/
 │           ├── acesso.ts       # checagem de membro do orçamento
 │           ├── resumo.ts       # cálculo de previsto, pago e disponível
 │           ├── emails.ts       # envio do e-mail do convite pelo Supabase Auth
+│           ├── precos.ts       # busca de preços no SerpApi (Google Shopping) e cache
 │           └── routes/         # saúde, orçamentos, cômodos, itens
 │       └── test/               # testes de ponta a ponta da API
 ├── packages/
@@ -112,6 +118,7 @@ Definido em `packages/db/prisma/schema.prisma`. Tabelas no banco em português e
 | `Item` (`itens`) | cômodo, nome, quantidade, situação (PESQUISANDO / ESCOLHIDO / COMPRADO), valor previsto, valor pago, oferta escolhida, alerta de preço | Valores são o **total** do item (já com a quantidade). `COMPRADO` exige valor pago |
 | `Oferta` (`ofertas`) | item, loja, título, preço, frete, total, link, voltagem, data da consulta | Índice por item + total para ordenar pelo preço final |
 | `HistoricoPreco` (`historico_precos`) | item, data, menor preço | Um registro por item por dia (gráfico de 30 dias) |
+| `BuscaPreco` (`buscas_preco`) | termo (único), resultado (JSON), criado em | Cache de 24 h da busca de preços |
 | `Atividade` (`atividades`) | orçamento, usuário, ação, descrição, dados, desfeita em | Os `dados` guardam o necessário para o "Desfazer" |
 
 Valores em dinheiro usam `DECIMAL(12,2)`, nunca número com vírgula flutuante. Apagar um orçamento apaga tudo que pertence a ele.
@@ -122,17 +129,21 @@ Valores em dinheiro usam `DECIMAL(12,2)`, nunca número com vírgula flutuante. 
 |----------|-----------|
 | `20261116120000_inicial` | Cria todas as tabelas e os tipos `Voltagem`, `Papel` e `SituacaoItem` |
 | `20261116130000_ativa_rls` | Ativa o Row Level Security em todas as tabelas, sem políticas (bloqueia a Data API do Supabase) |
+| `20261116150000_buscas_preco` | Cria a tabela `buscas_preco` (cache da busca de preços), com RLS. Só adiciona |
 | `20261116140000_convites` | Cria a tabela `convites` (com RLS) e a coluna `email` em `membros_orcamento`. Só adiciona |
 
 ## Busca de preços
 
 | Fonte | Observação |
 |-------|------------|
-| API pública do Mercado Livre | Oficial e gratuita |
-| Serviço de busca do Google Shopping (ex.: SerpAPI) | Pago, cobre várias lojas de uma vez |
+| **Google Shopping via SerpApi** (escolhida) | Cobre várias lojas de uma vez; plano grátis com 250 buscas por mês |
+| API do Mercado Livre | Desde 2025 a busca exige token OAuth (responde 403 sem login) e cobre uma loja só |
+| Claude com busca na web | Entende descrições soltas, mas é mais lento, menos confiável para preço e cobrado por busca e por token |
 | Leitura direta dos sites das lojas | Frágil e muitas vezes vai contra os termos de uso; evitar |
 
 Regras:
-- Ordenar pelo **preço final** (produto + frete).
-- Guardar a data e a hora de cada consulta.
-- Filtrar pela voltagem da casa por padrão.
+- A busca roda **só quando o usuário pede** (botão ou Enter), nunca a cada tecla, para não gastar a cota.
+- Cache de 24 h por termo normalizado (tabela `buscas_preco`).
+- Ordenar pelo menor preço. O SerpApi não traz o frete como número, então hoje o total da oferta é igual ao preço.
+- Guardar a data e a hora de cada consulta (a oferta escolhida e o histórico do dia ficam com o item).
+- Pendente: filtrar pela voltagem da casa.

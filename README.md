@@ -104,6 +104,7 @@ Para conferir se a API está falando com o banco, abra http://localhost:3333/hea
 | `DIRECT_URL` | Supabase › **Connect** › Session pooler (porta 5432) | Conexão usada para criar e alterar tabelas |
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase › Project Settings › API › Project URL | Login (Supabase Auth) |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase › Project Settings › API › chave pública (anon/publishable) | Login (Supabase Auth) |
+| `SERPAPI_KEY` | serpapi.com › Dashboard › **Your Private API Key** | Opcional. Só a API usa, para a busca de preços (Google Shopping) |
 | `SUPABASE_SECRET_KEY` | Supabase › Project Settings › API Keys › **Secret keys** | Opcional. Só a API usa, para enviar o e-mail do convite. **Nunca** com `NEXT_PUBLIC_` e nunca compartilhe |
 | `API_PORT` | — | Porta da API (padrão 3333) |
 | `WEB_ORIGIN` | — | Endereço do site que pode chamar a API (padrão http://localhost:3000) |
@@ -204,6 +205,14 @@ A tela de login mostra o que fazer e o "detalhe técnico" (a mensagem original d
 | `PKCE code verifier not found` | Login começou e terminou em lugares diferentes: outro navegador, `127.0.0.1` em vez de `localhost`, ou link do e-mail aberto em outro aparelho |
 | `expired` | Link do e-mail expirado ou já usado: peça outro (no convite, use "Reenviar e-mail") |
 
+## Busca de preços
+
+No formulário de item, digite o produto e clique em **Buscar preços**, ou aperte Enter no campo. A API consulta o **Google Shopping pelo SerpApi**, no Brasil, e mostra até 20 ofertas da mais barata para a mais cara, com loja, preço, entrega e link. **Usar este preço** preenche o valor previsto (preço × quantidade) e guarda a oferta no item. A loja e o link aparecem na lista de itens.
+
+- **Configurar:** crie uma conta grátis em serpapi.com, que dá 250 buscas por mês, copie a *Private API Key* para `SERPAPI_KEY` no `.env` e reinicie a API.
+- **Cota:** cada termo é guardado por **24 horas** (tabela `buscas_preco`). Repetir a mesma busca nesse prazo não gasta cota. "Atualizar preços" força uma busca nova.
+- **Limites:** os preços são os do Google Shopping no momento da consulta, e o frete pode não estar incluído. O link pode levar à página do produto no Google em vez da loja.
+
 ## Documentação e histórico
 
 - Todas as alterações ficam registradas em [`CHANGELOG.md`](CHANGELOG.md).
@@ -216,6 +225,7 @@ A tela de login mostra o que fazer e o "detalhe técnico" (a mensagem original d
 3. [x] Login (Google e e-mail/senha) e cadastro de orçamento, cômodos e itens
    - [x] Compartilhar o orçamento por convite (Configurações › Pessoas com acesso)
    - [ ] "Desfazer" depois de excluir ou alterar
-4. [ ] Busca de preços
+4. [x] Busca de preços (SerpApi / Google Shopping)
+   - [ ] Filtro pela voltagem da casa e histórico de preço no item
 5. [ ] Alertas de preço e histórico
 6. [ ] Deploy

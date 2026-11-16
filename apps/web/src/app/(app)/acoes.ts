@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { api, ErroApi } from "@/lib/api";
 import { lerValor } from "@/lib/formato";
-import type { EstadoAcao, ResultadoEmailConvite } from "@/lib/tipos";
+import type { EstadoAcao, ResultadoBusca, ResultadoEmailConvite } from "@/lib/tipos";
 
 /** Executa a chamada; erro da API vira mensagem no formulário. Redirecionamentos passam adiante. */
 async function tentar(fn: () => Promise<unknown>, ok: string, caminhos: string[] = ["/", "/itens", "/comodos"]): Promise<EstadoAcao> {
@@ -74,8 +74,21 @@ export async function excluirComodo(_: EstadoAcao, f: FormData): Promise<EstadoA
 
 // ---------- Itens ----------
 
+/** Campo oculto "oferta": vazio = não mexe; "null" = remove; JSON = oferta escolhida. */
+function lerOferta(f: FormData) {
+  const bruto = texto(f, "oferta");
+  if (!bruto) return undefined;
+  if (bruto === "null") return null;
+  try {
+    return JSON.parse(bruto) as unknown;
+  } catch {
+    return undefined;
+  }
+}
+
 function dadosItem(f: FormData) {
   return {
+    oferta: lerOferta(f),
     nome: texto(f, "nome"),
     comodoId: texto(f, "comodoId"),
     quantidade: Number(texto(f, "quantidade") || 1),
@@ -156,4 +169,18 @@ export async function removerPessoa(_: EstadoAcao, f: FormData): Promise<EstadoA
     `${texto(f, "email") || "A pessoa"} não tem mais acesso.`,
     ["/configuracoes"],
   );
+}
+
+// ---------- Busca de preços ----------
+
+/** Chamada pelo botão "Buscar preços" do formulário de item. */
+export async function buscarPrecos(termo: string, atualizar = false): Promise<{ erro?: string; resultado?: ResultadoBusca }> {
+  try {
+    const q = new URLSearchParams({ q: termo });
+    if (atualizar) q.set("atualizar", "1");
+    return { resultado: await api<ResultadoBusca>(`/precos?${q}`) };
+  } catch (e) {
+    if (e instanceof ErroApi) return { erro: e.message };
+    throw e;
+  }
 }

@@ -3,6 +3,7 @@
 // O banco precisa estar com as migrações aplicadas. NUNCA aponte para o banco real.
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
+import http from "node:http";
 import { after, before, describe, test } from "node:test";
 
 const url = process.env.TEST_DATABASE_URL;
@@ -11,6 +12,28 @@ if (!url) {
   process.exit(0);
 }
 process.env.DATABASE_URL = url;
+
+// SerpApi simulado: conta as chamadas e responde conforme o termo.
+let chamadasSerpApi = 0;
+const serpApi = http.createServer((req, res) => {
+  chamadasSerpApi++;
+  const q = new URL(req.url ?? "", "http://x").searchParams.get("q") ?? "";
+  res.setHeader("content-type", "application/json");
+  if (q.includes("chave errada")) return res.end(JSON.stringify({ error: "Invalid API key. Your API key should be here: https://serpapi.com/manage-api-key" }));
+  if (q.includes("nada")) return res.end(JSON.stringify({ error: "Google Shopping hasn't returned any results for this query." }));
+  res.end(
+    JSON.stringify({
+      shopping_results: [
+        { title: "Micro-ondas 32L Inox", source: "Casas Bahia", price: "R$ 719,00", extracted_price: 719, product_link: "https://www.google.com/shopping/product/1", thumbnail: "https://img/1" },
+        { title: "Micro-ondas 32L Inox", source: "Magazine Luiza", price: "R$ 689,90", extracted_price: 689.9, link: "https://loja/2", delivery: "Frete grátis" },
+        { title: "Sem preço", source: "Loja X", product_link: "https://x" },
+      ],
+    }),
+  );
+});
+await new Promise<void>((ok) => serpApi.listen(0, ok));
+process.env.SERPAPI_URL = `http://127.0.0.1:${(serpApi.address() as { port: number }).port}`;
+process.env.SERPAPI_KEY = "chave-de-teste";
 
 const { criarApp } = await import("../src/app.js");
 const { definirVerificadorDeToken } = await import("../src/plugins/autenticacao.js");
@@ -46,8 +69,10 @@ describe("API do Planilex", () => {
 
   after(async () => {
     await db().orcamento.deleteMany({ where: { membros: { some: { usuarioId: { in: [ana, beto, carla] } } } } });
+    await db().buscaPreco.deleteMany({ where: { termo: { startsWith: "teste-planilex " } } });
     await db().$disconnect();
     await app.close();
+    serpApi.close();
   });
 
   test("sem token responde 401", async () => {
@@ -212,6 +237,58 @@ describe("API do Planilex", () => {
     assert.equal((await chamar(ana, "DELETE", `/orcamentos/${orcamentoId}/membros/${carla}`)).statusCode, 204);
     assert.equal((await chamar(carla, "GET", `/orcamentos/${orcamentoId}`)).statusCode, 404);
     assert.equal((await chamar(carla, "GET", "/orcamentos")).json().length, 0);
+  });
+
+  test("busca de preços: validação, ordem, cache e erros", async () => {
+    assert.equal((await chamar(null, "GET", "/precos?q=micro-ondas")).statusCode, 401);
+    assert.equal((await chamar(ana, "GET", "/precos?q=ab")).statusCode, 400);
+
+    const termo = `teste-planilex micro-ondas ${randomUUID().slice(0, 8)}`;
+    const antes = chamadasSerpApi;
+    const r1 = (await chamar(ana, "GET", `/precos?q=${encodeURIComponent("  " + termo.toUpperCase() + " ")}`)).json();
+    assert.equal(r1.emCache, false);
+    assert.equal(r1.termo, termo);
+    assert.deepEqual(r1.ofertas.map((o: { preco: number }) => o.preco), [689.9, 719]); // sem a oferta sem preço, mais barata primeiro
+    assert.equal(r1.ofertas[0].link, "https://loja/2");
+    assert.equal(r1.ofertas[1].link, "https://www.google.com/shopping/product/1");
+
+    const r2 = (await chamar(beto, "GET", `/precos?q=${encodeURIComponent(termo)}`)).json();
+    assert.equal(r2.emCache, true);
+    assert.equal(chamadasSerpApi, antes + 1, "a segunda busca deve vir do cache");
+
+    const r3 = (await chamar(ana, "GET", `/precos?q=${encodeURIComponent(termo)}&atualizar=1`)).json();
+    assert.equal(r3.emCache, false);
+    assert.equal(chamadasSerpApi, antes + 2);
+
+    const erro = await chamar(ana, "GET", `/precos?q=${encodeURIComponent("teste-planilex chave errada")}`);
+    assert.equal(erro.statusCode, 502);
+    assert.match(erro.json().erro, /SERPAPI_KEY/);
+
+    const vazio = (await chamar(ana, "GET", `/precos?q=${encodeURIComponent("teste-planilex nada")}`)).json();
+    assert.deepEqual(vazio.ofertas, []);
+  });
+
+  test("item guarda a oferta escolhida", async () => {
+    const r = await chamar(ana, "POST", "/itens", {
+      nome: "Micro-ondas com oferta",
+      comodoId: cozinhaId,
+      situacao: "ESCOLHIDO",
+      valorPrevisto: 689.9,
+      oferta: { loja: "Magazine Luiza", titulo: "Micro-ondas 32L Inox", preco: 689.9, link: "https://loja/2" },
+    });
+    assert.equal(r.statusCode, 201, r.body);
+    assert.equal(r.json().ofertaEscolhida.loja, "Magazine Luiza");
+    assert.equal(r.json().ofertaEscolhida.preco, 689.9);
+    const id = r.json().id;
+    assert.equal(await db().historicoPreco.count({ where: { itemId: id } }), 1);
+
+    const lista = (await chamar(ana, "GET", `/orcamentos/${orcamentoId}/itens?busca=com oferta`)).json();
+    assert.equal(lista[0].ofertaEscolhida.link, "https://loja/2");
+
+    const sem = (await chamar(ana, "PATCH", `/itens/${id}`, { oferta: null })).json();
+    assert.equal(sem.ofertaEscolhida, null);
+    assert.equal((await chamar(ana, "POST", "/itens", { nome: "x", comodoId: cozinhaId, oferta: { loja: "a", titulo: "b", preco: 1, link: "não é link" } })).statusCode, 400);
+    await chamar(ana, "DELETE", `/itens/${id}`);
   });
 
   test("excluir item", async () => {

@@ -140,6 +140,17 @@ model Oferta {
   @@map("ofertas")
 }
 
+/// Cache das buscas de preço (SerpApi / Google Shopping) para não gastar a cota repetindo a mesma busca.
+model BuscaPreco {
+  id        String   @id @default(uuid()) @db.Uuid
+  /// Termo normalizado (minúsculo, espaços simples).
+  termo     String   @unique
+  resultado Json
+  criadoEm  DateTime @default(now()) @map("criado_em")
+
+  @@map("buscas_preco")
+}
+
 /// Menor preço encontrado por dia, para o gráfico de 30 dias.
 model HistoricoPreco {
   id         String   @id @default(uuid()) @db.Uuid

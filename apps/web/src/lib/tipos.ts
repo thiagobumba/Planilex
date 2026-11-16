@@ -53,6 +53,34 @@ export interface Item {
   valorPago: number | null;
   alertaPreco: boolean;
   atualizadoEm: string;
+  ofertaEscolhida: OfertaEscolhida | null;
+}
+
+/** Oferta encontrada na busca de preços (Google Shopping via SerpApi). */
+export interface OfertaEncontrada {
+  titulo: string;
+  loja: string;
+  preco: number;
+  precoTexto: string;
+  entrega: string | null;
+  link: string;
+  imagem: string | null;
+}
+
+export interface ResultadoBusca {
+  termo: string;
+  consultadoEm: string;
+  emCache: boolean;
+  ofertas: OfertaEncontrada[];
+}
+
+/** Oferta ligada a um item (o "melhor preço" escolhido). */
+export interface OfertaEscolhida {
+  loja: string;
+  titulo: string;
+  preco: number | null;
+  link: string;
+  consultadoEm: string;
 }
 
 export interface Pessoas {

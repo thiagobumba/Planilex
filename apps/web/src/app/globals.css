@@ -986,3 +986,126 @@ select:focus {
   font-size: 36px;
   letter-spacing: -0.02em;
 }
+
+/* ---------- Busca de preços ---------- */
+.linha-busca {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.linha-busca input {
+  flex: 1 1 320px;
+}
+.aviso-info {
+  background: var(--cor-azul-suave);
+  color: var(--cor-azul);
+}
+.resultado-busca {
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio);
+  padding: 14px 16px;
+  background: var(--cor-superficie-2);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 14px;
+}
+.lista-ofertas {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.lista-ofertas li {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) auto auto;
+  gap: 14px;
+  align-items: center;
+  padding: 10px 12px;
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-p);
+}
+.lista-ofertas li.melhor {
+  border-color: var(--cor-primaria);
+}
+.lista-ofertas img,
+.sem-imagem {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: var(--cor-fundo);
+}
+.oferta-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  align-items: flex-start;
+}
+.oferta-titulo {
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+.oferta-preco {
+  font-family: var(--fonte-titulo), sans-serif;
+  font-size: 18px;
+  white-space: nowrap;
+}
+.oferta-acoes {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  text-align: center;
+  font-size: 13px;
+}
+.oferta-acoes .botao {
+  min-height: 38px;
+  padding: 0 12px;
+  font-size: 14px;
+}
+.oferta-escolhida {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 12px 14px;
+  border-radius: var(--raio-p);
+  background: var(--cor-primaria-suave);
+  color: var(--cor-primaria-escura);
+  font-size: 14px;
+}
+.oferta-escolhida > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+}
+.acoes-oferta {
+  display: inline-flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+@media (max-width: 700px) {
+  .lista-ofertas li {
+    grid-template-columns: 56px minmax(0, 1fr);
+  }
+  .oferta-preco,
+  .oferta-acoes {
+    grid-column: 2;
+  }
+}
+.oferta-na-tabela {
+  display: block;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--cor-texto-suave);
+}

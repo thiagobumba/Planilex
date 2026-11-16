@@ -12,6 +12,38 @@ Cada entrada informa:
 
 ## [Não lançado]
 
+### 2026-11-16 · Busca de preços (Google Shopping via SerpApi)
+**Adicionado**
+- Migração `20261116150000_buscas_preco`, que só adiciona: tabela `buscas_preco` (cache de 24 h por termo), com RLS.
+- API:
+  - `apps/api/src/precos.ts` e `GET /precos?q=...[&atualizar=1]`: consulta o SerpApi (`google_shopping`, Brasil), filtra as ofertas sem preço e as repetidas, ordena da mais barata para a mais cara (até 20) e guarda o resultado por 24 h. Os erros comuns viram mensagens em português.
+  - `POST /itens` e `PATCH /itens/:id` aceitam `oferta`: gravam a oferta, ligam ao item e registram o menor preço do dia no histórico. A listagem de itens devolve `ofertaEscolhida`.
+- Site:
+  - no formulário de item, o botão **Buscar preços** (ou Enter no nome) mostra a lista de ofertas com loja, preço, entrega e link;
+  - **Usar este preço** preenche o valor previsto (preço × quantidade) e mostra a oferta escolhida, com "Remover oferta" e "Ver outras ofertas";
+  - "Atualizar preços" força uma busca nova;
+  - a lista de itens mostra a loja, o preço e o link da oferta escolhida.
+- Variável opcional `SERPAPI_KEY` (e `SERPAPI_URL`, só para testes).
+- 2 testes novos da API (15 no total), com um SerpApi simulado.
+
+**Alterado**
+- `docs/arquitetura.md`:
+  - decisão pelo SerpApi;
+  - a tabela de fontes foi corrigida: a busca do Mercado Livre exige login OAuth desde 2025, e não é mais "oficial e gratuita";
+  - regras da busca, modelo de dados e migração.
+- `docs/api.md`: `GET /precos` e o campo `oferta` dos itens.
+- `README.md`: seção "Busca de preços", variável na tabela e roadmap (etapa 4 concluída, com uma pendência).
+- `docs/ux-8-regras.md` atualizado.
+
+**Por quê:** pedido do dono do projeto, que escolheu o SerpApi entre as opções apresentadas.
+
+**Impacto:**
+- Aplicar a migração: o modo automático aplica sozinho; manualmente, `npm run db:deploy`.
+- Para a busca funcionar, é preciso criar uma conta grátis no SerpApi e colocar a `SERPAPI_KEY` no `.env`. Sem ela, o botão avisa que a busca não está configurada.
+- Verificado:
+  - 15 testes da API;
+  - no Chrome, com o SerpApi simulado: busca com Enter, ofertas ordenadas, "Usar este preço" com quantidade 2 (R$ 1.379,80), item salvo com a oferta e a segunda busca vinda do cache.
+
 ### 2026-11-16 · Identidade B também dentro do app
 **Alterado**
 - Menu lateral:
