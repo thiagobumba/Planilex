@@ -1,0 +1,152 @@
+// Modelo de dados do Planilex.
+// Documentação: docs/arquitetura.md › Modelo de dados
+
+generator client {
+  provider               = "prisma-client"
+  output                 = "../src/generated/prisma"
+  moduleFormat           = "esm"
+  importFileExtension    = "js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Voltagem {
+  V127
+  V220
+  BIVOLT
+}
+
+enum Papel {
+  DONO
+  EDITOR
+}
+
+enum SituacaoItem {
+  PESQUISANDO
+  ESCOLHIDO
+  COMPRADO
+}
+
+/// Orçamento do casamento e da casa. Pode ser compartilhado entre várias pessoas.
+model Orcamento {
+  id                 String    @id @default(uuid()) @db.Uuid
+  nome               String
+  valorTotal         Decimal   @map("valor_total") @db.Decimal(12, 2)
+  reservaImprevistos Decimal   @default(0) @map("reserva_imprevistos") @db.Decimal(12, 2)
+  dataCasamento      DateTime? @map("data_casamento") @db.Date
+  voltagemCasa       Voltagem  @default(V220) @map("voltagem_casa")
+  cep                String?
+  criadoEm           DateTime  @default(now()) @map("criado_em")
+  atualizadoEm       DateTime  @updatedAt @map("atualizado_em")
+
+  membros    MembroOrcamento[]
+  comodos    Comodo[]
+  atividades Atividade[]
+
+  @@map("orcamentos")
+}
+
+/// Quem pode acessar o orçamento. `usuarioId` é o id do usuário no Supabase Auth.
+model MembroOrcamento {
+  orcamentoId String   @map("orcamento_id") @db.Uuid
+  usuarioId   String   @map("usuario_id") @db.Uuid
+  papel       Papel    @default(EDITOR)
+  criadoEm    DateTime @default(now()) @map("criado_em")
+
+  orcamento Orcamento @relation(fields: [orcamentoId], references: [id], onDelete: Cascade)
+
+  @@id([orcamentoId, usuarioId])
+  @@index([usuarioId])
+  @@map("membros_orcamento")
+}
+
+/// Cômodo ou categoria (Cozinha, Sala, Materiais e obra...), com limite de gasto.
+model Comodo {
+  id          String   @id @default(uuid()) @db.Uuid
+  orcamentoId String   @map("orcamento_id") @db.Uuid
+  nome        String
+  limite      Decimal  @default(0) @db.Decimal(12, 2)
+  ordem       Int      @default(0)
+  criadoEm    DateTime @default(now()) @map("criado_em")
+
+  orcamento Orcamento @relation(fields: [orcamentoId], references: [id], onDelete: Cascade)
+  itens     Item[]
+
+  @@unique([orcamentoId, nome])
+  @@map("comodos")
+}
+
+/// Produto ou material a comprar.
+model Item {
+  id                String       @id @default(uuid()) @db.Uuid
+  comodoId          String       @map("comodo_id") @db.Uuid
+  nome              String
+  quantidade        Int          @default(1)
+  situacao          SituacaoItem @default(PESQUISANDO)
+  valorPrevisto     Decimal?     @map("valor_previsto") @db.Decimal(12, 2)
+  valorPago         Decimal?     @map("valor_pago") @db.Decimal(12, 2)
+  ofertaEscolhidaId String?      @unique @map("oferta_escolhida_id") @db.Uuid
+  alertaPreco       Boolean      @default(true) @map("alerta_preco")
+  criadoEm          DateTime     @default(now()) @map("criado_em")
+  atualizadoEm      DateTime     @updatedAt @map("atualizado_em")
+
+  comodo          Comodo           @relation(fields: [comodoId], references: [id], onDelete: Cascade)
+  ofertas         Oferta[]         @relation("OfertasDoItem")
+  ofertaEscolhida Oferta?          @relation("OfertaEscolhida", fields: [ofertaEscolhidaId], references: [id], onDelete: SetNull)
+  historicoPrecos HistoricoPreco[]
+
+  @@index([comodoId])
+  @@map("itens")
+}
+
+/// Oferta encontrada em uma loja, com a data da consulta.
+model Oferta {
+  id           String   @id @default(uuid()) @db.Uuid
+  itemId       String   @map("item_id") @db.Uuid
+  loja         String
+  titulo       String
+  preco        Decimal  @db.Decimal(12, 2)
+  frete        Decimal  @default(0) @db.Decimal(12, 2)
+  total        Decimal  @db.Decimal(12, 2)
+  url          String
+  voltagem     Voltagem?
+  consultadoEm DateTime @default(now()) @map("consultado_em")
+
+  item        Item  @relation("OfertasDoItem", fields: [itemId], references: [id], onDelete: Cascade)
+  escolhidaEm Item? @relation("OfertaEscolhida")
+
+  @@index([itemId, total])
+  @@map("ofertas")
+}
+
+/// Menor preço encontrado por dia, para o gráfico de 30 dias.
+model HistoricoPreco {
+  id         String   @id @default(uuid()) @db.Uuid
+  itemId     String   @map("item_id") @db.Uuid
+  data       DateTime @db.Date
+  menorPreco Decimal  @map("menor_preco") @db.Decimal(12, 2)
+
+  item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@unique([itemId, data])
+  @@map("historico_precos")
+}
+
+/// Registro de ações. Guarda o necessário para o "Desfazer".
+model Atividade {
+  id          String    @id @default(uuid()) @db.Uuid
+  orcamentoId String    @map("orcamento_id") @db.Uuid
+  usuarioId   String    @map("usuario_id") @db.Uuid
+  acao        String
+  descricao   String
+  dados       Json?
+  criadoEm    DateTime  @default(now()) @map("criado_em")
+  desfeitaEm  DateTime? @map("desfeita_em")
+
+  orcamento Orcamento @relation(fields: [orcamentoId], references: [id], onDelete: Cascade)
+
+  @@index([orcamentoId, criadoEm])
+  @@map("atividades")
+}

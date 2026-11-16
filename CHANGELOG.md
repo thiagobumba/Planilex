@@ -12,6 +12,27 @@ Cada entrada informa:
 
 ## [Não lançado]
 
+### 2026-11-16 · Estrutura do projeto: site, API e banco
+**Adicionado**
+- `package.json` na raiz com npm workspaces e os comandos `dev:web`, `dev:api`, `build`, `typecheck` e `db:*`.
+- `apps/web`: site em Next.js 16 com TypeScript; página inicial provisória; `globals.css` com as cores e fontes dos modelos de telas.
+- `apps/api`: API em Fastify 5 com TypeScript, CORS liberado para o site e as rotas `GET /health` e `GET /health/banco`.
+- `packages/db`: pacote `@planilex/db` com Prisma 7, `schema.prisma` com o modelo de dados completo (orçamentos, membros, cômodos, itens, ofertas, histórico de preços, atividades) e a função `criarPrisma()`.
+- Migração `20261116120000_inicial`, que cria todas as tabelas.
+- `.env.example` com todas as variáveis e onde encontrá-las no Supabase.
+- `.gitignore` (dependências, builds, `.env`, cliente gerado do Prisma), `.nvmrc` (Node 22) e `tsconfig.base.json`.
+- `docs/api.md`: documentação das rotas da API.
+
+**Alterado**
+- `README.md`: instruções para rodar o projeto, tabela de variáveis de ambiente e de comandos; roadmap com a etapa 2 concluída.
+- `docs/arquitetura.md`: estrutura real das pastas, modelo de dados detalhado, tabela de migrações e a decisão sobre monorepo e Prisma 7.
+
+**Por quê:** etapa 2 do roadmap, preparar a base do código enquanto o projeto no Supabase é criado.
+
+**Impacto:**
+- Quem for rodar o projeto precisa criar o `.env` a partir do `.env.example` e executar `npm install` e `npm run db:deploy`.
+- Verificado: instalação, geração do cliente Prisma, build da API, do banco e do site sem erros; `/health` responde `ok` e `/health/banco` responde 503 enquanto o `.env` não estiver preenchido.
+
 ### 2026-11-16 · Decisão: banco no Supabase
 **Alterado**
 - `docs/arquitetura.md`: hospedagem do banco definida como Supabase (PostgreSQL + Auth); nova seção "Decisões" com as alternativas consideradas e os cuidados.

@@ -1,0 +1,36 @@
+/* Tokens visuais dos modelos de telas (docs/design). */
+:root {
+  --cor-fundo: #f6f5f1;
+  --cor-superficie: #ffffff;
+  --cor-texto: #1d1c1a;
+  --cor-texto-suave: #5e5b55;
+  --cor-borda: #e3e0d8;
+  --cor-primaria: #2e5e4e;
+  --cor-primaria-escura: #1f4a3c;
+  --cor-primaria-suave: #e6efea;
+  --cor-alerta: #9a3d0e;
+  --cor-alerta-suave: #fbede2;
+  --cor-atencao: #c98a2e;
+  --raio: 14px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+  font-family: var(--fonte-texto), system-ui, sans-serif;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--fonte-titulo), var(--fonte-texto), sans-serif;
+}
+
+a {
+  color: var(--cor-primaria-escura);
+}
