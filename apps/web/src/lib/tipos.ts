@@ -1,7 +1,7 @@
 /** Formatos devolvidos pela API (ver docs/api.md). */
 
 export type Voltagem = "V127" | "V220" | "BIVOLT";
-export type Situacao = "PESQUISANDO" | "ESCOLHIDO" | "COMPRADO";
+export type Situacao = "PESQUISANDO" | "CADASTRADO" | "ESCOLHIDO" | "COMPRADO";
 
 export interface Orcamento {
   id: string;

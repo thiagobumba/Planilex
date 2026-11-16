@@ -25,6 +25,7 @@ enum Papel {
 
 enum SituacaoItem {
   PESQUISANDO
+  CADASTRADO
   ESCOLHIDO
   COMPRADO
 }

@@ -72,6 +72,8 @@ export function CamposItem({
     setOferta({ loja: o.loja, titulo: o.titulo, preco: o.preco, link: o.link, consultadoEm: busca?.consultadoEm ?? new Date().toISOString() });
     setOfertaMudou(true);
     setListaAberta(false);
+    // Preço vindo da busca: o item deixa de estar "Pesquisando".
+    if (situacao === "PESQUISANDO") setSituacao("CADASTRADO");
   }
 
   function remover() {
@@ -274,6 +276,7 @@ export function CamposItem({
         Situação
         <select name="situacao" value={situacao} onChange={(e) => setSituacao(e.target.value as Situacao)}>
           <option value="PESQUISANDO">Pesquisando</option>
+          <option value="CADASTRADO">Cadastrado, preço da busca</option>
           <option value="ESCOLHIDO">Escolhido, ainda vou comprar</option>
           <option value="COMPRADO">Comprado</option>
         </select>

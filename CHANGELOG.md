@@ -12,6 +12,18 @@ Cada entrada informa:
 
 ## [Não lançado]
 
+### 2026-11-16 · Situação "Cadastrado" para itens com preço da busca
+**Adicionado**
+- Nova situação de item **Cadastrado**, entre "Pesquisando" e "Escolhido", com etiqueta amarela na lista de itens e opção no filtro.
+- Migração `20261116160000_situacao_cadastrado`: `ALTER TYPE "SituacaoItem" ADD VALUE 'CADASTRADO'`. Só adiciona um valor ao enum, sem apagar nem alterar dados.
+
+**Alterado**
+- Ao clicar em "Usar este preço" na busca, a situação do item muda sozinha de "Pesquisando" para "Cadastrado". Se o item já estiver "Escolhido" ou "Comprado", a situação não muda. Dá para trocar a situação à mão antes de salvar.
+
+**Por quê:** pedido do dono, para distinguir o item que já tem preço vindo da busca do item que ainda está sendo pesquisado.
+
+**Impacto:** os itens existentes continuam com a situação que tinham. A soma do previsto não muda: "Cadastrado" conta o valor previsto, como "Pesquisando" e "Escolhido". O modo automático aplica a migração sozinho; quem usa os scripts manuais precisa rodar `npm run db:deploy`, o que o `iniciar-api.cmd` já faz.
+
 ### 2026-11-16 · Paginação na busca de preços
 **Alterado**
 - A lista de ofertas mostra 10 por página, com "Anterior", "Próxima", os números das páginas e o resumo "11–20 de 25". Uma busca nova volta para a página 1, e trocar de página leva a tela para o topo da lista.

@@ -11,7 +11,7 @@ import { criarItem } from "../acoes";
 
 export const metadata: Metadata = { title: "Itens · Planilex" };
 
-const SITUACOES: Situacao[] = ["PESQUISANDO", "ESCOLHIDO", "COMPRADO"];
+const SITUACOES: Situacao[] = ["PESQUISANDO", "CADASTRADO", "ESCOLHIDO", "COMPRADO"];
 
 export default async function Itens({
   searchParams,

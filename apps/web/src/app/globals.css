@@ -574,6 +574,10 @@ select:focus {
   background: var(--cor-trilho);
   color: var(--cor-texto-2);
 }
+.etiqueta-cadastrado {
+  background: var(--cor-atencao-suave);
+  color: var(--cor-atencao-texto);
+}
 .etiqueta-escolhido {
   background: var(--cor-azul-suave);
   color: var(--cor-azul);

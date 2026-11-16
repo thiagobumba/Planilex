@@ -10,6 +10,7 @@ export const reaisInteiros = (v: number) => moedaInteira.format(v);
 
 export const NOMES_SITUACAO: Record<Situacao, string> = {
   PESQUISANDO: "Pesquisando",
+  CADASTRADO: "Cadastrado",
   ESCOLHIDO: "Escolhido",
   COMPRADO: "Comprado",
 };

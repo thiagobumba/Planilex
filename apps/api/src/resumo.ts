@@ -3,7 +3,7 @@ import { centavos, num } from "./formatos.js";
 type Decimal = { toString(): string };
 
 interface ItemBase {
-  situacao: "PESQUISANDO" | "ESCOLHIDO" | "COMPRADO";
+  situacao: "PESQUISANDO" | "CADASTRADO" | "ESCOLHIDO" | "COMPRADO";
   valorPrevisto: Decimal | null;
   valorPago: Decimal | null;
 }

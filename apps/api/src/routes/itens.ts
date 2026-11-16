@@ -6,7 +6,7 @@ import { ErroHttp } from "../erros.js";
 import { num } from "../formatos.js";
 import { exigirLogin } from "../plugins/autenticacao.js";
 
-const situacao = z.enum(["PESQUISANDO", "ESCOLHIDO", "COMPRADO"]);
+const situacao = z.enum(["PESQUISANDO", "CADASTRADO", "ESCOLHIDO", "COMPRADO"]);
 const dinheiro = z.coerce.number().min(0, "O valor não pode ser negativo.").max(9_999_999_999.99);
 
 const ofertaEscolhida = z.object({

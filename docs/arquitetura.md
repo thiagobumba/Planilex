@@ -116,7 +116,7 @@ Definido em `packages/db/prisma/schema.prisma`. Tabelas no banco em português e
 | `MembroOrcamento` (`membros_orcamento`) | orçamento, usuário, e-mail, papel (DONO / EDITOR) | `usuario_id` é o id do usuário no Supabase Auth; o e-mail é guardado para mostrar quem tem acesso |
 | `Convite` (`convites`) | orçamento, e-mail (minúsculo), quem convidou | Um por e-mail por orçamento; apagado quando vira acesso |
 | `Comodo` (`comodos`) | orçamento, nome, limite, ordem | Nome único por orçamento |
-| `Item` (`itens`) | cômodo, nome, quantidade, situação (PESQUISANDO / ESCOLHIDO / COMPRADO), valor previsto, valor pago, oferta escolhida, alerta de preço | Valores são o **total** do item (já com a quantidade). `COMPRADO` exige valor pago |
+| `Item` (`itens`) | cômodo, nome, quantidade, situação (PESQUISANDO / CADASTRADO / ESCOLHIDO / COMPRADO), valor previsto, valor pago, oferta escolhida, alerta de preço | Valores são o **total** do item (já com a quantidade). `COMPRADO` exige valor pago |
 | `Oferta` (`ofertas`) | item, loja, título, preço, frete, total, link, voltagem, data da consulta | Índice por item + total para ordenar pelo preço final |
 | `HistoricoPreco` (`historico_precos`) | item, data, menor preço | Um registro por item por dia (gráfico de 30 dias) |
 | `BuscaPreco` (`buscas_preco`) | termo (único), resultado (JSON), criado em | Cache de 24 h da busca de preços |
@@ -131,6 +131,7 @@ Valores em dinheiro usam `DECIMAL(12,2)`, nunca número com vírgula flutuante. 
 | `20261116120000_inicial` | Cria todas as tabelas e os tipos `Voltagem`, `Papel` e `SituacaoItem` |
 | `20261116130000_ativa_rls` | Ativa o Row Level Security em todas as tabelas, sem políticas (bloqueia a Data API do Supabase) |
 | `20261116150000_buscas_preco` | Cria a tabela `buscas_preco` (cache da busca de preços), com RLS. Só adiciona |
+| `20261116160000_situacao_cadastrado` | Adiciona `CADASTRADO` ao enum `SituacaoItem`. Só adiciona |
 | `20261116140000_convites` | Cria a tabela `convites` (com RLS) e a coluna `email` em `membros_orcamento`. Só adiciona |
 
 ## Busca de preços

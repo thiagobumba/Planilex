@@ -100,7 +100,7 @@ Altera `nome`, `limite` e/ou `ordem`. **200** com o cômodo · **409** nome repe
 ## Itens
 
 ### `GET /orcamentos/:orcamentoId/itens`
-Filtros opcionais na query: `comodoId`, `situacao` (`PESQUISANDO`, `ESCOLHIDO`, `COMPRADO`), `busca` (parte do nome, sem diferenciar maiúsculas).
+Filtros opcionais na query: `comodoId`, `situacao` (`PESQUISANDO`, `CADASTRADO`, `ESCOLHIDO`, `COMPRADO`), `busca` (parte do nome, sem diferenciar maiúsculas).
 ```json
 [{ "id": "uuid", "nome": "Micro-ondas 32L Inox", "comodoId": "uuid", "comodo": "Cozinha",
    "quantidade": 1, "situacao": "COMPRADO", "valorPrevisto": 689.9, "valorPago": 650,
@@ -116,7 +116,7 @@ Ordenados pela ordem do cômodo e pela data de criação.
 | `nome` | texto (1–160) | sim |
 | `comodoId` | uuid | sim |
 | `quantidade` | inteiro ≥ 1 | não (padrão 1) |
-| `situacao` | `PESQUISANDO`, `ESCOLHIDO`, `COMPRADO` | não (padrão `PESQUISANDO`) |
+| `situacao` | `PESQUISANDO`, `CADASTRADO`, `ESCOLHIDO`, `COMPRADO` | não (padrão `PESQUISANDO`; o site envia `CADASTRADO` quando o preço veio da busca) |
 | `valorPrevisto` | número ≥ 0 ou `null` | não |
 | `valorPago` | número ≥ 0 ou `null` | só quando `COMPRADO` |
 | `alertaPreco` | booleano | não (padrão `true`) |
