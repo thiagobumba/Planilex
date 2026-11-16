@@ -12,6 +12,25 @@ Cada entrada informa:
 
 ## [Não lançado]
 
+### 2026-11-16 · Scripts para Windows
+**Adicionado**
+- `iniciar-api.cmd`:
+  - confere se `npm` e `.env` existem;
+  - instala as dependências se faltarem;
+  - roda `npm run dev:api` em modo silencioso.
+- `atualizar-e-iniciar-site.cmd`:
+  - descarta a alteração automática do `package-lock.json`;
+  - roda `git pull`, `npm install` e `npm run dev:web`, todos em modo silencioso;
+  - para com uma mensagem clara em qualquer erro.
+- `.gitattributes`: os arquivos `.cmd` usam fim de linha CRLF, que o Prompt do Windows exige.
+- `README.md`: seção "Atalhos no Windows".
+
+**Por quê:** pedido do dono do projeto, para atualizar e subir o app sem digitar os comandos a cada vez.
+
+**Impacto:**
+- Nenhum no código do app.
+- Os textos dos scripts estão sem acento, de propósito: o Prompt do Windows nem sempre mostra acentos corretamente.
+
 ### 2026-11-16 · Botão "Sair" sempre visível
 **Alterado**
 - `(app)/layout.tsx`:

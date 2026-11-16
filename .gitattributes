@@ -1,0 +1,2 @@
+# Scripts do Windows precisam de fim de linha CRLF para funcionar no Prompt.
+*.cmd text eol=crlf

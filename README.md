@@ -52,6 +52,23 @@ npm run dev:web
 >
 > **`git pull` reclamando do `package-lock.json`:** acontece quando a sua versão do npm reescreve esse arquivo. Descarte a mudança local com `git checkout -- package-lock.json`, rode `git pull` e depois `npm install`.
 
+### Atalhos no Windows
+
+Na pasta do projeto há dois scripts. Dá para abrir com dois cliques ou digitando o nome no Prompt de Comando. Cada um abre a sua própria janela, que precisa ficar aberta enquanto você usa o app.
+
+| Script | O que faz |
+|--------|-----------|
+| `iniciar-api.cmd` | Confere se o `npm` e o `.env` existem, instala as dependências se faltarem e sobe a API (`npm run dev:api`) em http://localhost:3333 |
+| `atualizar-e-iniciar-site.cmd` | Descarta a alteração automática do `package-lock.json`, faz `git pull`, `npm install` e sobe o site (`npm run dev:web`) em http://localhost:3000 |
+
+Os dois rodam em modo silencioso: mostram só as etapas, os erros e a saída da API ou do site. Se algo falhar, a janela fica aberta com a mensagem.
+
+Ordem recomendada:
+1. `atualizar-e-iniciar-site.cmd`, que atualiza o projeto e sobe o site.
+2. `iniciar-api.cmd`, em outra janela.
+
+Depois de uma atualização, feche a janela da API e abra de novo para ela pegar as mudanças.
+
 Para conferir se a API está falando com o banco, abra http://localhost:3333/health/banco: deve aparecer `{"status":"ok"}`.
 
 ### Variáveis de ambiente (`.env`)
