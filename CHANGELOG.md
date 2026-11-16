@@ -12,6 +12,19 @@ Cada entrada informa:
 
 ## [Não lançado]
 
+### 2026-11-16 · Propostas de identidade visual e correção do botão do Google
+**Adicionado**
+- `docs/design/identidade/`: três direções de identidade para a tela inicial e o app (A · Papelaria, B · Casa Nova, C · Livro-caixa noturno, inspirada no APIcanvas). Cada uma tem a tela de login e um quadro com logo, paleta, tipografia e componentes. Também estão no canvas de design, na página "Identidade visual". Nenhuma foi aplicada ao app ainda.
+
+**Corrigido**
+- `login/BotaoGoogle.tsx`: o botão ficava travado em "Abrindo o Google…" ao voltar da página do Google pelo botão "voltar" do navegador. Agora o evento `pageshow` destrava o botão.
+
+**Por quê:**
+- Pedido do dono do projeto: melhorar a tela inicial e repensar a identidade visual.
+- O travamento do botão apareceu num print da tela de login.
+
+**Impacto:** só a correção do botão muda o app. As propostas aguardam a escolha.
+
 ### 2026-11-16 · E-mail do convite
 **Adicionado**
 - `apps/api/src/emails.ts`: envia o e-mail do convite pelo Supabase Auth. Quem não tem conta recebe "Invite user"; quem já tem recebe "Magic link". Os erros comuns viram mensagens em português (SMTP padrão só para a equipe, limite por hora, chave inválida).

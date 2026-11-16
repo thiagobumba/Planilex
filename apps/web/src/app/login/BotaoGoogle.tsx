@@ -1,11 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { criarClienteNavegador } from "@/lib/supabase/navegador";
 
 export function BotaoGoogle() {
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
+
+  // Ao voltar do Google pelo botão "voltar", o navegador restaura a página como estava
+  // (com "Abrindo o Google…"). O evento pageshow destrava o botão.
+  useEffect(() => {
+    const destravar = (e: PageTransitionEvent) => {
+      if (e.persisted) setCarregando(false);
+    };
+    window.addEventListener("pageshow", destravar);
+    return () => window.removeEventListener("pageshow", destravar);
+  }, []);
 
   async function entrar() {
     setCarregando(true);

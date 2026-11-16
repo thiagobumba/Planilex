@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Livro-caixa noturno — tela inicial</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#FFC14D}a:hover{color:#FFD27A}
+</style>
+</helmet>
+<div style="width: 1280px; height: 800px; box-sizing: border-box; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); background: #0B0D11; font-family: Inter, sans-serif; color: #E7EBF3">
+<section style="position: relative; padding: 56px 64px; display: flex; flex-direction: column; justify-content: space-between; background-color: #0B0D11; background-image: radial-gradient(rgba(255,255,255,0.055) 1px, transparent 1px); background-size: 20px 20px; border-right: 1px solid #1E2430">
+<div style="display: flex; align-items: center; gap: 10px">
+<svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><rect x="1" y="1" width="28" height="28" rx="7" fill="#131720" stroke="#2B3342"></rect><path d="M8 10h14M8 15h9M8 20h11" stroke="#E7EBF3" stroke-width="1.8" stroke-linecap="round"></path><circle cx="22" cy="20" r="2.5" fill="#FFB224"></circle></svg>
+<span style="font-weight: 700; font-size: 20px; letter-spacing: -0.01em">planilex</span>
+<span style="margin-left: 6px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #8C96AB; border: 1px solid #2B3342; border-radius: 6px; padding: 2px 6px">casamento</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 18px; max-width: 560px">
+<h1 style="margin: 0; font-weight: 700; font-size: 46px; line-height: 1.08; letter-spacing: -0.025em">Seu orçamento,<br>como um livro-caixa.</h1>
+<p style="margin: 0; font-size: 16px; line-height: 1.6; color: #A3ADC0">Cada cômodo é uma conta. Cada item, um lançamento. Previsto, pago e disponível sempre à vista.</p>
+</div>
+<div style="width: 560px; background: #131720; border: 1px solid #1E2430; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.4), 0 4px 16px rgba(0,0,0,0.28)">
+<div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #171C27; border-bottom: 1px solid #1E2430; font-size: 13px"><span style="font-weight: 600">Cozinha</span><span style="font-family: 'IBM Plex Mono', monospace; color: #8C96AB">14.200,00 / 15.000,00</span></div>
+<div style="display: grid; grid-template-columns: auto 1fr auto; column-gap: 12px; row-gap: 0; font-size: 13px">
+<span style="padding: 10px 0 10px 16px"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; color: #3DD68C; background: rgba(61,214,140,0.14); padding: 2px 6px; border-radius: 4px">PAGO</span></span><span style="padding: 10px 0">Fogão 5 bocas</span><span style="padding: 10px 16px 10px 0; font-family: 'IBM Plex Mono', monospace">1.980,00</span>
+<span style="padding: 10px 0 10px 16px; border-top: 1px solid #1E2430"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; color: #52A9FF; background: rgba(82,169,255,0.14); padding: 2px 6px; border-radius: 4px">PREV</span></span><span style="padding: 10px 0; border-top: 1px solid #1E2430">Geladeira frost free</span><span style="padding: 10px 16px 10px 0; border-top: 1px solid #1E2430; font-family: 'IBM Plex Mono', monospace">4.200,00</span>
+<span style="padding: 10px 0 10px 16px; border-top: 1px solid #1E2430; background: rgba(255,178,36,0.07)"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; color: #52A9FF; background: rgba(82,169,255,0.14); padding: 2px 6px; border-radius: 4px">PREV</span></span><span style="padding: 10px 0; border-top: 1px solid #1E2430; background: rgba(255,178,36,0.07); box-shadow: inset 0 0 0 0 #FFB224">Micro-ondas 32L inox</span><span style="padding: 10px 16px 10px 0; border-top: 1px solid #1E2430; background: rgba(255,178,36,0.07); font-family: 'IBM Plex Mono', monospace">689,90</span>
+</div>
+<div style="display: flex; justify-content: space-between; padding: 10px 16px; border-top: 1px solid #1E2430; font-size: 12px; color: #8C96AB"><span>3 de 12 lançamentos</span><span><kbd style="font-family: 'IBM Plex Mono', monospace; border: 1px solid #2B3342; border-radius: 4px; padding: 0 5px">⌘K</kbd> buscar item</span></div>
+</div>
+</section>
+<section style="display: flex; align-items: center; justify-content: center; padding: 48px; background: #0F1218">
+<div style="width: 380px; display: flex; flex-direction: column; gap: 16px">
+<h2 style="margin: 0; font-weight: 700; font-size: 26px; letter-spacing: -0.02em">Entrar</h2>
+<p style="margin: 0 0 6px; font-size: 14px; color: #8C96AB">Use a conta convidada para o orçamento.</p>
+<button type="button" style="height: 46px; display: flex; align-items: center; justify-content: center; gap: 10px; border: 1px solid #2B3342; background: #161B24; border-radius: 8px; font: inherit; font-weight: 600; font-size: 14px; color: #E7EBF3">
+<svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"></path><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"></path><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"></path><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 38.2 44 33 44 24c0-1.3-.1-2.4-.4-3.5z"></path></svg>
+Continuar com Google</button>
+<div style="display: flex; align-items: center; gap: 12px; font-size: 12px; color: #8C96AB"><span style="flex: 1; height: 1px; background: #1E2430"></span>ou<span style="flex: 1; height: 1px; background: #1E2430"></span></div>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 500; color: #C9D0DD">E-mail<input type="email" placeholder="voce@exemplo.com" style="height: 44px; border: 1px solid #2B3342; border-radius: 8px; padding: 0 12px; font: inherit; font-weight: 400; background: #161B24; color: #E7EBF3"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 500; color: #C9D0DD">Senha<input type="password" style="height: 44px; border: 2px solid #FFB224; border-radius: 8px; padding: 0 11px; font: inherit; background: #161B24; color: #E7EBF3; box-shadow: 0 0 0 4px rgba(255,178,36,0.13)"></label>
+<button type="button" style="height: 46px; border: 0; border-radius: 8px; background: #FFB224; color: #1C1303; font: inherit; font-weight: 700; font-size: 14px">Entrar</button>
+<div style="display: flex; justify-content: space-between; font-size: 13px"><a href="#">Esqueci a senha</a><a href="#">Criar conta</a></div>
+</div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
