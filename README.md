@@ -48,6 +48,10 @@ npm run dev:api
 npm run dev:web
 ```
 
+> **Scripts de instalação (npm 11 e 12):** o `package.json` tem o campo `allowScripts`, que autoriza só os pacotes que precisam rodar script ao instalar: `prisma`, `@prisma/engines` (baixam os motores do Prisma) e `esbuild` (usado pelo `tsx` para rodar a API). Se um pacote novo precisar de script, revise antes de incluir com `npm install-scripts approve <pacote>`.
+>
+> **`git pull` reclamando do `package-lock.json`:** acontece quando a sua versão do npm reescreve esse arquivo. Descarte a mudança local com `git checkout -- package-lock.json`, rode `git pull` e depois `npm install`.
+
 Para conferir se a API está falando com o banco, abra http://localhost:3333/health/banco: deve aparecer `{"status":"ok"}`.
 
 ### Variáveis de ambiente (`.env`)
