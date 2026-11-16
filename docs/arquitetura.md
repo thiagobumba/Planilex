@@ -28,6 +28,12 @@
 - **Duas conexões com o Supabase:** `DATABASE_URL` (transaction pooler, porta 6543) para a API e `DIRECT_URL` (session pooler, porta 5432) para as migrações, como recomendam as documentações do Prisma e do Supabase.
 - **Um único `.env` na raiz:** API, site e Prisma leem o mesmo arquivo.
 
+### 2026-11-16 · Dados acessados só pela nossa API (RLS ativo, sem políticas)
+- **Contexto:** o Supabase expõe automaticamente as tabelas do schema `public` pela Data API (REST/GraphQL), usando a chave pública (`anon`), que fica visível no navegador. As tabelas apareciam como **UNRESTRICTED** no painel.
+- **Decisão:** ativar o Row Level Security em todas as tabelas **sem nenhuma política**. Assim a Data API não lê nem altera nada; todo acesso aos dados passa pela API do Planilex (Fastify + Prisma), que conecta com o usuário `postgres`, dono das tabelas, e por isso não é afetada pelo RLS.
+- **Regra:** toda tabela nova precisa de `ALTER TABLE ... ENABLE ROW LEVEL SECURITY` na mesma migração que a cria.
+- **Login:** o site usa a chave pública só para o Supabase Auth; a API valida o token do usuário e decide o que ele pode ver.
+
 ## Estrutura do repositório
 
 ```
@@ -74,6 +80,7 @@ Valores em dinheiro usam `DECIMAL(12,2)`, nunca número com vírgula flutuante. 
 | Migração | O que faz |
 |----------|-----------|
 | `20261116120000_inicial` | Cria todas as tabelas e os tipos `Voltagem`, `Papel` e `SituacaoItem` |
+| `20261116130000_ativa_rls` | Ativa o Row Level Security em todas as tabelas, sem políticas (bloqueia a Data API do Supabase) |
 
 ## Busca de preços
 

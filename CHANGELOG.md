@@ -12,6 +12,19 @@ Cada entrada informa:
 
 ## [Não lançado]
 
+### 2026-11-16 · Segurança: tabelas protegidas da Data API do Supabase
+**Adicionado**
+- Migração `20261116130000_ativa_rls`: ativa o Row Level Security, sem políticas, em todas as tabelas (`orcamentos`, `membros_orcamento`, `comodos`, `itens`, `ofertas`, `historico_precos`, `atividades` e `_prisma_migrations`).
+- `CLAUDE.md`: nova seção "Banco de dados", com a regra de ativar o RLS em toda tabela nova.
+- `docs/arquitetura.md`: decisão "Dados acessados só pela nossa API" e a migração na tabela de migrações.
+
+**Por quê:** depois do primeiro `db:deploy`, o painel do Supabase marcou todas as tabelas como **UNRESTRICTED**. Isso quer dizer que qualquer pessoa com a chave pública (que fica visível no navegador) poderia ler e alterar os dados pela Data API do Supabase.
+
+**Impacto:**
+- É preciso rodar `npm run db:deploy` para aplicar a migração.
+- A API do Planilex continua funcionando, porque conecta como `postgres`, que não é afetado pelo RLS.
+- A Data API do Supabase deixa de devolver ou alterar dados dessas tabelas.
+
 ### 2026-11-16 · API não subia: pacote do banco não era compilado
 **Corrigido**
 - `npm run dev:api` falhava com `ERR_MODULE_NOT_FOUND ... @planilex/db/dist/index.js`, porque a API importa a versão compilada do pacote do banco e nada a gerava antes.

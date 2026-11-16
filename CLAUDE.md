@@ -15,6 +15,11 @@ Toda alteração no repositório, por menor que seja, vem acompanhada de documen
 
 Uma alteração sem documentação não está concluída.
 
+## Banco de dados
+
+- Toda tabela nova precisa ter o RLS ativado (`ALTER TABLE "<tabela>" ENABLE ROW LEVEL SECURITY;`) na mesma migração que a cria. Sem isso, a tabela fica exposta pela Data API do Supabase. Motivo em `docs/arquitetura.md` › Decisões.
+- O acesso aos dados é sempre pela API do Planilex (Prisma), nunca direto do navegador pela Data API.
+
 ## Git
 
 - Toda alteração vai com commit e push para o GitHub, mantendo o repositório sincronizado.
