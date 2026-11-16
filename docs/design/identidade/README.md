@@ -22,4 +22,8 @@ Os três mantêm as regras de `docs/ux-8-regras.md` (aviso com "Desfazer", atalh
 | `--cor-alerta-forte` | `#E8704F` (Coral) | Barra de cômodo acima do limite |
 | `--cor-alerta` | `#B04A2E` | Textos de alerta (contraste AA) |
 
+Dentro do app:
+- **Menu lateral** em verde-floresta com textura de pontos, igual à vitrine da tela inicial. O logo aparece em menta (`<Logo sobreVerde />`), o item ativo em menta e o saldo num bloco translúcido.
+- **Cartões** brancos com raio de 20 px e sombra suave.
+
 Fontes: Space Grotesk (títulos e valores) e Inter (texto). Raios: 12 px em botões e campos, 16 px em cartões, 20 px na vitrine.

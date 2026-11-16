@@ -17,7 +17,7 @@ export default async function LayoutApp({ children }: { children: React.ReactNod
   return (
     <div className="app">
       <nav aria-label="Menu principal" className="menu">
-        <Logo />
+        <Logo sobreVerde />
         <Menu />
         <div className="menu-rodape">
           {orcamento && (

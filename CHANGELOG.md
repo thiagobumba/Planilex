@@ -12,6 +12,21 @@ Cada entrada informa:
 
 ## [Não lançado]
 
+### 2026-11-16 · Identidade B também dentro do app
+**Alterado**
+- Menu lateral:
+  - painel verde-floresta com textura de pontos, como a vitrine da tela inicial;
+  - logo em menta (`Logo` ganhou a opção `sobreVerde`), item ativo em menta;
+  - saldo num bloco translúcido e "Sair" com contorno claro.
+  - No celular, o menu vira uma faixa verde no topo.
+- Cartões e tabela: raio de 20 px e sombra suave; barras de progresso com pontas arredondadas.
+- Títulos das páginas um pouco maiores (36 px), no mesmo peso da tela inicial.
+- `docs/design/identidade/README.md`: como a identidade B aparece dentro do app.
+
+**Por quê:** o dono do projeto achou que, depois da tela inicial, o app ainda não tinha a identidade B.
+
+**Impacto:** só visual. Verificado no Chrome: painel, itens e configurações no computador, e painel no celular.
+
 ### 2026-11-16 · Identidade visual B · Casa Nova aplicada
 **Alterado**
 - `globals.css`:
