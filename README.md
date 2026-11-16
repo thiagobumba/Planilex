@@ -29,6 +29,11 @@ Detalhes em [`docs/arquitetura.md`](docs/arquitetura.md).
 - **Banco:** PostgreSQL + Prisma (Supabase ou Neon)
 - **Busca de preços:** APIs (Mercado Livre, serviço de Google Shopping) antes de qualquer leitura direta de sites
 
+## Documentação e histórico
+
+- Todas as alterações ficam registradas em [`CHANGELOG.md`](CHANGELOG.md).
+- As regras do projeto (documentação obrigatória, git, idioma) estão em [`CLAUDE.md`](CLAUDE.md).
+
 ## Roadmap
 
 1. [x] Modelos de telas
