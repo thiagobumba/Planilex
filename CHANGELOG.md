@@ -12,6 +12,15 @@ Cada entrada informa:
 
 ## [Não lançado]
 
+### 2026-11-16 · Paginação na busca de preços
+**Alterado**
+- A lista de ofertas mostra 10 por página, com "Anterior", "Próxima", os números das páginas e o resumo "11–20 de 25". Uma busca nova volta para a página 1, e trocar de página leva a tela para o topo da lista.
+- A API devolve até 60 ofertas por busca, antes eram 20. O Google Shopping já entrega esse volume numa única consulta, então mais páginas não gastam mais cota do SerpApi.
+
+**Por quê:** pedido do dono, para ver mais ofertas sem uma lista longa demais.
+
+**Impacto:** buscas guardadas nas últimas 24 h continuam com até 20 ofertas até expirarem ou até usar "Atualizar preços". Não há migração.
+
 ### 2026-11-16 · Conferência da chave do SerpApi e ajuste no script do site
 **Adicionado**
 - Comando `npm run precos:testar` (`apps/api/scripts/testar-serpapi.mjs`). Ele pergunta ao SerpApi, pela Account API, se a `SERPAPI_KEY` é aceita, sem gastar busca da cota, e mostra o plano e as buscas restantes. Também aponta erros comuns ao colar a chave: aspas, espaços, versão mascarada (•) e tamanho diferente de 64 caracteres. A chave nunca é impressa inteira.

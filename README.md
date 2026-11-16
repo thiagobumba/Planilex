@@ -208,7 +208,7 @@ A tela de login mostra o que fazer e o "detalhe técnico" (a mensagem original d
 
 ## Busca de preços
 
-No formulário de item, digite o produto e clique em **Buscar preços**, ou aperte Enter no campo. A API consulta o **Google Shopping pelo SerpApi**, no Brasil, e mostra até 20 ofertas da mais barata para a mais cara, com loja, preço, entrega e link. **Usar este preço** preenche o valor previsto (preço × quantidade) e guarda a oferta no item. A loja e o link aparecem na lista de itens.
+No formulário de item, digite o produto e clique em **Buscar preços**, ou aperte Enter no campo. A API consulta o **Google Shopping pelo SerpApi**, no Brasil, e mostra até 60 ofertas da mais barata para a mais cara, 10 por página, com loja, preço, entrega e link. Trocar de página não gasta busca: as ofertas já vieram na mesma consulta. **Usar este preço** preenche o valor previsto (preço × quantidade) e guarda a oferta no item. A loja e o link aparecem na lista de itens.
 
 - **Configurar:** crie uma conta grátis em serpapi.com, que dá 250 buscas por mês, copie a *Private API Key* para `SERPAPI_KEY` no `.env` e reinicie a API.
 - **Conferir a chave:** `npm run precos:testar` pergunta ao SerpApi se a chave é aceita, sem gastar busca, e mostra quantas buscas restam. A chave não aparece inteira na tela. Se o site disser que a chave foi recusada: copie de novo em serpapi.com › *Api Key* (clique no olho antes de copiar, para não levar a versão mascarada), sem aspas nem espaços, e feche e abra a API, que só lê o `.env` ao iniciar.

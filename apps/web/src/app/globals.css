@@ -1089,6 +1089,44 @@ select:focus {
   align-items: baseline;
   gap: 4px 12px;
 }
+.paginacao {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 12px;
+  margin-top: 12px;
+}
+.paginacao .botao:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+.paginas {
+  display: inline-flex;
+  gap: 4px;
+}
+.pagina {
+  min-width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--cor-borda-forte);
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.pagina:hover {
+  border-color: var(--cor-primaria-media);
+}
+.pagina.atual {
+  background: var(--cor-primaria);
+  border-color: var(--cor-primaria);
+  color: #fff;
+}
+.paginacao-resumo {
+  font-size: 13px;
+}
 .acoes-oferta {
   display: inline-flex;
   gap: 14px;

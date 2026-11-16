@@ -180,7 +180,7 @@ Busca o termo no Google Shopping pelo SerpApi (`engine=google_shopping`, `gl=br`
 
 - `q`: de 3 a 120 caracteres. É normalizado (minúsculo, espaços simples) e usado como chave do cache.
 - O resultado fica guardado por **24 h** na tabela `buscas_preco`; nesse prazo a mesma busca não chama o SerpApi. `atualizar=1` força uma busca nova.
-- Só entram ofertas com preço numérico e link, sem repetições (mesma loja, título e preço), ordenadas do menor preço para o maior, no máximo 20.
+- Só entram ofertas com preço numérico e link, sem repetições (mesma loja, título e preço), ordenadas do menor preço para o maior, no máximo 60. O site mostra 10 por página.
 
 **200**
 ```json

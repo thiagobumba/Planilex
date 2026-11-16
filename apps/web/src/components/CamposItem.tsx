@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { buscarPrecos } from "@/app/(app)/acoes";
 import { lerValor, reais } from "@/lib/formato";
 import type { Item, OfertaEncontrada, OfertaEscolhida, ResultadoBusca, ResumoComodo, Situacao } from "@/lib/tipos";
@@ -18,6 +18,9 @@ const hora = (iso: string) => {
  * - "Usar este preço" preenche o valor previsto (preço × quantidade) e guarda a oferta no item.
  * - O "valor pago" só aparece quando a situação é "Comprado" (regra 5: prevenção de erros).
  */
+/** Ofertas mostradas por página na lista da busca de preços. */
+const POR_PAGINA = 10;
+
 export function CamposItem({
   comodos,
   item,
@@ -39,6 +42,8 @@ export function CamposItem({
   const [busca, setBusca] = useState<ResultadoBusca | null>(null);
   const [erroBusca, setErroBusca] = useState<string | null>(null);
   const [listaAberta, setListaAberta] = useState(false);
+  const [pagina, setPagina] = useState(1);
+  const topoLista = useRef<HTMLElement>(null);
   const [buscando, iniciar] = useTransition();
 
   function pesquisar(atualizar = false) {
@@ -55,6 +60,7 @@ export function CamposItem({
         setBusca(null);
       } else if (r.resultado) {
         setBusca(r.resultado);
+        setPagina(1);
         setListaAberta(true);
       }
     });
@@ -72,6 +78,16 @@ export function CamposItem({
     setOferta(null);
     setOfertaMudou(true);
   }
+
+  function irPara(p: number) {
+    setPagina(p);
+    topoLista.current?.scrollIntoView({ block: "start", behavior: "smooth" });
+  }
+
+  const totalPaginas = busca ? Math.max(1, Math.ceil(busca.ofertas.length / POR_PAGINA)) : 1;
+  const paginaAtual = Math.min(pagina, totalPaginas);
+  const inicio = (paginaAtual - 1) * POR_PAGINA;
+  const ofertasDaPagina = busca ? busca.ofertas.slice(inicio, inicio + POR_PAGINA) : [];
 
   const valorOferta = ofertaMudou ? (oferta ? JSON.stringify(oferta) : "null") : "";
   const previstoNumero = lerValor(valorPrevisto);
@@ -146,7 +162,7 @@ export function CamposItem({
       )}
 
       {busca && listaAberta && (
-        <section className="resultado-busca campo-largo" aria-label="Ofertas encontradas">
+        <section ref={topoLista} className="resultado-busca campo-largo" aria-label="Ofertas encontradas">
           <div className="linha-entre">
             <span className="suave">
               {busca.ofertas.length} {busca.ofertas.length === 1 ? "oferta" : "ofertas"} para “{busca.termo}” · consultado {hora(busca.consultadoEm)}
@@ -165,7 +181,9 @@ export function CamposItem({
             <p className="suave">Nenhuma oferta encontrada. Tente uma descrição mais simples (ex.: “micro-ondas 30 litros”).</p>
           ) : (
             <ul className="lista-ofertas">
-              {busca.ofertas.map((o, i) => (
+              {ofertasDaPagina.map((o, j) => {
+                const i = inicio + j;
+                return (
                 <li key={`${o.loja}-${o.preco}-${i}`} className={i === 0 ? "melhor" : undefined}>
                   {o.imagem ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -191,8 +209,36 @@ export function CamposItem({
                     </a>
                   </div>
                 </li>
-              ))}
+                );
+              })}
             </ul>
+          )}
+          {totalPaginas > 1 && (
+            <nav className="paginacao" aria-label="Páginas de ofertas">
+              <button type="button" className="botao botao-secundario" onClick={() => irPara(paginaAtual - 1)} disabled={paginaAtual === 1}>
+                ← Anterior
+              </button>
+              <span className="paginas">
+                {Array.from({ length: totalPaginas }, (_, k) => k + 1).map((p) => (
+                  <button
+                    key={p}
+                    type="button"
+                    className={p === paginaAtual ? "pagina atual" : "pagina"}
+                    aria-current={p === paginaAtual ? "page" : undefined}
+                    aria-label={`Página ${p}`}
+                    onClick={() => irPara(p)}
+                  >
+                    {p}
+                  </button>
+                ))}
+              </span>
+              <span className="suave paginacao-resumo">
+                {inicio + 1}–{inicio + ofertasDaPagina.length} de {busca.ofertas.length}
+              </span>
+              <button type="button" className="botao botao-secundario" onClick={() => irPara(paginaAtual + 1)} disabled={paginaAtual === totalPaginas}>
+                Próxima →
+              </button>
+            </nav>
           )}
           <p className="dica">Preços do Google Shopping no momento da consulta; o frete pode não estar incluído.</p>
         </section>

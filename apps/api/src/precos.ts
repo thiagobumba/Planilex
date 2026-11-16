@@ -22,7 +22,7 @@ export interface ResultadoBusca {
 
 /** Por quanto tempo uma busca guardada é reaproveitada. */
 export const VALIDADE_CACHE_MS = 24 * 60 * 60 * 1000;
-const MAX_OFERTAS = 20;
+const MAX_OFERTAS = 60;
 
 /** "  Ar  Condicionado 9000 BTU " → "ar condicionado 9000 btu" */
 export const normalizarTermo = (t: string) => t.trim().replace(/\s+/g, " ").toLowerCase();
