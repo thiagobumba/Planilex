@@ -12,6 +12,21 @@ Cada entrada informa:
 
 ## [Não lançado]
 
+### 2026-11-16 · Site não lia o `.env` da raiz
+**Corrigido**
+- A tela de login mostrava "O login ainda não está configurado" mesmo com o `.env` preenchido. O `@next/env` guarda em memória a primeira leitura de variáveis (a de `apps/web`, onde não há `.env`) e ignorava a segunda chamada, feita no `next.config.ts` para a raiz.
+- `apps/web/next.config.ts`: recarrega com `forceReload` e repassa as variáveis `NEXT_PUBLIC_*` no campo `env`.
+
+**Adicionado**
+- `apps/web/AGENTS.md`: arquivo que o `next dev` cria e recria sozinho, com o aviso de que o Next 16 mudou APIs. Foi versionado para não aparecer como alteração pendente.
+
+**Alterado**
+- `docs/arquitetura.md`: explicação de como o site carrega o `.env` da raiz.
+
+**Por quê:** erro encontrado no primeiro teste real no Windows. Nos testes anteriores as variáveis tinham sido passadas direto no terminal, o que escondia o problema.
+
+**Impacto:** basta `git pull` e reiniciar o `npm run dev:web`. Verificado com um `.env` real na raiz, tanto em `next build` + `next start` quanto em `next dev`.
+
 ### 2026-11-16 · Login com Google e cadastro de orçamento, cômodos e itens
 **Adicionado: API** (`apps/api`)
 - Autenticação: toda rota (menos `/health*`) exige o token do Supabase em `Authorization: Bearer`, validado com `getClaims()` (`plugins/autenticacao.ts`).

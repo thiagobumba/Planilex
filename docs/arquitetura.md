@@ -26,7 +26,7 @@
 - **Motivo:** projeto pequeno; o npm já resolve o compartilhamento do pacote do banco entre a API e o site.
 - **Prisma 7:** a URL do banco fica em `packages/db/prisma.config.ts` (não mais no `schema.prisma`) e o cliente conecta pelo driver `pg` (`@prisma/adapter-pg`). A versão 8 ainda está em teste (release candidate), por isso ficamos na 7.
 - **Duas conexões com o Supabase:** `DATABASE_URL` (transaction pooler, porta 6543) para a API e `DIRECT_URL` (session pooler, porta 5432) para as migrações, como recomendam as documentações do Prisma e do Supabase.
-- **Um único `.env` na raiz:** API, site e Prisma leem o mesmo arquivo.
+- **Um único `.env` na raiz:** API, site e Prisma leem o mesmo arquivo. No site, o `next.config.ts` recarrega as variáveis da raiz com `loadEnvConfig(raiz, dev, undefined, true)`. Sem o `true` (forceReload), o Next reaproveita a leitura que já fez em `apps/web` e ignora a raiz. As variáveis `NEXT_PUBLIC_*` também vão no campo `env` da configuração, para chegarem ao código do navegador.
 
 ### 2026-11-16 · Dados acessados só pela nossa API (RLS ativo, sem políticas)
 - **Contexto:** o Supabase expõe automaticamente as tabelas do schema `public` pela Data API (REST/GraphQL), usando a chave pública (`anon`), que fica visível no navegador. As tabelas apareciam como **UNRESTRICTED** no painel.
