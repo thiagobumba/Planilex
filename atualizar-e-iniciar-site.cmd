@@ -50,6 +50,7 @@ echo [3/3] Iniciando o site em http://localhost:3000
 echo       (a API precisa estar rodando: iniciar-api.cmd)
 echo       (para parar: Ctrl+C)
 echo.
+call npm run db:deploy
 call npm run dev:web --silent
 if errorlevel 1 (
   echo.
