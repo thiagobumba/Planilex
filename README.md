@@ -97,9 +97,13 @@ Se o `npm run db:deploy` mostrar `P1001: Can't reach database server`, rode `npm
 | `endereço inválido` | Colchetes ou caracteres especiais (`@ # / ? $`) na senha | Tire os colchetes; use uma senha só com letras e números |
 | `timeout` ou `ECONNREFUSED` | Rede, firewall ou VPN bloqueando a porta | Teste no PowerShell: `Test-NetConnection <host> -Port 5432` |
 
-## Login com Google
+## Login
 
-O login é feito pelo Supabase Auth com o provedor Google. Configuração (uma vez só):
+Duas formas de entrar, ambas pelo Supabase Auth: **conta Google** e **e-mail e senha** (com confirmação por e-mail e "Esqueci a senha"). Se a mesma pessoa usar as duas com o mesmo e-mail, o Supabase junta as duas formas na mesma conta.
+
+### Login com Google
+
+Configuração (uma vez só):
 
 1. **Google Cloud** (console.cloud.google.com) › projeto **Planilex** › **Google Auth Platform**:
    - Tela de consentimento: público **Externo**; em **Público-alvo**, adicione como **usuários de teste** os e-mails que vão usar o app.
@@ -108,18 +112,29 @@ O login é feito pelo Supabase Auth com o provedor Google. Configuração (uma v
      - URIs de redirecionamento autorizados: `https://<ID-DO-PROJETO>.supabase.co/auth/v1/callback`
 2. **Supabase** › **Authentication**:
    - **Sign In / Providers › Google**: ative e cole o ID do cliente e a chave secreta. A chave secreta fica **só** no Supabase.
-   - **URL Configuration**: Site URL `http://localhost:3000`; em Redirect URLs, adicione `http://localhost:3000/auth/callback`.
+   - **URL Configuration**: Site URL `http://localhost:3000`; em Redirect URLs, adicione `http://localhost:3000/auth/**` (cobre o retorno do Google, a confirmação de e-mail e o link de nova senha).
 3. **`.env`**: preencha `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY`. A API usa os mesmos valores para validar o token.
 
 Enquanto o app estiver em modo de teste no Google, só os e-mails da lista de usuários de teste conseguem entrar.
 
-**Se o login falhar**, a tela de login mostra o que fazer e o "detalhe técnico" (a mensagem original do Supabase/Google). O motivo também aparece no terminal do `npm run dev:web`, numa linha `[login] falhou: ...`.
+### Login com e-mail e senha
+
+1. **Supabase › Authentication › Sign In / Providers › Email**: deixe **ativado**, com **Confirm email** ligado (recomendado).
+2. A Redirect URL `http://localhost:3000/auth/**` (passo 2 acima) precisa estar cadastrada. Sem ela, os links do e-mail caem na página inicial sem fazer login.
+3. O serviço de e-mail que já vem no Supabase envia **poucos e-mails por hora** e serve só para testes. Para uso diário, configure um SMTP próprio em **Authentication › Emails › SMTP Settings**.
+
+Os links de confirmação e de nova senha precisam ser abertos **no mesmo navegador** em que a conta foi criada ou a senha foi pedida.
+
+### Se o login falhar
+
+A tela de login mostra o que fazer e o "detalhe técnico" (a mensagem original do Supabase/Google). O motivo também aparece no terminal do `npm run dev:web`, numa linha `[login] falhou: ...`.
 
 | Detalhe técnico contém | O que fazer |
 |------------------------|-------------|
 | `Unable to exchange external code` | ID do cliente ou chave secreta do Google errados no Supabase |
 | `access_denied` | E-mail fora da lista de usuários de teste no Google Cloud |
-| `PKCE code verifier not found` | Login começou e terminou em endereços diferentes (use sempre `http://localhost:3000`) |
+| `PKCE code verifier not found` | Login começou e terminou em lugares diferentes: outro navegador, `127.0.0.1` em vez de `localhost`, ou link do e-mail aberto em outro aparelho |
+| `expired` | Link do e-mail expirado ou já usado: peça outro |
 
 ## Documentação e histórico
 
@@ -130,7 +145,7 @@ Enquanto o app estiver em modo de teste no Google, só os e-mails da lista de us
 
 1. [x] Modelos de telas
 2. [x] Estrutura do monorepo (web + api + banco)
-3. [x] Login (Google) e cadastro de orçamento, cômodos e itens
+3. [x] Login (Google e e-mail/senha) e cadastro de orçamento, cômodos e itens
    - [ ] Convidar outra pessoa para o orçamento
    - [ ] "Desfazer" depois de excluir ou alterar
 4. [ ] Busca de preços

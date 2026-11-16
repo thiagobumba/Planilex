@@ -12,6 +12,27 @@ Cada entrada informa:
 
 ## [Não lançado]
 
+### 2026-11-16 · Login com e-mail e senha
+**Adicionado**
+- `apps/web/src/app/login/FormEmail.tsx`: abas "Entrar" e "Criar conta" e o modo "Esqueci a senha". Criar conta pede a senha duas vezes (mínimo 8 caracteres) e envia o e-mail de confirmação.
+- `apps/web/src/app/auth/nova-senha/`: página aberta pelo link de "Esqueci a senha", para criar a nova senha. Depois de salvar, o painel mostra "Senha alterada".
+- `login/erros.ts`: mensagens em português para senha errada, e-mail não confirmado, senha fraca, excesso de tentativas, link expirado e provedor desativado.
+- Estilos do formulário de e-mail em `globals.css`.
+
+**Alterado**
+- `auth/callback/route.ts`: aceita `?proxima=` para onde ir depois do login, só com caminhos internos.
+- `login/page.tsx`: botão do Google, divisor "ou com e-mail" e o formulário.
+- `README.md`: seção "Login" com a configuração do provedor Email e da Redirect URL `http://localhost:3000/auth/**`, aviso sobre o limite de e-mails do Supabase e novas linhas na tabela de diagnóstico.
+- `docs/arquitetura.md` e `docs/ux-8-regras.md` atualizados.
+
+**Por quê:** pedido do dono do projeto, como alternativa ao Google.
+
+**Impacto:**
+- No Supabase, trocar a Redirect URL `http://localhost:3000/auth/callback` por `http://localhost:3000/auth/**` (ou adicionar a nova). O link de nova senha usa `?proxima=`.
+- O provedor Email precisa estar ativo, o que já é o padrão.
+- A API não muda.
+- Verificado no Chrome com o Supabase simulado: senha errada, senhas diferentes, conta criada aguardando confirmação, esqueci a senha, nova senha com e sem sessão, e bloqueio de `?proxima=` externo.
+
 ### 2026-11-16 · Exemplos dos campos com "Ex.:"
 **Alterado**
 - `CamposOrcamento.tsx` e `CamposItem.tsx`: os textos de exemplo dos campos de valor e de CEP agora começam com "Ex.:" (por exemplo, "Ex.: 60.000,00").

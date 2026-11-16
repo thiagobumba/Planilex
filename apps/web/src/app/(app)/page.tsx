@@ -6,12 +6,18 @@ import { reaisInteiros, textoContagem } from "@/lib/formato";
 import type { ResumoComodo } from "@/lib/tipos";
 import { criarOrcamento } from "./acoes";
 
-export default async function Painel() {
-  const orcamento = await orcamentoAtual();
+export default async function Painel({ searchParams }: { searchParams: Promise<{ senha?: string }> }) {
+  const [orcamento, { senha }] = await Promise.all([orcamentoAtual(), searchParams]);
+  const avisoSenha = senha === "alterada" && (
+    <p role="status" className="aviso aviso-ok">
+      Senha alterada. Use a nova senha no próximo login.
+    </p>
+  );
 
   if (!orcamento) {
     return (
       <>
+        {avisoSenha}
         <header className="cabecalho">
           <div>
             <h1>Vamos começar</h1>
@@ -35,6 +41,7 @@ export default async function Painel() {
 
   return (
     <>
+      {avisoSenha}
       <header className="cabecalho">
         <div>
           <h1>Painel</h1>

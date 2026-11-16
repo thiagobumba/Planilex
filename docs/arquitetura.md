@@ -35,9 +35,10 @@
 - **Login:** o site usa a chave pública só para o Supabase Auth; a API valida o token do usuário e decide o que ele pode ver.
 
 ### 2026-11-16 · Login com Google e como a API confia no usuário
-- **Escolhido pelo dono do projeto:** login só com conta Google (Supabase Auth). E-mail e senha ou link mágico podem ser somados depois sem mudar a API.
+- **Escolhido pelo dono do projeto:** login com conta Google e, desde 2026-11-16, também com e-mail e senha (Supabase Auth). A API não muda: nos dois casos ela recebe o mesmo tipo de token.
+- **E-mail e senha:** o formulário roda no navegador (`signInWithPassword`, `signUp`, `resetPasswordForEmail`, `updateUser`). A confirmação de e-mail e o link de nova senha voltam pelo mesmo `/auth/callback`, que aceita `?proxima=` só com caminhos internos, para não poder mandar o usuário a outro site. O link de nova senha leva a `/auth/nova-senha`.
 - **Fluxo:**
-  1. O site chama `signInWithOAuth`, o Google autentica e o Supabase devolve para `/auth/callback` com um código.
+  1. O site chama `signInWithOAuth` (Google) ou `signInWithPassword` (e-mail). No Google, o Supabase devolve para `/auth/callback` com um código.
   2. O callback troca o código pela sessão, gravada em cookies (`@supabase/ssr`).
   3. O `proxy.ts` do Next (o antigo "middleware", renomeado no Next 16) renova a sessão a cada requisição e manda para `/login` quem não está logado.
   4. As páginas e server actions chamam a API no servidor, enviando o token em `Authorization: Bearer`.
@@ -54,8 +55,8 @@ planilex/
 │   │   └── src/
 │   │       ├── proxy.ts        # renova a sessão e protege as páginas
 │   │       ├── app/
-│   │       │   ├── login/      # tela de login (botão Google)
-│   │       │   ├── auth/       # callback do OAuth e "Sair"
+│   │       │   ├── login/      # tela de login (Google + e-mail e senha)
+│   │       │   ├── auth/       # callback, nova senha e "Sair"
 │   │       │   └── (app)/      # telas logadas: painel, itens, cômodos, configurações
 │   │       │       └── acoes.ts  # server actions que chamam a API
 │   │       ├── components/     # menu, formulários e campos reutilizados
