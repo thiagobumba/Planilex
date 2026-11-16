@@ -61,10 +61,19 @@ export interface Pessoas {
   convites: { id: string; email: string; criadoEm: string }[];
 }
 
+/** Resultado do envio do e-mail do convite. */
+export interface ResultadoEmailConvite {
+  emailEnviado: boolean;
+  tipoEmail?: "convite" | "link";
+  motivoEmail?: string;
+}
+
 /** Resultado das server actions, mostrado no formulário. */
 export interface EstadoAcao {
   erro?: string;
   ok?: string;
+  /** Aviso amarelo: deu certo, mas com uma ressalva. */
+  atencao?: string;
   /** Muda a cada sucesso; usado para limpar o formulário. */
   vez?: number;
 }

@@ -170,6 +170,9 @@ describe("API do Planilex", () => {
     const r = await chamar(ana, "POST", `/orcamentos/${orcamentoId}/convites`, { email: "  BETO@teste.com " });
     assert.equal(r.statusCode, 201, r.body);
     assert.equal(r.json().email, "beto@teste.com");
+    // Sem SUPABASE_SECRET_KEY nos testes: o convite vale, mas o e-mail não sai e o motivo vem na resposta
+    assert.equal(r.json().emailEnviado, false);
+    assert.ok(r.json().motivoEmail);
     assert.equal((await chamar(ana, "POST", `/orcamentos/${orcamentoId}/convites`, { email: "beto@teste.com" })).statusCode, 409);
     assert.equal((await chamar(ana, "POST", `/orcamentos/${orcamentoId}/convites`, { email: "ana@teste.com" })).statusCode, 409);
     await chamar(ana, "POST", `/orcamentos/${orcamentoId}/convites`, { email: "carla@teste.com" });
@@ -198,6 +201,10 @@ describe("API do Planilex", () => {
 
   test("cancelar convite e remover pessoa", async () => {
     const c = (await chamar(ana, "POST", `/orcamentos/${orcamentoId}/convites`, { email: "depois@teste.com" })).json();
+    assert.equal((await chamar(beto, "POST", `/convites/${c.id}/reenviar`)).statusCode, 403);
+    const reenvio = await chamar(ana, "POST", `/convites/${c.id}/reenviar`);
+    assert.equal(reenvio.statusCode, 200);
+    assert.equal(reenvio.json().emailEnviado, false);
     assert.equal((await chamar(beto, "DELETE", `/convites/${c.id}`)).statusCode, 403);
     assert.equal((await chamar(ana, "DELETE", `/convites/${c.id}`)).statusCode, 204);
     assert.equal((await chamar(ana, "DELETE", `/orcamentos/${orcamentoId}/membros/${ana}`)).statusCode, 409);

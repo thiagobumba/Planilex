@@ -30,6 +30,11 @@ export function Formulario({
           {estado.erro}
         </p>
       )}
+      {estado.atencao && (
+        <p role="status" className="aviso aviso-atencao">
+          {estado.atencao}
+        </p>
+      )}
       {estado.ok && (
         <p role="status" className="aviso aviso-ok">
           {estado.ok}

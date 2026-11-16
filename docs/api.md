@@ -143,11 +143,25 @@ Quem tem acesso a um orçamento é membro dele: `DONO` (quem criou) ou `EDITOR` 
 ```
 
 ### `POST /orcamentos/:id/convites` (só DONO)
-`{ "email": "beto@exemplo.com" }`. O e-mail é guardado em minúsculo. **201** com o convite.
+`{ "email": "beto@exemplo.com" }`. O e-mail é guardado em minúsculo. Depois de criar o convite, a API tenta **enviar o e-mail** (`apps/api/src/emails.ts`):
+- sem conta no Supabase → `auth.admin.inviteUserByEmail` (e-mail "Invite user");
+- com conta → `auth.signInWithOtp` (e-mail "Magic link").
+
+Os links voltam para `<WEB_ORIGIN>/auth/link`. Isso exige `SUPABASE_SECRET_KEY` no `.env` e, para endereços fora da equipe do projeto no Supabase, SMTP próprio.
+
+**201**:
+```json
+{ "id": "uuid", "email": "beto@exemplo.com", "criadoEm": "...",
+  "emailEnviado": true, "tipoEmail": "convite" }
+```
+Quando o e-mail não sai, o convite é criado do mesmo jeito: `"emailEnviado": false, "motivoEmail": "explicação em português"`.
 
 **409** se a pessoa já tem acesso ou já foi convidada · **400** e-mail inválido.
 
-O convite não envia e-mail: a pessoa ganha acesso quando entra no Planilex com esse e-mail (Google ou e-mail e senha).
+A pessoa ganha acesso quando entra no Planilex com esse e-mail, pelo link do e-mail, pelo Google ou por e-mail e senha.
+
+### `POST /convites/:id/reenviar` (só DONO)
+Tenta enviar o e-mail de novo. **200** com `emailEnviado` e `tipoEmail` ou `motivoEmail`.
 
 ### `DELETE /convites/:id` (só DONO)
 Cancela um convite pendente. **204**.

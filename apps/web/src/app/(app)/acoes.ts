@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { api, ErroApi } from "@/lib/api";
 import { lerValor } from "@/lib/formato";
-import type { EstadoAcao } from "@/lib/tipos";
+import type { EstadoAcao, ResultadoEmailConvite } from "@/lib/tipos";
 
 /** Executa a chamada; erro da API vira mensagem no formulário. Redirecionamentos passam adiante. */
 async function tentar(fn: () => Promise<unknown>, ok: string, caminhos: string[] = ["/", "/itens", "/comodos"]): Promise<EstadoAcao> {
@@ -106,14 +106,41 @@ export async function excluirItem(_: EstadoAcao, f: FormData): Promise<EstadoAca
 
 // ---------- Pessoas com acesso ----------
 
+/** Monta a mensagem do convite conforme o e-mail tenha saído ou não. */
+function mensagemConvite(email: string, r: ResultadoEmailConvite, reenvio = false): EstadoAcao {
+  if (r.emailEnviado) {
+    const tipo = r.tipoEmail === "link" ? "um link de acesso (essa pessoa já tem conta)" : "o convite";
+    return { ok: `Enviamos ${tipo} para ${email}. Se não aparecer, peça para olhar o spam.`, vez: Date.now() };
+  }
+  return {
+    atencao: `${reenvio ? "O e-mail não foi reenviado" : `Convite para ${email} criado, mas o e-mail não foi enviado`}: ${r.motivoEmail} O convite vale do mesmo jeito: avise a pessoa para entrar no Planilex com esse e-mail.`,
+    vez: Date.now(),
+  };
+}
+
 export async function convidarPessoa(_: EstadoAcao, f: FormData): Promise<EstadoAcao> {
   const orcamentoId = texto(f, "orcamentoId");
   const email = texto(f, "email").toLowerCase();
-  return tentar(
-    () => api(`/orcamentos/${orcamentoId}/convites`, { method: "POST", body: { email } }),
-    `Convite criado. Quando ${email} entrar no Planilex (com Google ou e-mail e senha), vai ver este orçamento.`,
-    ["/configuracoes"],
-  );
+  let resultado: ResultadoEmailConvite;
+  try {
+    resultado = await api<ResultadoEmailConvite>(`/orcamentos/${orcamentoId}/convites`, { method: "POST", body: { email } });
+  } catch (e) {
+    if (e instanceof ErroApi) return { erro: e.message };
+    throw e;
+  }
+  revalidatePath("/configuracoes");
+  return mensagemConvite(email, resultado);
+}
+
+export async function reenviarConvite(_: EstadoAcao, f: FormData): Promise<EstadoAcao> {
+  const id = texto(f, "id");
+  const email = texto(f, "email");
+  try {
+    return mensagemConvite(email, await api<ResultadoEmailConvite>(`/convites/${id}/reenviar`, { method: "POST" }), true);
+  } catch (e) {
+    if (e instanceof ErroApi) return { erro: e.message };
+    throw e;
+  }
 }
 
 export async function cancelarConvite(_: EstadoAcao, f: FormData): Promise<EstadoAcao> {

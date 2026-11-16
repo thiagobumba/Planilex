@@ -10,4 +10,6 @@ export const env = {
   origemWeb: process.env.WEB_ORIGIN ?? "http://localhost:3000",
   supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
   supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  /** Chave secreta (só no servidor): usada para enviar o e-mail de convite. Opcional. */
+  supabaseSecretKey: process.env.SUPABASE_SECRET_KEY?.trim() || undefined,
 };

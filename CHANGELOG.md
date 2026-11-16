@@ -12,6 +12,27 @@ Cada entrada informa:
 
 ## [Não lançado]
 
+### 2026-11-16 · E-mail do convite
+**Adicionado**
+- `apps/api/src/emails.ts`: envia o e-mail do convite pelo Supabase Auth. Quem não tem conta recebe "Invite user"; quem já tem recebe "Magic link". Os erros comuns viram mensagens em português (SMTP padrão só para a equipe, limite por hora, chave inválida).
+- `POST /convites/:id/reenviar`. O `POST /orcamentos/:id/convites` agora devolve `emailEnviado`, `tipoEmail` e `motivoEmail`.
+- Variável opcional `SUPABASE_SECRET_KEY`, usada só pela API, em `.env.example` e no README.
+- `apps/web/src/app/auth/link/`: recebe o clique no e-mail (tokens no `#` da URL) e conclui o login.
+- `/auth/nova-senha?boas-vindas=1`: tela "Bem-vindo ao Planilex!" para quem foi convidado criar a senha, com a opção de pular.
+- Configurações › Pessoas com acesso: botão **Reenviar e-mail** e aviso amarelo quando o e-mail não sai, explicando o motivo e lembrando que o convite vale.
+
+**Alterado**
+- `README.md`: seção "E-mail do convite", com o passo a passo do SMTP com Gmail e a tradução dos templates.
+- `docs/api.md`, `docs/arquitetura.md` (decisão do fluxo implícito só para os links do e-mail) e `docs/ux-8-regras.md` atualizados.
+- Testes da API: checam o resultado do e-mail sem a chave e o reenvio, que só o DONO pode fazer.
+
+**Por quê:** o dono convidou um e-mail e esperava que a pessoa recebesse o convite.
+
+**Impacto:**
+- Para os e-mails chegarem, é preciso `SUPABASE_SECRET_KEY` no `.env` e SMTP próprio no Supabase. O SMTP padrão só entrega para a equipe do projeto e já afetava a confirmação de conta e o "Esqueci a senha".
+- Sem isso, tudo continua funcionando, só sem enviar e-mail.
+- Verificado no Chrome com o Supabase simulado: convite para conta nova, link para conta existente, reenviar, clique no link levando às boas-vindas e ao orçamento compartilhado, link expirado e envio recusado pelo SMTP padrão.
+
 ### 2026-11-16 · Motivo dos erros 500 visível em desenvolvimento
 **Alterado**
 - `apps/api/src/app.ts`: fora de produção, a resposta 500 inclui `Detalhe: <motivo>`, que aparece na tela de erro do site. Em produção, a mensagem continua genérica.

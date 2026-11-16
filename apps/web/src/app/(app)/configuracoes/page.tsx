@@ -6,7 +6,7 @@ import { BotaoEnviar, Formulario } from "@/components/Formulario";
 import { api } from "@/lib/api";
 import { orcamentoAtual } from "@/lib/dados";
 import type { Pessoas } from "@/lib/tipos";
-import { cancelarConvite, convidarPessoa, editarOrcamento, removerPessoa } from "../acoes";
+import { cancelarConvite, convidarPessoa, editarOrcamento, reenviarConvite, removerPessoa } from "../acoes";
 
 export const metadata: Metadata = { title: "Configurações · Planilex" };
 
@@ -60,16 +60,25 @@ export default async function Configuracoes() {
               <div>
                 <strong>{c.email}</strong>
                 <span className="etiqueta etiqueta-pesquisando">Convite pendente</span>
-                <span className="dica bloco">Vira acesso quando essa pessoa entrar no Planilex pela primeira vez.</span>
+                <span className="dica bloco">Vira acesso quando essa pessoa entrar no Planilex com esse e-mail (pelo link do e-mail, Google ou e-mail e senha).</span>
               </div>
               {pessoas.podeGerenciar && (
-                <Formulario acao={cancelarConvite}>
-                  <input type="hidden" name="id" value={c.id} />
-                  <input type="hidden" name="email" value={c.email} />
-                  <BotaoEnviar variante="secundario" carregando="Cancelando…">
-                    Cancelar convite
-                  </BotaoEnviar>
-                </Formulario>
+                <div className="acoes-convite">
+                  <Formulario acao={reenviarConvite}>
+                    <input type="hidden" name="id" value={c.id} />
+                    <input type="hidden" name="email" value={c.email} />
+                    <BotaoEnviar variante="secundario" carregando="Enviando…">
+                      Reenviar e-mail
+                    </BotaoEnviar>
+                  </Formulario>
+                  <Formulario acao={cancelarConvite}>
+                    <input type="hidden" name="id" value={c.id} />
+                    <input type="hidden" name="email" value={c.email} />
+                    <BotaoEnviar variante="secundario" carregando="Cancelando…">
+                      Cancelar convite
+                    </BotaoEnviar>
+                  </Formulario>
+                </div>
               )}
             </li>
           ))}
@@ -81,7 +90,7 @@ export default async function Configuracoes() {
             <label className="campo">
               Convidar por e-mail
               <input name="email" type="email" required placeholder="Ex.: pessoa@exemplo.com" autoComplete="off" />
-              <span className="dica">Use o mesmo e-mail com que a pessoa vai entrar (o do Google ou o da conta com senha).</span>
+              <span className="dica">A pessoa recebe um e-mail com o link para entrar. Use o e-mail com que ela vai acessar (o do Google ou o da conta com senha).</span>
             </label>
             <BotaoEnviar carregando="Convidando…">Convidar</BotaoEnviar>
           </Formulario>

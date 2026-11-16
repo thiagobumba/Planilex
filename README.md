@@ -104,6 +104,7 @@ Para conferir se a API está falando com o banco, abra http://localhost:3333/hea
 | `DIRECT_URL` | Supabase › **Connect** › Session pooler (porta 5432) | Conexão usada para criar e alterar tabelas |
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase › Project Settings › API › Project URL | Login (Supabase Auth) |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase › Project Settings › API › chave pública (anon/publishable) | Login (Supabase Auth) |
+| `SUPABASE_SECRET_KEY` | Supabase › Project Settings › API Keys › **Secret keys** | Opcional. Só a API usa, para enviar o e-mail do convite. **Nunca** com `NEXT_PUBLIC_` e nunca compartilhe |
 | `API_PORT` | — | Porta da API (padrão 3333) |
 | `WEB_ORIGIN` | — | Endereço do site que pode chamar a API (padrão http://localhost:3000) |
 | `NEXT_PUBLIC_API_URL` | — | Endereço da API usado pelo site |
@@ -169,6 +170,29 @@ Enquanto o app estiver em modo de teste no Google, só os e-mails da lista de us
 
 Os links de confirmação e de nova senha precisam ser abertos **no mesmo navegador** em que a conta foi criada ou a senha foi pedida.
 
+### E-mail do convite
+
+Ao convidar alguém em **Configurações › Pessoas com acesso**, a API pede ao Supabase para enviar um e-mail:
+
+- **Pessoa sem conta:** recebe o e-mail "Invite user". Ao clicar, entra no Planilex, vê a tela "Bem-vindo" e pode criar uma senha (ou pular).
+- **Pessoa que já tem conta:** recebe um link de acesso ("Magic link") e entra direto.
+- O link volta para `/auth/link`, que conclui o login. Precisa da Redirect URL `http://localhost:3000/auth/**`.
+- Se o e-mail não sair, o convite **continua valendo**: a tela mostra o motivo e a pessoa pode entrar com aquele e-mail. Há o botão **Reenviar e-mail**.
+
+Para os e-mails saírem, são necessárias duas coisas:
+
+1. **`SUPABASE_SECRET_KEY` no `.env`**: crie em Supabase › Project Settings › API Keys › Secret keys e reinicie a API.
+2. **SMTP próprio no Supabase.** O serviço de e-mail padrão do Supabase **só entrega para membros da equipe do projeto** e tem limite de poucos e-mails por hora. Ele também é usado na confirmação de conta e no "Esqueci a senha". Exemplo com Gmail, que é gratuito:
+   1. Na conta Google que vai enviar, ative a **verificação em duas etapas** e crie uma **senha de app** em myaccount.google.com › Segurança › Senhas de app.
+   2. Em Supabase › **Authentication › Emails › SMTP Settings**, ative o **Custom SMTP** e preencha:
+      - Sender email: o seu Gmail
+      - Sender name: `Planilex`
+      - Host: `smtp.gmail.com`
+      - Port: `465`
+      - Username: o seu Gmail
+      - Password: a senha de app
+   3. Salve. Depois, os textos dos e-mails podem ser traduzidos em **Authentication › Emails › Templates** ("Invite user", "Magic link", "Confirm signup", "Reset password").
+
 ### Se o login falhar
 
 A tela de login mostra o que fazer e o "detalhe técnico" (a mensagem original do Supabase/Google). O motivo também aparece no terminal do `npm run dev:web`, numa linha `[login] falhou: ...`.
@@ -178,7 +202,7 @@ A tela de login mostra o que fazer e o "detalhe técnico" (a mensagem original d
 | `Unable to exchange external code` | ID do cliente ou chave secreta do Google errados no Supabase |
 | `access_denied` | E-mail fora da lista de usuários de teste no Google Cloud |
 | `PKCE code verifier not found` | Login começou e terminou em lugares diferentes: outro navegador, `127.0.0.1` em vez de `localhost`, ou link do e-mail aberto em outro aparelho |
-| `expired` | Link do e-mail expirado ou já usado: peça outro |
+| `expired` | Link do e-mail expirado ou já usado: peça outro (no convite, use "Reenviar e-mail") |
 
 ## Documentação e histórico
 

@@ -46,6 +46,13 @@
 - **Por que a API valida de novo:** a API é a única porta para os dados (o RLS bloqueia a Data API). Ela não pode confiar em quem chama, só no token assinado pelo Supabase.
 - **Orçamento compartilhado por convite:** cada forma de login com um e-mail diferente é um usuário diferente no Supabase. Para todos verem o mesmo orçamento, o dono convida os e-mails em Configurações › Pessoas com acesso; no primeiro acesso com aquele e-mail, o convite vira acesso (`EDITOR`). Quem não foi convidado não vê nada, mesmo criando conta. O site usa o primeiro orçamento do usuário.
 
+### 2026-11-16 · E-mail do convite pelo Supabase Auth
+- **Escolhido:** a própria API pede ao Supabase Auth para enviar o e-mail. Para quem não tem conta, usa `inviteUserByEmail`, com a chave secreta; para quem já tem, `signInWithOtp`.
+- **Por que o Supabase e não um serviço de e-mail à parte:** o link do e-mail já faz o login da pessoa, e o convite vira acesso no mesmo instante.
+- **Fluxo implícito:** como o pedido sai do servidor, não há navegador para guardar o verificador do PKCE. Os tokens chegam no `#` da URL e a página `/auth/link`, que roda no navegador, grava a sessão. Todos os outros logins continuam usando PKCE pelo `/auth/callback`.
+- **Chave secreta:** `SUPABASE_SECRET_KEY` fica só no `.env` e só a API lê. O `next.config.ts` repassa ao navegador apenas as variáveis `NEXT_PUBLIC_*`.
+- **Limitação:** o SMTP padrão do Supabase só entrega para membros da equipe do projeto. Para uso real, é preciso SMTP próprio (README › E-mail do convite). O convite vale mesmo quando o e-mail não sai.
+
 ## Estrutura do repositório
 
 ```
@@ -56,7 +63,7 @@ planilex/
 │   │       ├── proxy.ts        # renova a sessão e protege as páginas
 │   │       ├── app/
 │   │       │   ├── login/      # tela de login (Google + e-mail e senha)
-│   │       │   ├── auth/       # callback, nova senha e "Sair"
+│   │       │   ├── auth/       # callback (PKCE), link do e-mail (/auth/link), nova senha e "Sair"
 │   │       │   └── (app)/      # telas logadas: painel, itens, cômodos, configurações
 │   │       │       └── acoes.ts  # server actions que chamam a API
 │   │       ├── components/     # menu, formulários e campos reutilizados
@@ -69,6 +76,7 @@ planilex/
 │           ├── plugins/        # autenticação (token do Supabase)
 │           ├── acesso.ts       # checagem de membro do orçamento
 │           ├── resumo.ts       # cálculo de previsto, pago e disponível
+│           ├── emails.ts       # envio do e-mail do convite pelo Supabase Auth
 │           └── routes/         # saúde, orçamentos, cômodos, itens
 │       └── test/               # testes de ponta a ponta da API
 ├── packages/

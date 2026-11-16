@@ -772,3 +772,15 @@ select:focus {
   background: var(--cor-azul-suave);
   color: var(--cor-azul);
 }
+.aviso-atencao {
+  background: #fbf3e3;
+  color: #5c3f0a;
+}
+.acoes-convite {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.acoes-convite form .aviso {
+  flex-basis: 100%;
+}

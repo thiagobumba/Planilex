@@ -7,7 +7,8 @@ import { FormNovaSenha } from "./FormNovaSenha";
 export const metadata: Metadata = { title: "Nova senha · Planilex" };
 
 /** Aberta pelo link de "Esqueci a senha" (o callback já criou a sessão). */
-export default async function NovaSenha() {
+export default async function NovaSenha({ searchParams }: { searchParams: Promise<{ "boas-vindas"?: string }> }) {
+  const boasVindas = (await searchParams)["boas-vindas"] === "1";
   const supabase = await criarClienteServidor();
   const { data } = await supabase.auth.getClaims();
   const email = data?.claims?.email as string | undefined;
@@ -16,11 +17,23 @@ export default async function NovaSenha() {
     <main className="login">
       <div className="login-cartao">
         <Logo />
-        <h1>Criar nova senha</h1>
+        <h1>{boasVindas ? "Bem-vindo ao Planilex!" : "Criar nova senha"}</h1>
         {email ? (
           <>
-            <p className="suave">Conta: {email}</p>
+            {boasVindas ? (
+              <p className="suave">
+                Você foi convidado para um orçamento compartilhado. Crie uma senha para entrar depois com <strong>{email}</strong>. Se esse e-mail
+                for uma conta Google, você também pode entrar pelo botão do Google.
+              </p>
+            ) : (
+              <p className="suave">Conta: {email}</p>
+            )}
             <FormNovaSenha />
+            {boasVindas && (
+              <Link href="/" className="botao-link">
+                Pular por agora e ver o orçamento
+              </Link>
+            )}
           </>
         ) : (
           <>
