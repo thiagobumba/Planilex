@@ -12,6 +12,15 @@ Cada entrada informa:
 
 ## [Não lançado]
 
+### 2026-11-16 · `iniciar-api.cmd` aplica as migrações antes de subir
+**Alterado**
+- `iniciar-api.cmd`: roda `npm run db:deploy` antes de `npm run dev:api` e para com uma mensagem se não conseguir.
+- `README.md`: o novo passo na tabela de scripts e o que fazer quando a API responde "Erro inesperado no servidor" depois de uma atualização.
+
+**Por quê:** depois do `git pull` da funcionalidade de convites, a API passou a procurar a tabela `convites`, que ainda não existia no banco, e respondeu 500.
+
+**Impacto:** quem usa o script manual não precisa mais lembrar do `db:deploy`. O modo automático já fazia isso.
+
 ### 2026-11-16 · Orçamento compartilhado por convite
 **Adicionado**
 - Migração `20261116140000_convites`, que só adiciona e não apaga nada:

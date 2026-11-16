@@ -81,7 +81,7 @@ Na pasta do projeto há também dois scripts manuais. Dá para abrir com dois cl
 
 | Script | O que faz |
 |--------|-----------|
-| `iniciar-api.cmd` | Confere se o `npm` e o `.env` existem, instala as dependências se faltarem e sobe a API (`npm run dev:api`) em http://localhost:3333 |
+| `iniciar-api.cmd` | Confere se o `npm` e o `.env` existem, instala as dependências se faltarem, aplica as migrações pendentes no banco (`npm run db:deploy`) e sobe a API (`npm run dev:api`) em http://localhost:3333 |
 | `atualizar-e-iniciar-site.cmd` | Descarta a alteração automática do `package-lock.json`, faz `git pull`, `npm install` e sobe o site (`npm run dev:web`) em http://localhost:3000 |
 
 Os dois rodam em modo silencioso: mostram só as etapas, os erros e a saída da API ou do site. Se algo falhar, a janela fica aberta com a mensagem.
@@ -91,6 +91,8 @@ Ordem recomendada:
 2. `iniciar-api.cmd`, em outra janela.
 
 Depois de uma atualização, feche a janela da API e abra de novo para ela pegar as mudanças.
+
+**API respondendo "Erro inesperado no servidor" depois de uma atualização?** Normalmente chegou uma mudança no banco que ainda não foi aplicada. Pare a API, rode `npm run db:deploy` e suba a API de novo (o `iniciar-api.cmd` e o modo automático já fazem isso sozinhos).
 
 Para conferir se a API está falando com o banco, abra http://localhost:3333/health/banco: deve aparecer `{"status":"ok"}`.
 

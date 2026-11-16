@@ -1,6 +1,6 @@
 @echo off
 rem ============================================================
-rem  Planilex - inicia a API (http://localhost:3333)
+rem  Planilex - aplica as migracoes pendentes e inicia a API (http://localhost:3333)
 rem  Uso: dois cliques neste arquivo, ou "iniciar-api" no Prompt.
 rem  Deixe esta janela aberta enquanto usa o app.
 rem ============================================================
@@ -26,6 +26,14 @@ if not exist "node_modules" (
   echo Instalando dependencias pela primeira vez...
   call npm install --silent --no-audit --no-fund
   if errorlevel 1 goto erro
+)
+
+echo Aplicando mudancas pendentes no banco (db:deploy)...
+call npm run db:deploy --silent
+if errorlevel 1 (
+  echo [ERRO] Nao foi possivel atualizar o banco. Rode "npm run db:testar" para ver o motivo.
+  pause
+  exit /b 1
 )
 
 echo Iniciando a API do Planilex em http://localhost:3333
