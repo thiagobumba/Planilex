@@ -28,7 +28,9 @@ export async function criarApp(opcoes: FastifyServerOptions = { logger: true }) 
       return reply.code(status).send({ erro: (erro as Error).message });
     }
     req.log.error(erro);
-    return reply.code(500).send({ erro: "Erro inesperado no servidor." });
+    // Em desenvolvimento, o motivo vai junto para aparecer no site e facilitar o diagnóstico.
+    const detalhe = process.env.NODE_ENV === "production" ? "" : ` Detalhe: ${(erro as Error).message?.trim().split("\n").filter(Boolean).slice(-2).join(" ")}`;
+    return reply.code(500).send({ erro: `Erro inesperado no servidor.${detalhe}` });
   });
 
   await app.register(rotasSaude);

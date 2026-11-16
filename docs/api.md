@@ -13,7 +13,7 @@ Respostas em JSON. Código-fonte das rotas em `apps/api/src/routes/`.
   | 401 | Sem token ou token inválido/expirado |
   | 404 | Registro não existe **ou** o usuário não é membro do orçamento (não revela que existe) |
   | 409 | Conflito: nome de cômodo repetido, cômodo com itens |
-  | 500 | Erro inesperado (detalhes só no log da API) |
+  | 500 | Erro inesperado. Em desenvolvimento, a mensagem traz `Detalhe: ...` com o motivo; em produção, o motivo fica só no log da API |
 
 - **Dinheiro:** números em reais com centavos (`689.9`). No banco ficam em `DECIMAL(12,2)`.
 - **Datas:** `AAAA-MM-DD`.

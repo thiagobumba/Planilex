@@ -12,6 +12,15 @@ Cada entrada informa:
 
 ## [Não lançado]
 
+### 2026-11-16 · Motivo dos erros 500 visível em desenvolvimento
+**Alterado**
+- `apps/api/src/app.ts`: fora de produção, a resposta 500 inclui `Detalhe: <motivo>`, que aparece na tela de erro do site. Em produção, a mensagem continua genérica.
+- `docs/api.md`: a convenção de erros foi atualizada.
+
+**Por quê:** ao entrar com uma conta convidada, o site mostrou só "Erro inesperado no servidor", sem dizer a causa.
+
+**Impacto:** só diagnóstico. Os testes da API continuam passando.
+
 ### 2026-11-16 · `iniciar-api.cmd` aplica as migrações antes de subir
 **Alterado**
 - `iniciar-api.cmd`: roda `npm run db:deploy` antes de `npm run dev:api` e para com uma mensagem se não conseguir.
