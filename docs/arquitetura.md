@@ -88,6 +88,7 @@ planilex/
 │           ├── emails.ts       # envio do e-mail do convite pelo Supabase Auth
 │           ├── precos.ts       # busca de preços no SerpApi (Google Shopping) e cache
 │           └── routes/         # saúde, orçamentos, cômodos, itens
+│       ├── scripts/            # testar-serpapi.mjs (npm run precos:testar)
 │       └── test/               # testes de ponta a ponta da API
 ├── packages/
 │   └── db/                     # pacote @planilex/db

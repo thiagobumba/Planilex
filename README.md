@@ -82,7 +82,7 @@ Na pasta do projeto há também dois scripts manuais. Dá para abrir com dois cl
 | Script | O que faz |
 |--------|-----------|
 | `iniciar-api.cmd` | Confere se o `npm` e o `.env` existem, instala as dependências se faltarem, aplica as migrações pendentes no banco (`npm run db:deploy`) e sobe a API (`npm run dev:api`) em http://localhost:3333 |
-| `atualizar-e-iniciar-site.cmd` | Descarta a alteração automática do `package-lock.json`, faz `git pull`, `npm install` e sobe o site (`npm run dev:web`) em http://localhost:3000 |
+| `atualizar-e-iniciar-site.cmd` | Descarta a alteração automática do `package-lock.json`, faz `git pull`, `npm install`, aplica as migrações pendentes do banco (`npm run db:deploy`) e sobe o site (`npm run dev:web`) em http://localhost:3000 |
 
 Os dois rodam em modo silencioso: mostram só as etapas, os erros e a saída da API ou do site. Se algo falhar, a janela fica aberta com a mensagem.
 
@@ -129,6 +129,7 @@ O `npm install` já compila o pacote do banco automaticamente (script `postinsta
 | `npm run db:deploy` | Aplica as migrações pendentes no banco |
 | `npm run db:studio` | Abre o Prisma Studio para ver os dados |
 | `npm run db:testar` | Testa as conexões `DATABASE_URL` e `DIRECT_URL` e mostra a mensagem exata do servidor, sem exibir a senha |
+| `npm run precos:testar` | Confere se a `SERPAPI_KEY` é aceita pelo SerpApi, sem gastar busca, e mostra as buscas restantes |
 
 ### Problemas de conexão com o banco
 
@@ -210,6 +211,7 @@ A tela de login mostra o que fazer e o "detalhe técnico" (a mensagem original d
 No formulário de item, digite o produto e clique em **Buscar preços**, ou aperte Enter no campo. A API consulta o **Google Shopping pelo SerpApi**, no Brasil, e mostra até 20 ofertas da mais barata para a mais cara, com loja, preço, entrega e link. **Usar este preço** preenche o valor previsto (preço × quantidade) e guarda a oferta no item. A loja e o link aparecem na lista de itens.
 
 - **Configurar:** crie uma conta grátis em serpapi.com, que dá 250 buscas por mês, copie a *Private API Key* para `SERPAPI_KEY` no `.env` e reinicie a API.
+- **Conferir a chave:** `npm run precos:testar` pergunta ao SerpApi se a chave é aceita, sem gastar busca, e mostra quantas buscas restam. A chave não aparece inteira na tela. Se o site disser que a chave foi recusada: copie de novo em serpapi.com › *Api Key* (clique no olho antes de copiar, para não levar a versão mascarada), sem aspas nem espaços, e feche e abra a API, que só lê o `.env` ao iniciar.
 - **Cota:** cada termo é guardado por **24 horas** (tabela `buscas_preco`). Repetir a mesma busca nesse prazo não gasta cota. "Atualizar preços" força uma busca nova.
 - **Limites:** os preços são os do Google Shopping no momento da consulta, e o frete pode não estar incluído. O link pode levar à página do produto no Google em vez da loja.
 

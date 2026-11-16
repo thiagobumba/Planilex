@@ -65,7 +65,7 @@ export function extrairOfertas(resposta: { shopping_results?: ItemSerpApi[]; inl
 /** Traduz os erros mais comuns do SerpApi. */
 function explicarErro(mensagem: string) {
   const m = mensagem.toLowerCase();
-  if (m.includes("invalid api key")) return "A SERPAPI_KEY do .env é inválida. Confira a chave em serpapi.com › Dashboard.";
+  if (m.includes("invalid api key")) return "O SerpApi recusou a SERPAPI_KEY do .env. Rode npm run precos:testar para conferir a chave e reinicie a API depois de corrigir.";
   if (m.includes("run out of searches") || m.includes("plan") || m.includes("limit")) {
     return "A cota de buscas do SerpApi deste mês acabou. Ela renova no começo do próximo ciclo (ou troque de plano).";
   }

@@ -12,6 +12,16 @@ Cada entrada informa:
 
 ## [Não lançado]
 
+### 2026-11-16 · Conferência da chave do SerpApi e ajuste no script do site
+**Adicionado**
+- Comando `npm run precos:testar` (`apps/api/scripts/testar-serpapi.mjs`). Ele pergunta ao SerpApi, pela Account API, se a `SERPAPI_KEY` é aceita, sem gastar busca da cota, e mostra o plano e as buscas restantes. Também aponta erros comuns ao colar a chave: aspas, espaços, versão mascarada (•) e tamanho diferente de 64 caracteres. A chave nunca é impressa inteira.
+
+**Alterado**
+- `atualizar-e-iniciar-site.cmd` (ajuste feito pelo dono): roda `npm run db:deploy` antes de subir o site. Assim, as migrações que chegam pelo `git pull` são aplicadas mesmo quando a API é aberta depois. Impacto: nenhum quando não há migração pendente; o comando só aplica o que falta.
+- Mensagem de chave recusada na busca de preços: agora indica o `npm run precos:testar` e lembra de reiniciar a API, que só lê o `.env` ao iniciar.
+
+**Por quê:** a busca mostrou "SERPAPI_KEY inválida" e não havia como conferir a chave sem gastar busca nem expor o valor.
+
 ### 2026-11-16 · Busca de preços (Google Shopping via SerpApi)
 **Adicionado**
 - Migração `20261116150000_buscas_preco`, que só adiciona: tabela `buscas_preco` (cache de 24 h por termo), com RLS.
