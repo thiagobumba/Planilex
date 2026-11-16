@@ -54,7 +54,30 @@ npm run dev:web
 
 ### Atalhos no Windows
 
-Na pasta do projeto há dois scripts. Dá para abrir com dois cliques ou digitando o nome no Prompt de Comando. Cada um abre a sua própria janela, que precisa ficar aberta enquanto você usa o app.
+#### Modo automático (recomendado)
+
+Dê dois cliques em **`iniciar-planilex.cmd`** e deixe a janela aberta. Ele:
+
+1. confere `git`, `npm`, o `.env` e se as portas 3000 e 3333 estão livres;
+2. faz `git pull`, `npm install` e aplica as migrações pendentes (`db:deploy`);
+3. sobe a API e o site em duas janelas minimizadas ("Planilex - API" e "Planilex - Site") e abre http://localhost:3000;
+4. **a cada 30 segundos verifica o GitHub**. Quando chega uma alteração nova, mostra o título do commit e:
+
+| O que mudou | O que o script faz |
+|-------------|--------------------|
+| Telas ou rotas da API | Só `git pull`; o site e a API recarregam sozinhos |
+| `package.json`, `package-lock.json` ou `next.config.ts` | `npm install` e reinicia a API e o site |
+| Pacote do banco (`packages/db`) | Recompila o pacote e reinicia a API |
+| Migração nova | Aplica no banco (`npm run db:deploy`) |
+| O próprio script | Avisa para fechar e abrir de novo |
+
+Se a API ou o site caírem, o script reinicia sozinho. Para parar tudo, aperte **Ctrl+C** na janela do modo automático. O intervalo pode ser mudado assim: `iniciar-planilex.cmd -Intervalo 60`.
+
+O código fica em `scripts/planilex-automatico.ps1` (PowerShell). O `.cmd` só o abre com permissão para rodar scripts.
+
+#### Scripts manuais
+
+Na pasta do projeto há também dois scripts manuais. Dá para abrir com dois cliques ou digitando o nome no Prompt de Comando. Cada um abre a sua própria janela, que precisa ficar aberta enquanto você usa o app.
 
 | Script | O que faz |
 |--------|-----------|

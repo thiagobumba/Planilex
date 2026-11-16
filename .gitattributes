@@ -1,2 +1,3 @@
-# Scripts do Windows precisam de fim de linha CRLF para funcionar no Prompt.
+# Scripts do Windows precisam de fim de linha CRLF para funcionar no Prompt/PowerShell.
 *.cmd text eol=crlf
+*.ps1 text eol=crlf

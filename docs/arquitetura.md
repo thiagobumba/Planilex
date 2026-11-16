@@ -79,6 +79,10 @@ planilex/
 │       ├── prisma.config.ts    # conexão usada pelo Prisma CLI
 │       └── src/index.ts        # criarPrisma(): cliente usado pela API
 ├── docs/                       # documentação
+├── scripts/                    # planilex-automatico.ps1 (modo automático no Windows)
+├── iniciar-planilex.cmd        # abre o modo automático
+├── iniciar-api.cmd             # sobe só a API (manual)
+├── atualizar-e-iniciar-site.cmd # atualiza e sobe só o site (manual)
 ├── .env.example                # modelo das variáveis de ambiente
 └── package.json                # workspaces e comandos
 ```

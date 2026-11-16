@@ -12,6 +12,25 @@ Cada entrada informa:
 
 ## [Não lançado]
 
+### 2026-11-16 · Modo automático: atualiza sozinho a cada alteração
+**Adicionado**
+- `iniciar-planilex.cmd` e `scripts/planilex-automatico.ps1`:
+  - sobem a API e o site;
+  - verificam o GitHub a cada 30 segundos (`-Intervalo` muda o tempo);
+  - fazem `git pull` quando há commit novo e só reinstalam, recompilam ou reiniciam o que for necessário, conforme os arquivos alterados;
+  - aplicam migrações novas no banco;
+  - reiniciam a API ou o site se caírem.
+- `.gitattributes`: os `.ps1` também usam CRLF.
+- `CLAUDE.md`: aviso de que o modo automático aplica migrações no banco real (migrações que apagam dados exigem confirmação do dono) e de que mudanças no próprio script só valem depois de reabri-lo.
+- `README.md`: seção "Modo automático (recomendado)".
+- `docs/arquitetura.md`: os scripts na estrutura de pastas.
+
+**Por quê:** pedido do dono do projeto, para cada alteração enviada ao GitHub chegar ao computador dele sem rodar nada à mão.
+
+**Impacto:**
+- Os scripts manuais continuam disponíveis.
+- Não foi possível executar o PowerShell no ambiente de desenvolvimento (download bloqueado). O script foi revisado manualmente para o PowerShell 5.1 do Windows.
+
 ### 2026-11-16 · Scripts para Windows
 **Adicionado**
 - `iniciar-api.cmd`:

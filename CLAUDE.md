@@ -19,6 +19,8 @@ Uma alteração sem documentação não está concluída.
 
 - Toda tabela nova precisa ter o RLS ativado (`ALTER TABLE "<tabela>" ENABLE ROW LEVEL SECURITY;`) na mesma migração que a cria. Sem isso, a tabela fica exposta pela Data API do Supabase. Motivo em `docs/arquitetura.md` › Decisões.
 - O acesso aos dados é sempre pela API do Planilex (Prisma), nunca direto do navegador pela Data API.
+- O modo automático (`iniciar-planilex.cmd`) aplica migrações sozinho no banco real do dono assim que elas chegam ao GitHub. Antes de enviar uma migração que apague dados (`DROP`, remover coluna ou tabela com dados, mudar tipo com perda), avise e peça confirmação ao dono.
+- Mudanças em `scripts/planilex-automatico.ps1` só valem depois que o dono reabre o script: avise quando isso acontecer.
 
 ## Git
 
