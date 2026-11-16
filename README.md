@@ -26,7 +26,7 @@ Detalhes em [`docs/arquitetura.md`](docs/arquitetura.md).
 
 - **Frontend:** Next.js (React) + TypeScript
 - **Backend:** Node.js + TypeScript (Fastify), API REST
-- **Banco:** PostgreSQL + Prisma (Supabase ou Neon)
+- **Banco:** PostgreSQL + Prisma, hospedado no Supabase (com Supabase Auth para o login)
 - **Busca de preços:** APIs (Mercado Livre, serviço de Google Shopping) antes de qualquer leitura direta de sites
 
 ## Documentação e histórico

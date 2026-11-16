@@ -12,6 +12,15 @@ Cada entrada informa:
 
 ## [Não lançado]
 
+### 2026-11-16 · Decisão: banco no Supabase
+**Alterado**
+- `docs/arquitetura.md`: hospedagem do banco definida como Supabase (PostgreSQL + Auth); nova seção "Decisões" com as alternativas consideradas e os cuidados.
+- `README.md`: stack atualizada.
+
+**Por quê:** projeto pessoal e simples, com o orçamento compartilhado entre mais de uma pessoa. O login pronto do Supabase evita construir autenticação do zero.
+
+**Impacto:** quando o código começar, será preciso criar um projeto no Supabase e configurar as variáveis de conexão (a lista vai para o README nessa etapa).
+
 ### 2026-11-16 · Regras de documentação
 **Adicionado**
 - `CHANGELOG.md`: este histórico de alterações.

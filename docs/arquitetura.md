@@ -7,7 +7,19 @@
 | Frontend | Next.js (React) + TypeScript | Framework mais usado, grande comunidade, roda no Vercel de graça |
 | Backend | Node.js + TypeScript com Fastify | Mesma linguagem do frontend, rápido e simples |
 | Banco | PostgreSQL + Prisma | Relacional (orçamento → cômodos → itens → ofertas), migrações tipadas |
-| Hospedagem do banco | Supabase ou Neon | Plano gratuito suficiente para o projeto |
+| Hospedagem do banco | **Supabase** | Login pronto (e-mail ou Google) para dividir o orçamento, painel web para ver as tabelas, plano gratuito suficiente |
+| Autenticação | Supabase Auth | Evita construir login do zero |
+
+## Decisões
+
+### 2026-11-16 · Banco no Supabase
+- **Escolhido:** Supabase (PostgreSQL + Auth).
+- **Alternativas consideradas:**
+  - Neon: só PostgreSQL, sem login pronto.
+  - SQLite: mais simples, mas só funciona local, sem acesso pelo celular nem compartilhamento.
+- **Motivo:** projeto pessoal e simples, com mais de uma pessoa acessando o mesmo orçamento; o login pronto economiza trabalho.
+- **Cuidado:** no plano gratuito, o projeto é pausado depois de cerca de uma semana sem uso. Os dados não se perdem; basta reativar pelo painel do Supabase.
+- **Saída:** como é PostgreSQL padrão acessado via Prisma, dá para migrar para outro provedor sem reescrever o app.
 
 ## Estrutura do repositório (planejada)
 
