@@ -13,18 +13,24 @@ export async function exigirMembro(orcamentoId: string, usuarioId: string) {
   return membro;
 }
 
-/** Busca o cômodo e garante que o usuário é membro do orçamento dele. */
+/**
+ * Busca o cômodo e garante que o usuário é membro do orçamento dele, numa consulta só.
+ * Cômodo de outro orçamento responde 404, como se não existisse.
+ */
 export async function exigirComodo(comodoId: string, usuarioId: string) {
-  const comodo = await db().comodo.findUnique({ where: { id: comodoId } });
+  const comodo = await db().comodo.findFirst({
+    where: { id: comodoId, orcamento: { membros: { some: { usuarioId } } } },
+  });
   if (!comodo) throw naoEncontrado("Cômodo");
-  await exigirMembro(comodo.orcamentoId, usuarioId);
   return comodo;
 }
 
-/** Busca o item e garante que o usuário é membro do orçamento dele. */
+/** Busca o item e garante que o usuário é membro do orçamento dele, numa consulta só. */
 export async function exigirItem(itemId: string, usuarioId: string) {
-  const item = await db().item.findUnique({ where: { id: itemId }, include: { comodo: true } });
+  const item = await db().item.findFirst({
+    where: { id: itemId, comodo: { orcamento: { membros: { some: { usuarioId } } } } },
+    include: { comodo: true },
+  });
   if (!item) throw naoEncontrado("Item");
-  await exigirMembro(item.comodo.orcamentoId, usuarioId);
   return item;
 }

@@ -1228,3 +1228,41 @@ fieldset.campo legend {
   font-weight: 400;
   color: var(--cor-texto-suave);
 }
+
+/* ---------- Carregando (loading.tsx) ---------- */
+.carregando {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-top: 40px;
+}
+.esqueleto {
+  border-radius: var(--raio-p);
+  background: linear-gradient(90deg, var(--cor-trilho) 0%, var(--cor-linha) 50%, var(--cor-trilho) 100%);
+  background-size: 200% 100%;
+  animation: esqueleto 1.2s ease-in-out infinite;
+}
+.esqueleto-titulo {
+  width: 220px;
+  height: 36px;
+}
+.esqueleto-cartao {
+  height: 160px;
+  border-radius: var(--raio);
+}
+.esqueleto-linha {
+  height: 48px;
+}
+@keyframes esqueleto {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .esqueleto {
+    animation: none;
+  }
+}

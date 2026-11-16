@@ -11,6 +11,7 @@
   ],
   "scripts": {
     "dev:web": "npm run dev -w @planilex/web",
+    "site:rapido": "npm run build -w @planilex/web && npm run start -w @planilex/web",
     "dev:api": "npm run build -w @planilex/db && npm run dev -w @planilex/api",
     "build": "npm run build -w @planilex/db && npm run build -w @planilex/api && npm run build -w @planilex/web",
     "typecheck": "npm run typecheck --workspaces --if-present",

@@ -120,6 +120,7 @@ O `npm install` já compila o pacote do banco automaticamente (script `postinsta
 | Comando | O que faz |
 |---------|-----------|
 | `npm run dev:web` | Sobe o site em modo de desenvolvimento |
+| `npm run site:rapido` | Gera a versão de produção do site e sobe em http://localhost:3000. Abre as páginas mais rápido que o modo de desenvolvimento, mas não recarrega sozinho: depois de atualizar o código, pare (Ctrl+C) e rode de novo |
 | `npm run dev:api` | Compila o pacote do banco e sobe a API em modo de desenvolvimento |
 | `npm run build` | Gera as versões de produção (banco, API e site) |
 | `npm run typecheck` | Confere os tipos do TypeScript em todo o projeto |

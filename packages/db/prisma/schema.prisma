@@ -6,6 +6,9 @@ generator client {
   output                 = "../src/generated/prisma"
   moduleFormat           = "esm"
   importFileExtension    = "js"
+  // Relações num único SELECT com JOIN em vez de uma consulta por relação:
+  // cada consulta a menos economiza uma ida e volta até o Supabase (ver docs/arquitetura.md › Desempenho).
+  previewFeatures        = ["relationJoins"]
 }
 
 datasource db {

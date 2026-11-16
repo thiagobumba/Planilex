@@ -42,7 +42,7 @@
   2. O callback troca o código pela sessão, gravada em cookies (`@supabase/ssr`).
   3. O `proxy.ts` do Next (o antigo "middleware", renomeado no Next 16) renova a sessão a cada requisição e manda para `/login` quem não está logado.
   4. As páginas e server actions chamam a API no servidor, enviando o token em `Authorization: Bearer`.
-  5. A API valida o token com `getClaims()` (chaves públicas do projeto) e checa se o usuário é membro do orçamento.
+  5. A API valida o token com `getClaims()` (chaves públicas do projeto) e checa se o usuário é membro do orçamento. O token conferido fica guardado na memória da API até expirar, para as várias chamadas de uma mesma tela não repetirem a conferência.
 - **Por que a API valida de novo:** a API é a única porta para os dados (o RLS bloqueia a Data API). Ela não pode confiar em quem chama, só no token assinado pelo Supabase.
 - **Orçamento compartilhado por convite:** cada forma de login com um e-mail diferente é um usuário diferente no Supabase. Para todos verem o mesmo orçamento, o dono convida os e-mails em Configurações › Pessoas com acesso; no primeiro acesso com aquele e-mail, o convite vira acesso (`EDITOR`). Quem não foi convidado não vê nada, mesmo criando conta. O site usa o primeiro orçamento do usuário.
 
@@ -61,6 +61,20 @@
 - **Escolhida pelo dono do projeto** entre SerpApi, Claude com busca na web, API do Mercado Livre e leitura direta dos sites.
 - **Motivo:** cobre várias lojas brasileiras numa chamada, devolve dados estruturados (preço numérico, loja, link) e o plano grátis basta para um orçamento de casamento.
 - A chave (`SERPAPI_KEY`) fica só na API. O site chama `GET /precos` por uma server action e nunca fala direto com o SerpApi.
+
+### 2026-11-16 · Desempenho: menos idas e voltas até o banco
+- **Problema:** o banco está no Supabase em us-east-1 (EUA) e a API roda no computador do dono, no Brasil. Cada consulta leva em torno de 130 ms só de ida e volta. A tela de itens fazia umas 14 consultas em sequência, o que dá perto de 1,9 s de espera por tela, fora a autenticação.
+- **O que foi feito:**
+  - **`GET /orcamentos/atual`:** devolve o orçamento já com o resumo, numa chamada só. Antes, o site fazia `GET /orcamentos` e depois `GET /orcamentos/:id`.
+  - **Convites:** só abre transação quando há convite pendente ou acesso sem e-mail. Antes, a transação era aberta em toda tela.
+  - **`relationJoins`:** este recurso do Prisma, em preview, ligado no `schema.prisma`, faz as relações virem num único SELECT com JOIN.
+  - **Checagem de membro:** feita na mesma consulta do cômodo ou do item (`exigirComodo` e `exigirItem`), ou em paralelo com a busca (lista de itens).
+  - **Token:** o token já conferido fica na memória até expirar. Um token revogado continua aceito até o `exp`, como já acontece com a conferência por chave pública.
+  - **Menu:** o e-mail do menu é lido do cookie da sessão, sem ir ao Supabase. O `proxy.ts` já conferiu o token.
+  - **Resultado:** num teste com 130 ms de atraso simulado, a API caiu de cerca de 1,9 s para cerca de 0,4 s por tela de itens.
+- **Próximos passos possíveis:**
+  - Um projeto do Supabase em São Paulo (sa-east-1) cortaria a maior parte do tempo que sobrou. Exige criar outro projeto e migrar os dados.
+  - O modo de produção do site (`npm run site:rapido`) evita a compilação das páginas no primeiro acesso.
 
 ## Estrutura do repositório
 

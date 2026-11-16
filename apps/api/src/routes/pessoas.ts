@@ -22,10 +22,12 @@ const dadosConvite = z.object({
  * usuário em acesso ao orçamento (o convite é usado e apagado) e guarda o
  * e-mail nos acessos antigos que ainda não tinham.
  */
-export async function aceitarConvites(usuario: Usuario) {
+export async function aceitarConvites(usuario: Usuario, membrosSemEmail = true) {
   const email = usuario.email?.toLowerCase();
   if (!email) return;
   const convites = await db().convite.findMany({ where: { email } });
+  // Sem convite pendente e sem e-mail a completar: nada a gravar (evita uma transação a cada página).
+  if (convites.length === 0 && !membrosSemEmail) return;
   await db().$transaction([
     ...convites.map((c) =>
       db().membroOrcamento.upsert({
@@ -34,8 +36,8 @@ export async function aceitarConvites(usuario: Usuario) {
         update: {},
       }),
     ),
-    db().convite.deleteMany({ where: { id: { in: convites.map((c) => c.id) } } }),
-    db().membroOrcamento.updateMany({ where: { usuarioId: usuario.id, email: null }, data: { email } }),
+    ...(convites.length ? [db().convite.deleteMany({ where: { id: { in: convites.map((c) => c.id) } } })] : []),
+    ...(membrosSemEmail ? [db().membroOrcamento.updateMany({ where: { usuarioId: usuario.id, email: null }, data: { email } })] : []),
   ]);
 }
 

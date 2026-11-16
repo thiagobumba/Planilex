@@ -49,6 +49,10 @@ Orçamentos de que o usuário é membro. Antes de responder, **aceita os convite
    "dataCasamento": "2027-04-18", "voltagemCasa": "V220", "cep": null, "papel": "DONO" }]
 ```
 
+### `GET /orcamentos/atual`
+O orçamento em uso (o primeiro do usuário), já no formato de `GET /orcamentos/:id`. É a rota que o site usa em toda tela: junta `GET /orcamentos` e `GET /orcamentos/:id` numa chamada só. Aceita os convites pendentes como `GET /orcamentos`.
+**200** com o orçamento e o resumo · **204** quando o usuário ainda não tem orçamento.
+
 ### `POST /orcamentos`
 Cria o orçamento, coloca o usuário como `DONO` e, por padrão, cria os cômodos Cozinha, Sala, Quarto, Banheiro, Área de serviço e Materiais e obra (sem limite).
 

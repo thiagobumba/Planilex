@@ -106,9 +106,11 @@ export async function rotasItens(app: FastifyInstance) {
 
   app.get("/orcamentos/:orcamentoId/itens", async (req) => {
     const { orcamentoId } = idOrcamento.parse(req.params);
-    await exigirMembro(orcamentoId, req.usuario.id);
     const f = filtros.parse(req.query);
-    const itens = await db().item.findMany({
+    // A checagem de membro e a busca rodam juntas (uma ida ao banco a menos); sem acesso, a lista é descartada.
+    const [, itens] = await Promise.all([
+      exigirMembro(orcamentoId, req.usuario.id),
+      db().item.findMany({
       where: {
         comodo: { orcamentoId },
         comodoId: f.comodoId,
@@ -117,7 +119,8 @@ export async function rotasItens(app: FastifyInstance) {
       },
       include: { comodo: { select: { nome: true, ordem: true } }, ofertaEscolhida: true },
       orderBy: [{ comodo: { ordem: "asc" } }, { criadoEm: "asc" }],
-    });
+      }),
+    ]);
     return itens.map(serializar);
   });
 
@@ -126,13 +129,17 @@ export async function rotasItens(app: FastifyInstance) {
     regrasSituacao(dados);
     await exigirComodo(dados.comodoId, req.usuario.id);
     const { oferta, ...campos } = dados;
-    const criado = await db().item.create({
+    let item = await db().item.create({
       data: { ...campos, valorPago: campos.situacao === "COMPRADO" ? campos.valorPago : null },
+      include: incluir,
     });
     if (oferta) {
-      await db().item.update({ where: { id: criado.id }, data: { ofertaEscolhidaId: await guardarOferta(criado.id, oferta) } });
+      item = await db().item.update({
+        where: { id: item.id },
+        data: { ofertaEscolhidaId: await guardarOferta(item.id, oferta) },
+        include: incluir,
+      });
     }
-    const item = await db().item.findUniqueOrThrow({ where: { id: criado.id }, include: incluir });
     return reply.code(201).send(serializar(item));
   });
 

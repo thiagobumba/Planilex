@@ -5,6 +5,7 @@ import { db } from "../db.js";
 import { centavos, num } from "../formatos.js";
 import { exigirLogin } from "../plugins/autenticacao.js";
 import { percentual, resumoItens } from "../resumo.js";
+import type { Usuario } from "../plugins/autenticacao.js";
 import { aceitarConvites } from "./pessoas.js";
 
 /** Cômodos criados junto com um orçamento novo (podem ser editados depois). */
@@ -52,13 +53,18 @@ export async function rotasOrcamentos(app: FastifyInstance) {
   app.addHook("preHandler", exigirLogin);
 
   app.get("/orcamentos", async (req) => {
-    await aceitarConvites(req.usuario);
-    const membros = await db().membroOrcamento.findMany({
-      where: { usuarioId: req.usuario.id },
-      include: { orcamento: true },
-      orderBy: { criadoEm: "asc" },
-    });
+    const membros = await membrosDoUsuario(req.usuario);
     return membros.map((m) => ({ ...serializarOrcamento(m.orcamento), papel: m.papel }));
+  });
+
+  /**
+   * Orçamento em uso (o primeiro do usuário) já com o resumo do painel.
+   * Junta GET /orcamentos e GET /orcamentos/:id numa chamada só. Sem orçamento: 204.
+   */
+  app.get("/orcamentos/atual", async (req, reply) => {
+    const membros = await membrosDoUsuario(req.usuario);
+    if (membros.length === 0) return reply.code(204).send();
+    return detalhar(membros[0].orcamentoId, membros[0].papel);
   });
 
   app.post("/orcamentos", async (req, reply) => {
@@ -84,45 +90,7 @@ export async function rotasOrcamentos(app: FastifyInstance) {
   app.get("/orcamentos/:id", async (req) => {
     const { id } = params.parse(req.params);
     const membro = await exigirMembro(id, req.usuario.id);
-    const orcamento = await db().orcamento.findUniqueOrThrow({
-      where: { id },
-      include: {
-        comodos: {
-          orderBy: [{ ordem: "asc" }, { nome: "asc" }],
-          include: { itens: { select: { situacao: true, valorPrevisto: true, valorPago: true } } },
-        },
-      },
-    });
-
-    const comodos = orcamento.comodos.map((c) => {
-      const r = resumoItens(c.itens);
-      const limite = num(c.limite)!;
-      return {
-        id: c.id,
-        nome: c.nome,
-        limite,
-        ordem: c.ordem,
-        ...r,
-        percentualDoLimite: percentual(r.previsto, limite),
-        acimaDoLimite: limite > 0 && r.previsto > limite,
-        excedente: limite > 0 && r.previsto > limite ? centavos(r.previsto - limite) : 0,
-      };
-    });
-
-    const total = resumoItens(orcamento.comodos.flatMap((c) => c.itens));
-    const valorTotal = num(orcamento.valorTotal)!;
-    return {
-      ...serializarOrcamento(orcamento),
-      papel: membro.papel,
-      resumo: {
-        ...total,
-        aPagar: centavos(total.previsto - total.pago),
-        disponivel: centavos(valorTotal - total.previsto),
-        percentualPrevisto: percentual(total.previsto, valorTotal),
-        percentualPago: percentual(total.pago, valorTotal),
-      },
-      comodos,
-    };
+    return detalhar(id, membro.papel);
   });
 
   app.patch("/orcamentos/:id", async (req) => {
@@ -140,4 +108,59 @@ export async function rotasOrcamentos(app: FastifyInstance) {
     });
     return serializarOrcamento(orcamento);
   });
+}
+
+/** Convites pendentes e e-mails a completar são resolvidos aqui; depois devolve os orçamentos do usuário. */
+async function membrosDoUsuario(usuario: Usuario) {
+  const buscar = () =>
+    db().membroOrcamento.findMany({ where: { usuarioId: usuario.id }, include: { orcamento: true }, orderBy: { criadoEm: "asc" } });
+  const email = usuario.email?.toLowerCase();
+  const [membros, convitesPendentes] = await Promise.all([buscar(), email ? db().convite.count({ where: { email } }) : 0]);
+  const semEmail = Boolean(email) && membros.some((m) => !m.email);
+  if (convitesPendentes === 0 && !semEmail) return membros;
+  await aceitarConvites(usuario, semEmail);
+  return buscar();
+}
+
+/** Orçamento com o resumo do painel: totais e uso por cômodo (uma consulta só, com JOIN). */
+async function detalhar(id: string, papel: string) {
+  const orcamento = await db().orcamento.findUniqueOrThrow({
+    where: { id },
+    include: {
+      comodos: {
+        orderBy: [{ ordem: "asc" }, { nome: "asc" }],
+        include: { itens: { select: { situacao: true, valorPrevisto: true, valorPago: true } } },
+      },
+    },
+  });
+
+  const comodos = orcamento.comodos.map((c) => {
+    const r = resumoItens(c.itens);
+    const limite = num(c.limite)!;
+    return {
+      id: c.id,
+      nome: c.nome,
+      limite,
+      ordem: c.ordem,
+      ...r,
+      percentualDoLimite: percentual(r.previsto, limite),
+      acimaDoLimite: limite > 0 && r.previsto > limite,
+      excedente: limite > 0 && r.previsto > limite ? centavos(r.previsto - limite) : 0,
+    };
+  });
+
+  const total = resumoItens(orcamento.comodos.flatMap((c) => c.itens));
+  const valorTotal = num(orcamento.valorTotal)!;
+  return {
+    ...serializarOrcamento(orcamento),
+    papel,
+    resumo: {
+      ...total,
+      aPagar: centavos(total.previsto - total.pago),
+      disponivel: centavos(valorTotal - total.previsto),
+      percentualPrevisto: percentual(total.previsto, valorTotal),
+      percentualPago: percentual(total.pago, valorTotal),
+    },
+    comodos,
+  };
 }

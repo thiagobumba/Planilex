@@ -12,6 +12,27 @@ Cada entrada informa:
 
 ## [Não lançado]
 
+### 2026-11-16 · App mais rápido para navegar e cadastrar
+**Alterado**
+- Cada tela faz bem menos consultas ao banco. Como o banco fica nos EUA (us-east-1), cada consulta custa cerca de 130 ms de ida e volta. Num teste com esse atraso simulado, a API da tela de itens caiu de cerca de 1,9 s para cerca de 0,4 s.
+  - Nova rota `GET /orcamentos/atual`, que traz o orçamento já com o resumo. O site a usa no lugar de `GET /orcamentos` seguido de `GET /orcamentos/:id`.
+  - Aceitar convites só abre transação quando há convite pendente ou acesso sem e-mail. Antes, abria em toda tela.
+  - Prisma com `relationJoins` (preview no `schema.prisma`): as relações vêm num único SELECT com JOIN.
+  - `exigirComodo` e `exigirItem` checam o acesso na mesma consulta. A lista de itens checa o acesso em paralelo com a busca. Criar um item não faz mais uma consulta extra no fim.
+  - A API guarda os tokens já conferidos até expirarem.
+  - O e-mail do menu é lido do cookie da sessão, sem chamar o Supabase.
+- `loading.tsx`: ao clicar no menu, aparece na hora um esqueleto animado enquanto a página carrega.
+
+**Adicionado**
+- Comando `npm run site:rapido`: sobe o site em modo de produção, que abre as páginas mais rápido que o modo de desenvolvimento.
+- Teste da rota `GET /orcamentos/atual` (16 testes no total).
+
+**Por quê:** o dono achou o app lento para cadastrar e navegar.
+
+**Impacto:**
+- Sem migração. O `schema.prisma` mudou (preview `relationJoins`): o modo automático recompila o pacote do banco e reinicia a API sozinho.
+- Um token de login revogado continua aceito pela API até expirar (no máximo 1 hora), como já acontecia com a conferência por chave pública.
+
 ### 2026-11-16 · "Comprado? Sim/Não" e guias "Falta comprar" e "Comprados"
 **Adicionado**
 - Formulário de item: campo **Comprado? Não | Sim**. Com "Não", aparece a etapa (Pesquisando, Cadastrado ou Escolhido). Com "Sim", aparece o **Valor pago**, já preenchido com o valor previsto.

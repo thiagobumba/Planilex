@@ -112,6 +112,16 @@ describe("API do Planilex", () => {
     salaId = detalhe.comodos[1].id;
   });
 
+  test("orçamento atual: resumo numa chamada só e 204 sem orçamento", async () => {
+    const atual = await chamar(ana, "GET", "/orcamentos/atual");
+    assert.equal(atual.statusCode, 200, atual.body);
+    assert.equal(atual.json().id, orcamentoId);
+    assert.equal(atual.json().papel, "DONO");
+    assert.equal(atual.json().comodos.length, 6);
+    assert.ok(atual.json().resumo);
+    assert.equal((await chamar(beto, "GET", "/orcamentos/atual")).statusCode, 204);
+  });
+
   test("valida os dados do orçamento", async () => {
     const r = await chamar(ana, "POST", "/orcamentos", { nome: "", valorTotal: -1 });
     assert.equal(r.statusCode, 400);
@@ -204,6 +214,8 @@ describe("API do Planilex", () => {
   });
 
   test("convidado entra e vê o mesmo orçamento", async () => {
+    // O convite também é aceito pela rota do orçamento atual (a que o site usa).
+    assert.equal((await chamar(beto, "GET", "/orcamentos/atual")).json().id, orcamentoId);
     const lista = (await chamar(beto, "GET", "/orcamentos")).json();
     assert.equal(lista.length, 1);
     assert.equal(lista[0].id, orcamentoId);
