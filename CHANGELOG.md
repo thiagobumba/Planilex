@@ -12,6 +12,21 @@ Cada entrada informa:
 
 ## [Não lançado]
 
+### 2026-11-16 · API não subia: pacote do banco não era compilado
+**Corrigido**
+- `npm run dev:api` falhava com `ERR_MODULE_NOT_FOUND ... @planilex/db/dist/index.js`, porque a API importa a versão compilada do pacote do banco e nada a gerava antes.
+
+**Alterado** (`package.json` da raiz)
+- Novo `postinstall`: o `npm install` gera o cliente do Prisma e compila `@planilex/db`.
+- `dev:api` compila `@planilex/db` antes de subir a API.
+- `db:generate` passa a compilar o pacote inteiro, não só gerar o cliente.
+- `db:migrate` recompila o pacote depois de criar a migração.
+- `README.md`: descrições dos comandos atualizadas.
+
+**Por quê:** erro encontrado ao rodar a API pela primeira vez no Windows.
+
+**Impacto:** basta `git pull` seguido de `npm install`. Testado a partir de uma pasta limpa: a instalação gera `packages/db/dist` e a API sobe e responde em `/health`.
+
 ### 2026-11-16 · Autorização dos scripts de instalação (npm 11/12)
 **Adicionado**
 - `package.json`: campo `allowScripts` autorizando os scripts de instalação de `prisma`, `@prisma/engines` e `esbuild`.

@@ -70,14 +70,17 @@ O arquivo `.env` tem senha do banco e **nunca** vai para o GitHub (está no `.gi
 
 ### Comandos
 
+O `npm install` já compila o pacote do banco automaticamente (script `postinstall`).
+
+
 | Comando | O que faz |
 |---------|-----------|
 | `npm run dev:web` | Sobe o site em modo de desenvolvimento |
-| `npm run dev:api` | Sobe a API em modo de desenvolvimento |
+| `npm run dev:api` | Compila o pacote do banco e sobe a API em modo de desenvolvimento |
 | `npm run build` | Gera as versões de produção (banco, API e site) |
 | `npm run typecheck` | Confere os tipos do TypeScript em todo o projeto |
-| `npm run db:generate` | Gera o cliente do Prisma a partir do `schema.prisma` |
-| `npm run db:migrate` | Cria uma nova migração depois de alterar o `schema.prisma` |
+| `npm run db:generate` | Gera o cliente do Prisma e compila o pacote do banco (`packages/db/dist`) |
+| `npm run db:migrate` | Cria uma nova migração depois de alterar o `schema.prisma` e recompila o pacote do banco |
 | `npm run db:deploy` | Aplica as migrações pendentes no banco |
 | `npm run db:studio` | Abre o Prisma Studio para ver os dados |
 | `npm run db:testar` | Testa as conexões `DATABASE_URL` e `DIRECT_URL` e mostra a mensagem exata do servidor, sem exibir a senha |

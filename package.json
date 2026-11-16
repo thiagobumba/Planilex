@@ -11,11 +11,12 @@
   ],
   "scripts": {
     "dev:web": "npm run dev -w @planilex/web",
-    "dev:api": "npm run dev -w @planilex/api",
+    "dev:api": "npm run build -w @planilex/db && npm run dev -w @planilex/api",
     "build": "npm run build -w @planilex/db && npm run build -w @planilex/api && npm run build -w @planilex/web",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "db:generate": "npm run generate -w @planilex/db",
-    "db:migrate": "npm run migrate:dev -w @planilex/db",
+    "postinstall": "npm run build -w @planilex/db",
+    "db:generate": "npm run build -w @planilex/db",
+    "db:migrate": "npm run migrate:dev -w @planilex/db && npm run build -w @planilex/db",
     "db:deploy": "npm run migrate:deploy -w @planilex/db",
     "db:studio": "npm run studio -w @planilex/db",
     "db:testar": "npm run testar -w @planilex/db"
