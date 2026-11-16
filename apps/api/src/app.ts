@@ -6,6 +6,7 @@ import { ErroHttp } from "./erros.js";
 import { rotasComodos } from "./routes/comodos.js";
 import { rotasItens } from "./routes/itens.js";
 import { rotasOrcamentos } from "./routes/orcamentos.js";
+import { rotasPessoas } from "./routes/pessoas.js";
 import { rotasSaude } from "./routes/saude.js";
 
 export async function criarApp(opcoes: FastifyServerOptions = { logger: true }) {
@@ -34,6 +35,7 @@ export async function criarApp(opcoes: FastifyServerOptions = { logger: true }) 
   await app.register(rotasOrcamentos);
   await app.register(rotasComodos);
   await app.register(rotasItens);
+  await app.register(rotasPessoas);
 
   return app;
 }

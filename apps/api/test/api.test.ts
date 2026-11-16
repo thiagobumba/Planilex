@@ -16,11 +16,13 @@ const { criarApp } = await import("../src/app.js");
 const { definirVerificadorDeToken } = await import("../src/plugins/autenticacao.js");
 const { db } = await import("../src/db.js");
 
-// Nos testes, o "token" é o próprio id do usuário.
-definirVerificadorDeToken(async (token) => (token.startsWith("u-") ? { id: token.slice(2) } : null));
-
 const ana = randomUUID();
 const beto = randomUUID();
+const carla = randomUUID();
+const emails: Record<string, string> = { [ana]: "ana@teste.com", [beto]: "beto@teste.com", [carla]: "Carla@Teste.com" };
+
+// Nos testes, o "token" é o próprio id do usuário; o e-mail vem da tabela acima.
+definirVerificadorDeToken(async (token) => (token.startsWith("u-") ? { id: token.slice(2), email: emails[token.slice(2)] } : null));
 const app = await criarApp({ logger: false });
 
 function chamar(usuario: string | null, method: "GET" | "POST" | "PATCH" | "DELETE", rota: string, body?: unknown) {
@@ -43,7 +45,7 @@ describe("API do Planilex", () => {
   });
 
   after(async () => {
-    await db().orcamento.deleteMany({ where: { membros: { some: { usuarioId: { in: [ana, beto] } } } } });
+    await db().orcamento.deleteMany({ where: { membros: { some: { usuarioId: { in: [ana, beto, carla] } } } } });
     await db().$disconnect();
     await app.close();
   });
@@ -161,8 +163,52 @@ describe("API do Planilex", () => {
     assert.equal(cozinha.quantidadeComprados, 1);
   });
 
+  test("convidar pessoas: só o dono, validação e repetidos", async () => {
+    // Beto ainda não é membro: não vê nem convida
+    assert.equal((await chamar(beto, "POST", `/orcamentos/${orcamentoId}/convites`, { email: "x@teste.com" })).statusCode, 404);
+    assert.equal((await chamar(ana, "POST", `/orcamentos/${orcamentoId}/convites`, { email: "não é e-mail" })).statusCode, 400);
+    const r = await chamar(ana, "POST", `/orcamentos/${orcamentoId}/convites`, { email: "  BETO@teste.com " });
+    assert.equal(r.statusCode, 201, r.body);
+    assert.equal(r.json().email, "beto@teste.com");
+    assert.equal((await chamar(ana, "POST", `/orcamentos/${orcamentoId}/convites`, { email: "beto@teste.com" })).statusCode, 409);
+    assert.equal((await chamar(ana, "POST", `/orcamentos/${orcamentoId}/convites`, { email: "ana@teste.com" })).statusCode, 409);
+    await chamar(ana, "POST", `/orcamentos/${orcamentoId}/convites`, { email: "carla@teste.com" });
+  });
+
+  test("convidado entra e vê o mesmo orçamento", async () => {
+    const lista = (await chamar(beto, "GET", "/orcamentos")).json();
+    assert.equal(lista.length, 1);
+    assert.equal(lista[0].id, orcamentoId);
+    assert.equal(lista[0].papel, "EDITOR");
+    // Pode editar itens, mas não convidar
+    assert.equal((await chamar(beto, "POST", "/itens", { nome: "Ventilador", comodoId: cozinhaId })).statusCode, 201);
+    assert.equal((await chamar(beto, "POST", `/orcamentos/${orcamentoId}/convites`, { email: "z@teste.com" })).statusCode, 403);
+    // E-mail com maiúsculas no login também casa com o convite
+    assert.equal((await chamar(carla, "GET", "/orcamentos")).json()[0]?.id, orcamentoId);
+
+    const pessoas = (await chamar(ana, "GET", `/orcamentos/${orcamentoId}/pessoas`)).json();
+    assert.equal(pessoas.podeGerenciar, true);
+    assert.deepEqual(
+      pessoas.membros.map((m: { email: string }) => m.email).sort(),
+      ["ana@teste.com", "beto@teste.com", "carla@teste.com"],
+    );
+    assert.equal(pessoas.convites.length, 0);
+    assert.equal((await chamar(beto, "GET", `/orcamentos/${orcamentoId}/pessoas`)).json().podeGerenciar, false);
+  });
+
+  test("cancelar convite e remover pessoa", async () => {
+    const c = (await chamar(ana, "POST", `/orcamentos/${orcamentoId}/convites`, { email: "depois@teste.com" })).json();
+    assert.equal((await chamar(beto, "DELETE", `/convites/${c.id}`)).statusCode, 403);
+    assert.equal((await chamar(ana, "DELETE", `/convites/${c.id}`)).statusCode, 204);
+    assert.equal((await chamar(ana, "DELETE", `/orcamentos/${orcamentoId}/membros/${ana}`)).statusCode, 409);
+    assert.equal((await chamar(beto, "DELETE", `/orcamentos/${orcamentoId}/membros/${carla}`)).statusCode, 403);
+    assert.equal((await chamar(ana, "DELETE", `/orcamentos/${orcamentoId}/membros/${carla}`)).statusCode, 204);
+    assert.equal((await chamar(carla, "GET", `/orcamentos/${orcamentoId}`)).statusCode, 404);
+    assert.equal((await chamar(carla, "GET", "/orcamentos")).json().length, 0);
+  });
+
   test("excluir item", async () => {
-    assert.equal((await chamar(beto, "DELETE", `/itens/${itemId}`)).statusCode, 404);
+    assert.equal((await chamar(carla, "DELETE", `/itens/${itemId}`)).statusCode, 404); // carla foi removida
     assert.equal((await chamar(ana, "DELETE", `/itens/${itemId}`)).statusCode, 204);
     assert.equal((await chamar(ana, "PATCH", `/itens/${itemId}`, { nome: "x" })).statusCode, 404);
   });

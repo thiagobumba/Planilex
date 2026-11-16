@@ -55,6 +55,12 @@ export interface Item {
   atualizadoEm: string;
 }
 
+export interface Pessoas {
+  podeGerenciar: boolean;
+  membros: { usuarioId: string; email: string | null; papel: "DONO" | "EDITOR"; voce: boolean }[];
+  convites: { id: string; email: string; criadoEm: string }[];
+}
+
 /** Resultado das server actions, mostrado no formulário. */
 export interface EstadoAcao {
   erro?: string;

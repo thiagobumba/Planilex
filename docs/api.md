@@ -43,7 +43,7 @@ Confere se a API consegue falar com o banco (executa `SELECT 1`).
 ## Orçamentos
 
 ### `GET /orcamentos`
-Orçamentos de que o usuário é membro.
+Orçamentos de que o usuário é membro. Antes de responder, **aceita os convites** pendentes para o e-mail do usuário (sem diferenciar maiúsculas): cada convite vira acesso como `EDITOR` e é apagado. Também guarda o e-mail nos acessos que ainda não o tinham.
 ```json
 [{ "id": "uuid", "nome": "Nossa casa", "valorTotal": 60000, "reservaImprevistos": 6000,
    "dataCasamento": "2027-04-18", "voltagemCasa": "V220", "cep": null, "papel": "DONO" }]
@@ -131,9 +131,33 @@ Altera qualquer campo do `POST`. Mover para outro cômodo só é permitido dentr
 ### `DELETE /itens/:id`
 **204**.
 
+## Pessoas (compartilhar o orçamento)
+
+Quem tem acesso a um orçamento é membro dele: `DONO` (quem criou) ou `EDITOR` (convidado). Os dois veem e editam tudo; só o `DONO` convida e remove pessoas (os outros recebem **403**).
+
+### `GET /orcamentos/:id/pessoas`
+```json
+{ "podeGerenciar": true,
+  "membros": [{ "usuarioId": "uuid", "email": "ana@exemplo.com", "papel": "DONO", "voce": true }],
+  "convites": [{ "id": "uuid", "email": "beto@exemplo.com", "criadoEm": "2026-11-16T12:00:00.000Z" }] }
+```
+
+### `POST /orcamentos/:id/convites` (só DONO)
+`{ "email": "beto@exemplo.com" }`. O e-mail é guardado em minúsculo. **201** com o convite.
+
+**409** se a pessoa já tem acesso ou já foi convidada · **400** e-mail inválido.
+
+O convite não envia e-mail: a pessoa ganha acesso quando entra no Planilex com esse e-mail (Google ou e-mail e senha).
+
+### `DELETE /convites/:id` (só DONO)
+Cancela um convite pendente. **204**.
+
+### `DELETE /orcamentos/:id/membros/:usuarioId` (só DONO)
+Remove o acesso de alguém. **204** · **409** ao tentar remover a si mesmo.
+
 ## Testes
 
-`apps/api/test/api.test.ts` testa todas as rotas contra um PostgreSQL de teste (nunca o banco real):
+`apps/api/test/api.test.ts` (13 testes) testa todas as rotas contra um PostgreSQL de teste (nunca o banco real):
 
 ```bash
 TEST_DATABASE_URL="postgresql://postgres@localhost:5432/planilex_teste" npm test -w @planilex/api

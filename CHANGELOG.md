@@ -12,6 +12,36 @@ Cada entrada informa:
 
 ## [Não lançado]
 
+### 2026-11-16 · Orçamento compartilhado por convite
+**Adicionado**
+- Migração `20261116140000_convites`, que só adiciona e não apaga nada:
+  - tabela `convites` (orçamento, e-mail, quem convidou), com RLS;
+  - coluna `email` em `membros_orcamento`.
+- API (`routes/pessoas.ts`):
+  - `GET /orcamentos/:id/pessoas`;
+  - `POST /orcamentos/:id/convites`;
+  - `DELETE /convites/:id`;
+  - `DELETE /orcamentos/:id/membros/:usuarioId`.
+  - Só o DONO convida e remove pessoas.
+- Aceite automático: no `GET /orcamentos`, os convites para o e-mail de quem entrou viram acesso como `EDITOR`, sem diferenciar maiúsculas.
+- Site, em Configurações › **Pessoas com acesso**: lista quem tem acesso e os convites pendentes, convida por e-mail, cancela convite e remove acesso (com confirmação).
+- Tela "Vamos começar": aviso para não criar outro orçamento e pedir o convite, mostrando o e-mail da pessoa.
+- 3 testes novos da API (13 no total).
+
+**Alterado**
+- `POST /orcamentos` guarda o e-mail do dono.
+- Configurações dividida em "Pessoas com acesso" e "Dados do orçamento".
+- `docs/api.md`, `docs/arquitetura.md`, `docs/ux-8-regras.md` e `README.md` (seção Login e roadmap) atualizados.
+
+**Por quê:** o dono entrou com o Google (um e-mail) e depois com e-mail e senha (outro e-mail) e não viu o orçamento. Para o Supabase, são duas contas. O orçamento é compartilhado, então todos os convidados precisam ver o mesmo.
+
+**Impacto:**
+- Aplicar a migração: o modo automático aplica sozinho; manualmente, `npm run db:deploy`.
+- Para ver o orçamento com outro e-mail, entre com a conta que criou o orçamento e convide esse e-mail.
+- Verificado:
+  - 13 testes da API;
+  - no Chrome, com duas pessoas: convite criado, convidado passa a ver o mesmo painel, convidado não vê o botão de convidar e a lista do dono mostra "Pode editar".
+
 ### 2026-11-16 · Modo automático: atualiza sozinho a cada alteração
 **Adicionado**
 - `iniciar-planilex.cmd` e `scripts/planilex-automatico.ps1`:

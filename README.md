@@ -141,6 +141,8 @@ Se o `npm run db:deploy` mostrar `P1001: Can't reach database server`, rode `npm
 
 Duas formas de entrar, ambas pelo Supabase Auth: **conta Google** e **e-mail e senha** (com confirmação por e-mail e "Esqueci a senha"). Se a mesma pessoa usar as duas com o mesmo e-mail, o Supabase junta as duas formas na mesma conta.
 
+**Orçamento compartilhado:** e-mails diferentes são contas diferentes. Para alguém ver o mesmo orçamento, o dono convida o e-mail dessa pessoa em **Configurações › Pessoas com acesso**. No primeiro login com esse e-mail, a pessoa já entra no orçamento.
+
 ### Login com Google
 
 Configuração (uma vez só):
@@ -186,7 +188,7 @@ A tela de login mostra o que fazer e o "detalhe técnico" (a mensagem original d
 1. [x] Modelos de telas
 2. [x] Estrutura do monorepo (web + api + banco)
 3. [x] Login (Google e e-mail/senha) e cadastro de orçamento, cômodos e itens
-   - [ ] Convidar outra pessoa para o orçamento
+   - [x] Compartilhar o orçamento por convite (Configurações › Pessoas com acesso)
    - [ ] "Desfazer" depois de excluir ou alterar
 4. [ ] Busca de preços
 5. [ ] Alertas de preço e histórico

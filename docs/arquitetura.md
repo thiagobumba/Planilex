@@ -44,7 +44,7 @@
   4. As páginas e server actions chamam a API no servidor, enviando o token em `Authorization: Bearer`.
   5. A API valida o token com `getClaims()` (chaves públicas do projeto) e checa se o usuário é membro do orçamento.
 - **Por que a API valida de novo:** a API é a única porta para os dados (o RLS bloqueia a Data API). Ela não pode confiar em quem chama, só no token assinado pelo Supabase.
-- **Um orçamento por pessoa, por enquanto:** o site usa o primeiro orçamento do usuário. A API já suporta vários orçamentos e vários membros; falta a tela de convite.
+- **Orçamento compartilhado por convite:** cada forma de login com um e-mail diferente é um usuário diferente no Supabase. Para todos verem o mesmo orçamento, o dono convida os e-mails em Configurações › Pessoas com acesso; no primeiro acesso com aquele e-mail, o convite vira acesso (`EDITOR`). Quem não foi convidado não vê nada, mesmo criando conta. O site usa o primeiro orçamento do usuário.
 
 ## Estrutura do repositório
 
@@ -94,7 +94,8 @@ Definido em `packages/db/prisma/schema.prisma`. Tabelas no banco em português e
 | Modelo (tabela) | Campos principais | Observações |
 |-----------------|-------------------|-------------|
 | `Orcamento` (`orcamentos`) | nome, valor total, reserva para imprevistos, data do casamento, voltagem da casa, CEP | Raiz de tudo |
-| `MembroOrcamento` (`membros_orcamento`) | orçamento, usuário, papel (DONO / EDITOR) | `usuario_id` é o id do usuário no Supabase Auth; permite dividir o orçamento |
+| `MembroOrcamento` (`membros_orcamento`) | orçamento, usuário, e-mail, papel (DONO / EDITOR) | `usuario_id` é o id do usuário no Supabase Auth; o e-mail é guardado para mostrar quem tem acesso |
+| `Convite` (`convites`) | orçamento, e-mail (minúsculo), quem convidou | Um por e-mail por orçamento; apagado quando vira acesso |
 | `Comodo` (`comodos`) | orçamento, nome, limite, ordem | Nome único por orçamento |
 | `Item` (`itens`) | cômodo, nome, quantidade, situação (PESQUISANDO / ESCOLHIDO / COMPRADO), valor previsto, valor pago, oferta escolhida, alerta de preço | Valores são o **total** do item (já com a quantidade). `COMPRADO` exige valor pago |
 | `Oferta` (`ofertas`) | item, loja, título, preço, frete, total, link, voltagem, data da consulta | Índice por item + total para ordenar pelo preço final |
@@ -109,6 +110,7 @@ Valores em dinheiro usam `DECIMAL(12,2)`, nunca número com vírgula flutuante. 
 |----------|-----------|
 | `20261116120000_inicial` | Cria todas as tabelas e os tipos `Voltagem`, `Papel` e `SituacaoItem` |
 | `20261116130000_ativa_rls` | Ativa o Row Level Security em todas as tabelas, sem políticas (bloqueia a Data API do Supabase) |
+| `20261116140000_convites` | Cria a tabela `convites` (com RLS) e a coluna `email` em `membros_orcamento`. Só adiciona |
 
 ## Busca de preços
 

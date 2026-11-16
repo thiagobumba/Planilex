@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { CamposOrcamento } from "@/components/CamposOrcamento";
 import { BotaoEnviar, Formulario } from "@/components/Formulario";
-import { orcamentoAtual } from "@/lib/dados";
+import { orcamentoAtual, usuarioAtual } from "@/lib/dados";
 import { reaisInteiros, textoContagem } from "@/lib/formato";
 import type { ResumoComodo } from "@/lib/tipos";
 import { criarOrcamento } from "./acoes";
@@ -15,6 +15,7 @@ export default async function Painel({ searchParams }: { searchParams: Promise<{
   );
 
   if (!orcamento) {
+    const { email } = await usuarioAtual();
     return (
       <>
         {avisoSenha}
@@ -24,6 +25,12 @@ export default async function Painel({ searchParams }: { searchParams: Promise<{
             <p className="suave">Crie o orçamento. Os cômodos mais comuns já vêm prontos, e você pode mudar depois.</p>
           </div>
         </header>
+        <div className="aviso aviso-info">
+          <p>
+            <strong>O orçamento de vocês já existe?</strong> Não crie outro: peça para quem criou entrar em{" "}
+            <strong>Configurações › Pessoas com acesso</strong> e convidar <strong>{email}</strong>. Depois é só recarregar esta página.
+          </p>
+        </div>
         <Formulario acao={criarOrcamento} className="cartao">
           <CamposOrcamento />
           <div className="acoes">

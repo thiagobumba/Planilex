@@ -103,3 +103,30 @@ export async function excluirItem(_: EstadoAcao, f: FormData): Promise<EstadoAca
   if (resultado.erro) return resultado;
   redirect(`/itens?excluido=${encodeURIComponent(texto(f, "nome"))}`);
 }
+
+// ---------- Pessoas com acesso ----------
+
+export async function convidarPessoa(_: EstadoAcao, f: FormData): Promise<EstadoAcao> {
+  const orcamentoId = texto(f, "orcamentoId");
+  const email = texto(f, "email").toLowerCase();
+  return tentar(
+    () => api(`/orcamentos/${orcamentoId}/convites`, { method: "POST", body: { email } }),
+    `Convite criado. Quando ${email} entrar no Planilex (com Google ou e-mail e senha), vai ver este orçamento.`,
+    ["/configuracoes"],
+  );
+}
+
+export async function cancelarConvite(_: EstadoAcao, f: FormData): Promise<EstadoAcao> {
+  const id = texto(f, "id");
+  return tentar(() => api(`/convites/${id}`, { method: "DELETE" }), `Convite para ${texto(f, "email")} cancelado.`, ["/configuracoes"]);
+}
+
+export async function removerPessoa(_: EstadoAcao, f: FormData): Promise<EstadoAcao> {
+  const orcamentoId = texto(f, "orcamentoId");
+  const usuarioId = texto(f, "usuarioId");
+  return tentar(
+    () => api(`/orcamentos/${orcamentoId}/membros/${usuarioId}`, { method: "DELETE" }),
+    `${texto(f, "email") || "A pessoa"} não tem mais acesso.`,
+    ["/configuracoes"],
+  );
+}

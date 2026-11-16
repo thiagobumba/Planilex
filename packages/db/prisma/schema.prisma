@@ -42,6 +42,7 @@ model Orcamento {
   atualizadoEm       DateTime  @updatedAt @map("atualizado_em")
 
   membros    MembroOrcamento[]
+  convites   Convite[]
   comodos    Comodo[]
   atividades Atividade[]
 
@@ -52,6 +53,8 @@ model Orcamento {
 model MembroOrcamento {
   orcamentoId String   @map("orcamento_id") @db.Uuid
   usuarioId   String   @map("usuario_id") @db.Uuid
+  /// E-mail do login, guardado para mostrar quem tem acesso (minúsculo).
+  email       String?
   papel       Papel    @default(EDITOR)
   criadoEm    DateTime @default(now()) @map("criado_em")
 
@@ -60,6 +63,22 @@ model MembroOrcamento {
   @@id([orcamentoId, usuarioId])
   @@index([usuarioId])
   @@map("membros_orcamento")
+}
+
+/// Convite pendente: quando alguém entra com este e-mail, vira membro do orçamento.
+model Convite {
+  id           String   @id @default(uuid()) @db.Uuid
+  orcamentoId  String   @map("orcamento_id") @db.Uuid
+  /// Sempre em minúsculo.
+  email        String
+  convidadoPor String   @map("convidado_por") @db.Uuid
+  criadoEm     DateTime @default(now()) @map("criado_em")
+
+  orcamento Orcamento @relation(fields: [orcamentoId], references: [id], onDelete: Cascade)
+
+  @@unique([orcamentoId, email])
+  @@index([email])
+  @@map("convites")
 }
 
 /// Cômodo ou categoria (Cozinha, Sala, Materiais e obra...), com limite de gasto.

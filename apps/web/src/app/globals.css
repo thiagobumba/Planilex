@@ -731,3 +731,44 @@ select:focus {
     align-self: flex-start;
   }
 }
+
+/* ---------- Pessoas com acesso ---------- */
+.lista-pessoas {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.lista-pessoas li {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid #efede7;
+}
+.lista-pessoas li > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+}
+.dica.bloco {
+  flex-basis: 100%;
+}
+.confirmar summary {
+  cursor: pointer;
+  color: var(--cor-alerta);
+  font-weight: 600;
+  font-size: 14px;
+  min-height: 24px;
+}
+.confirmar[open] summary {
+  margin-bottom: 8px;
+}
+.aviso-info {
+  background: var(--cor-azul-suave);
+  color: var(--cor-azul);
+}

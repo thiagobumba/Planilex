@@ -5,6 +5,7 @@ import { db } from "../db.js";
 import { centavos, num } from "../formatos.js";
 import { exigirLogin } from "../plugins/autenticacao.js";
 import { percentual, resumoItens } from "../resumo.js";
+import { aceitarConvites } from "./pessoas.js";
 
 /** Cômodos criados junto com um orçamento novo (podem ser editados depois). */
 export const COMODOS_PADRAO = ["Cozinha", "Sala", "Quarto", "Banheiro", "Área de serviço", "Materiais e obra"];
@@ -51,6 +52,7 @@ export async function rotasOrcamentos(app: FastifyInstance) {
   app.addHook("preHandler", exigirLogin);
 
   app.get("/orcamentos", async (req) => {
+    await aceitarConvites(req.usuario);
     const membros = await db().membroOrcamento.findMany({
       where: { usuarioId: req.usuario.id },
       include: { orcamento: true },
@@ -69,7 +71,7 @@ export async function rotasOrcamentos(app: FastifyInstance) {
         dataCasamento: dados.dataCasamento ? new Date(dados.dataCasamento) : null,
         voltagemCasa: dados.voltagemCasa,
         cep: dados.cep ?? null,
-        membros: { create: { usuarioId: req.usuario.id, papel: "DONO" } },
+        membros: { create: { usuarioId: req.usuario.id, email: req.usuario.email?.toLowerCase() ?? null, papel: "DONO" } },
         comodos: dados.comodosPadrao
           ? { create: COMODOS_PADRAO.map((nome, ordem) => ({ nome, ordem })) }
           : undefined,
