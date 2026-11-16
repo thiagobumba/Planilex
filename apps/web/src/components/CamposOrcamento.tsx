@@ -12,12 +12,12 @@ export function CamposOrcamento({ orcamento }: { orcamento?: Orcamento }) {
       </label>
       <label className="campo">
         Orçamento total (R$)
-        <input name="valorTotal" required inputMode="decimal" placeholder="60.000,00" defaultValue={fmt(orcamento?.valorTotal)} />
+        <input name="valorTotal" required inputMode="decimal" placeholder="Ex.: 60.000,00" defaultValue={fmt(orcamento?.valorTotal)} />
         <span className="dica">Tudo o que vocês podem gastar com a casa.</span>
       </label>
       <label className="campo">
         Reserva para imprevistos (R$)
-        <input name="reservaImprevistos" inputMode="decimal" placeholder="6.000,00" defaultValue={fmt(orcamento?.reservaImprevistos)} />
+        <input name="reservaImprevistos" inputMode="decimal" placeholder="Ex.: 6.000,00" defaultValue={fmt(orcamento?.reservaImprevistos)} />
         <span className="dica">Parte do total que fica guardada.</span>
       </label>
       <label className="campo">
@@ -35,7 +35,7 @@ export function CamposOrcamento({ orcamento }: { orcamento?: Orcamento }) {
       </label>
       <label className="campo">
         CEP (opcional)
-        <input name="cep" inputMode="numeric" maxLength={9} placeholder="00000-000" defaultValue={orcamento?.cep ?? ""} />
+        <input name="cep" inputMode="numeric" maxLength={9} placeholder="Ex.: 01310-100" defaultValue={orcamento?.cep ?? ""} />
         <span className="dica">Para calcular frete na busca de preços.</span>
       </label>
     </div>

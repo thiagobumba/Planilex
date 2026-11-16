@@ -41,7 +41,7 @@ export function CamposItem({
       </label>
       <label className="campo">
         Valor previsto (R$)
-        <input name="valorPrevisto" inputMode="decimal" placeholder="0,00" defaultValue={fmt(item?.valorPrevisto)} />
+        <input name="valorPrevisto" inputMode="decimal" placeholder="Ex.: 689,90" defaultValue={fmt(item?.valorPrevisto)} />
         <span className="dica">Total do item, já com a quantidade.</span>
       </label>
       <label className="campo">

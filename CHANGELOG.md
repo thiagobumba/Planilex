@@ -12,6 +12,14 @@ Cada entrada informa:
 
 ## [Não lançado]
 
+### 2026-11-16 · Exemplos dos campos com "Ex.:"
+**Alterado**
+- `CamposOrcamento.tsx` e `CamposItem.tsx`: os textos de exemplo dos campos de valor e de CEP agora começam com "Ex.:" (por exemplo, "Ex.: 60.000,00").
+
+**Por quê:** no primeiro uso, os exemplos em cinza pareciam valores já preenchidos.
+
+**Impacto:** só visual. Segue a regra 5 (prevenção de erros) em `docs/ux-8-regras.md`.
+
 ### 2026-11-16 · Motivo real das falhas de login na tela
 **Alterado**
 - `apps/web/src/app/auth/callback/route.ts`: guarda o motivo da falha, vindo do Google/Supabase (`error_description`) ou da troca do código, e repassa para `/login`. Também registra `[login] falhou: ...` no terminal do site.
