@@ -421,6 +421,83 @@ input:focus,
 select:focus {
   border-color: var(--cor-primaria);
 }
+fieldset.campo {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+fieldset.campo legend {
+  padding: 0;
+  margin-bottom: 6px;
+}
+.alternador {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 44px;
+  padding: 3px;
+  gap: 3px;
+  border: 1px solid var(--cor-borda-forte);
+  border-radius: 8px;
+  background: var(--cor-superficie-2);
+}
+.alternador .opcao {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--cor-texto-suave);
+}
+.alternador .opcao input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  height: auto;
+  cursor: pointer;
+}
+.alternador .opcao.ativa {
+  background: var(--cor-primaria);
+  color: #fff;
+}
+.alternador .opcao:has(input:focus-visible) {
+  outline: 2px solid var(--cor-primaria);
+  outline-offset: 2px;
+}
+.guias {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--cor-borda-forte);
+  margin-bottom: 16px;
+}
+.guia {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  margin-bottom: -1px;
+  border-bottom: 3px solid transparent;
+  font-weight: 600;
+  color: var(--cor-texto-suave);
+  text-decoration: none;
+}
+.guia:hover {
+  color: var(--cor-texto);
+}
+.guia.ativa {
+  color: var(--cor-primaria-escura);
+  border-bottom-color: var(--cor-primaria);
+}
+.form-comprado {
+  display: inline;
+}
+.botao.botao-pequeno {
+  min-height: 32px;
+  padding: 4px 10px;
+  font-size: 13px;
+}
 .acoes {
   display: flex;
   justify-content: flex-end;

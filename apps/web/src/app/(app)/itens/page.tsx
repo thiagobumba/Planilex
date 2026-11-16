@@ -7,40 +7,49 @@ import { api } from "@/lib/api";
 import { orcamentoAtual } from "@/lib/dados";
 import { NOMES_SITUACAO, reais } from "@/lib/formato";
 import type { Item, Situacao } from "@/lib/tipos";
-import { criarItem } from "../acoes";
+import { alternarComprado, criarItem } from "../acoes";
 
 export const metadata: Metadata = { title: "Itens · Planilex" };
 
-const SITUACOES: Situacao[] = ["PESQUISANDO", "CADASTRADO", "ESCOLHIDO", "COMPRADO"];
+/** Etapas antes da compra (filtro da guia "Falta comprar"). */
+const ETAPAS: Situacao[] = ["PESQUISANDO", "CADASTRADO", "ESCOLHIDO"];
+type Lista = "falta" | "comprados";
 
 export default async function Itens({
   searchParams,
 }: {
-  searchParams: Promise<{ comodo?: string; situacao?: string; busca?: string; salvo?: string; excluido?: string }>;
+  searchParams: Promise<{ lista?: string; comodo?: string; situacao?: string; busca?: string; salvo?: string; excluido?: string; comprado?: string; desmarcado?: string; erro?: string }>;
 }) {
   const orcamento = await orcamentoAtual();
   if (!orcamento) redirect("/");
   const p = await searchParams;
 
   const comodoAtual = orcamento.comodos.find((c) => c.id === p.comodo);
-  const situacaoAtual = SITUACOES.find((s) => s === p.situacao);
+  const lista: Lista = p.lista === "comprados" ? "comprados" : "falta";
+  // O filtro de situação só existe na guia "Falta comprar".
+  const situacaoAtual = lista === "falta" ? ETAPAS.find((s) => s === p.situacao) : undefined;
   const query = new URLSearchParams();
   if (comodoAtual) query.set("comodoId", comodoAtual.id);
-  if (situacaoAtual) query.set("situacao", situacaoAtual);
   if (p.busca) query.set("busca", p.busca);
-  const itens = await api<Item[]>(`/orcamentos/${orcamento.id}/itens?${query}`);
+  const todos = await api<Item[]>(`/orcamentos/${orcamento.id}/itens?${query}`);
 
-  const totalPrevisto = itens.reduce((s, i) => s + (i.situacao === "COMPRADO" ? (i.valorPago ?? 0) : (i.valorPrevisto ?? 0)), 0);
+  const faltam = todos.filter((i) => i.situacao !== "COMPRADO");
+  const comprados = todos.filter((i) => i.situacao === "COMPRADO");
+  const itens = lista === "comprados" ? comprados : faltam.filter((i) => !situacaoAtual || i.situacao === situacaoAtual);
+
+  const totalPrevisto = itens.reduce((s, i) => s + (i.valorPrevisto ?? 0), 0);
   const totalPago = itens.reduce((s, i) => s + (i.valorPago ?? 0), 0);
 
-  /** Monta o link da aba mantendo os outros filtros. */
+  /** Monta o link mantendo os outros filtros. */
   const link = (mudancas: Record<string, string | undefined>) => {
     const q = new URLSearchParams();
-    const atual = { comodo: comodoAtual?.id, situacao: situacaoAtual, busca: p.busca, ...mudancas };
+    const atual = { lista: lista === "comprados" ? "comprados" : undefined, comodo: comodoAtual?.id, situacao: situacaoAtual, busca: p.busca, ...mudancas };
     Object.entries(atual).forEach(([k, v]) => v && q.set(k, v));
     const s = q.toString();
     return s ? `/itens?${s}` : "/itens";
   };
+
+  const voltar = link({});
 
   return (
     <>
@@ -62,6 +71,22 @@ export default async function Itens({
           “{p.salvo}” foi salvo.
         </p>
       )}
+      {p.comprado && (
+        <p role="status" className="aviso aviso-ok">
+          “{p.comprado}” marcado como comprado. Ele agora está na guia{" "}
+          <Link href={link({ lista: "comprados", situacao: undefined })}>Comprados</Link>.
+        </p>
+      )}
+      {p.desmarcado && (
+        <p role="status" className="aviso aviso-ok">
+          “{p.desmarcado}” voltou para a guia <Link href={link({ lista: undefined })}>Falta comprar</Link>, como “Escolhido”.
+        </p>
+      )}
+      {p.erro && (
+        <p role="alert" className="aviso aviso-erro">
+          {p.erro}
+        </p>
+      )}
       {p.excluido && (
         <p role="status" className="aviso aviso-ok">
           “{p.excluido}” foi excluído.
@@ -77,6 +102,19 @@ export default async function Itens({
           </div>
         </Formulario>
       </section>
+
+      <nav className="guias" aria-label="Listas de compra">
+        <Link href={link({ lista: undefined })} className={lista === "falta" ? "guia ativa" : "guia"} aria-current={lista === "falta" ? "page" : undefined}>
+          Falta comprar <span className="contador">{faltam.length}</span>
+        </Link>
+        <Link
+          href={link({ lista: "comprados", situacao: undefined })}
+          className={lista === "comprados" ? "guia ativa" : "guia"}
+          aria-current={lista === "comprados" ? "page" : undefined}
+        >
+          Comprados <span className="contador">{comprados.length}</span>
+        </Link>
+      </nav>
 
       <div className="abas" role="navigation" aria-label="Filtrar por cômodo">
         <Link href={link({ comodo: undefined })} className={!comodoAtual ? "aba ativa" : "aba"} aria-current={!comodoAtual ? "page" : undefined}>
@@ -95,22 +133,25 @@ export default async function Itens({
       </div>
 
       <form className="filtros" action="/itens" method="get">
+        {lista === "comprados" && <input type="hidden" name="lista" value="comprados" />}
         {comodoAtual && <input type="hidden" name="comodo" value={comodoAtual.id} />}
         <label className="campo campo-linha">
           <span className="visualmente-oculto">Buscar item</span>
           <input type="search" name="busca" placeholder="Buscar item…" defaultValue={p.busca} />
         </label>
-        <label className="campo campo-linha">
-          Situação
-          <select name="situacao" defaultValue={situacaoAtual ?? ""}>
-            <option value="">Todas</option>
-            {SITUACOES.map((s) => (
-              <option key={s} value={s}>
-                {NOMES_SITUACAO[s]}
-              </option>
-            ))}
-          </select>
-        </label>
+        {lista === "falta" && (
+          <label className="campo campo-linha">
+            Situação
+            <select name="situacao" defaultValue={situacaoAtual ?? ""}>
+              <option value="">Todas</option>
+              {ETAPAS.map((s) => (
+                <option key={s} value={s}>
+                  {NOMES_SITUACAO[s]}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
         <button type="submit" className="botao botao-secundario">
           Filtrar
         </button>
@@ -122,16 +163,19 @@ export default async function Itens({
             <tr>
               <th scope="col">Item</th>
               <th scope="col">Cômodo</th>
-              <th scope="col">Situação</th>
+              {lista === "falta" && <th scope="col">Situação</th>}
               <th scope="col" className="num">
                 Qtd.
               </th>
               <th scope="col" className="num">
                 Previsto
               </th>
-              <th scope="col" className="num">
-                Pago
-              </th>
+              {lista === "comprados" && (
+                <th scope="col" className="num">
+                  Pago
+                </th>
+              )}
+              <th scope="col">Comprado?</th>
               <th scope="col">
                 <span className="visualmente-oculto">Ações</span>
               </th>
@@ -141,7 +185,13 @@ export default async function Itens({
             {itens.length === 0 && (
               <tr>
                 <td colSpan={7} className="vazio">
-                  {p.busca || situacaoAtual ? "Nenhum item com esses filtros." : "Nenhum item ainda. Adicione o primeiro no formulário acima."}
+                  {p.busca || situacaoAtual || comodoAtual
+                    ? "Nenhum item com esses filtros."
+                    : lista === "comprados"
+                      ? "Nenhum item comprado ainda. Marque “Comprado? Sim” num item da guia Falta comprar."
+                      : todos.length > 0
+                        ? "Tudo comprado! Nada falta na lista."
+                        : "Nenhum item ainda. Adicione o primeiro no formulário acima."}
                 </td>
               </tr>
             )}
@@ -156,12 +206,37 @@ export default async function Itens({
                   )}
                 </td>
                 <td>{i.comodo}</td>
-                <td>
-                  <span className={`etiqueta etiqueta-${i.situacao.toLowerCase()}`}>{NOMES_SITUACAO[i.situacao]}</span>
-                </td>
+                {lista === "falta" && (
+                  <td>
+                    <span className={`etiqueta etiqueta-${i.situacao.toLowerCase()}`}>{NOMES_SITUACAO[i.situacao]}</span>
+                  </td>
+                )}
                 <td className="num">{i.quantidade}</td>
                 <td className="num">{reais(i.valorPrevisto)}</td>
-                <td className="num">{reais(i.valorPago)}</td>
+                {lista === "comprados" && <td className="num">{reais(i.valorPago)}</td>}
+                <td>
+                  {lista === "falta" && i.valorPrevisto == null ? (
+                    <Link href={`/itens/${i.id}`} className="botao botao-secundario botao-pequeno" title="Informe o valor pago para marcar como comprado">
+                      Marcar comprado
+                    </Link>
+                  ) : (
+                    <form action={alternarComprado} className="form-comprado">
+                      <input type="hidden" name="id" value={i.id} />
+                      <input type="hidden" name="nome" value={i.nome} />
+                      <input type="hidden" name="voltar" value={voltar} />
+                      <input type="hidden" name="valorPrevisto" value={i.valorPrevisto ?? ""} />
+                      <input type="hidden" name="comprado" value={lista === "falta" ? "sim" : "nao"} />
+                      <button
+                        type="submit"
+                        className={lista === "falta" ? "botao botao-secundario botao-pequeno" : "botao botao-primario botao-pequeno"}
+                        aria-label={lista === "falta" ? `Marcar ${i.nome} como comprado` : `Desmarcar ${i.nome} como comprado`}
+                        title={lista === "falta" ? "Marca como comprado usando o valor previsto como valor pago" : "Volta o item para Falta comprar"}
+                      >
+                        {lista === "falta" ? "Marcar comprado" : "Desmarcar"}
+                      </button>
+                    </form>
+                  )}
+                </td>
                 <td className="num">
                   <Link href={`/itens/${i.id}`} aria-label={`Editar ${i.nome}`}>
                     Editar
@@ -175,9 +250,15 @@ export default async function Itens({
           <span>
             {itens.length} {itens.length === 1 ? "item" : "itens"}
           </span>
-          <span>
-            Previsto <strong>{reais(totalPrevisto)}</strong> · Pago <strong>{reais(totalPago)}</strong>
-          </span>
+          {lista === "falta" ? (
+            <span>
+              Falta comprar <strong>{reais(totalPrevisto)}</strong> (previsto)
+            </span>
+          ) : (
+            <span>
+              Previsto <strong>{reais(totalPrevisto)}</strong> · Pago <strong>{reais(totalPago)}</strong>
+            </span>
+          )}
         </div>
       </div>
     </>

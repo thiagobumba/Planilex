@@ -30,7 +30,13 @@ export function CamposItem({
   item?: Item;
   comodoPadrao?: string;
 }) {
-  const [situacao, setSituacao] = useState<Situacao>(item?.situacao ?? "PESQUISANDO");
+  // "Comprado? Sim/Não" é a situação COMPRADO; antes da compra vale a etapa (Pesquisando, Cadastrado, Escolhido).
+  const [comprado, setComprado] = useState(item?.situacao === "COMPRADO");
+  const [etapa, setEtapa] = useState<Exclude<Situacao, "COMPRADO">>(
+    item && item.situacao !== "COMPRADO" ? item.situacao : item?.ofertaEscolhida ? "ESCOLHIDO" : "PESQUISANDO",
+  );
+  const situacao: Situacao = comprado ? "COMPRADO" : etapa;
+  const [valorPago, setValorPago] = useState(fmt(item?.valorPago));
   const [nome, setNome] = useState(item?.nome ?? "");
   const [quantidade, setQuantidade] = useState(String(item?.quantidade ?? 1));
   const [valorPrevisto, setValorPrevisto] = useState(fmt(item?.valorPrevisto));
@@ -73,7 +79,7 @@ export function CamposItem({
     setOfertaMudou(true);
     setListaAberta(false);
     // Preço vindo da busca: o item deixa de estar "Pesquisando".
-    if (situacao === "PESQUISANDO") setSituacao("CADASTRADO");
+    if (etapa === "PESQUISANDO") setEtapa("CADASTRADO");
   }
 
   function remover() {
@@ -272,19 +278,43 @@ export function CamposItem({
           )}
         </span>
       </label>
-      <label className="campo">
-        Situação
-        <select name="situacao" value={situacao} onChange={(e) => setSituacao(e.target.value as Situacao)}>
-          <option value="PESQUISANDO">Pesquisando</option>
-          <option value="CADASTRADO">Cadastrado, preço da busca</option>
-          <option value="ESCOLHIDO">Escolhido, ainda vou comprar</option>
-          <option value="COMPRADO">Comprado</option>
-        </select>
-      </label>
-      {situacao === "COMPRADO" && (
+      <fieldset className="campo campo-comprado">
+        <legend>Comprado?</legend>
+        <div className="alternador" role="radiogroup">
+          <label className={!comprado ? "opcao ativa" : "opcao"}>
+            <input type="radio" name="comprado" value="nao" checked={!comprado} onChange={() => setComprado(false)} />
+            Não
+          </label>
+          <label className={comprado ? "opcao ativa" : "opcao"}>
+            <input
+              type="radio"
+              name="comprado"
+              value="sim"
+              checked={comprado}
+              onChange={() => {
+                setComprado(true);
+                if (!valorPago) setValorPago(valorPrevisto);
+              }}
+            />
+            Sim
+          </label>
+        </div>
+      </fieldset>
+      <input type="hidden" name="situacao" value={situacao} />
+      {comprado ? (
         <label className="campo">
           Valor pago (R$)
-          <input name="valorPago" required inputMode="decimal" placeholder="0,00" defaultValue={fmt(item?.valorPago ?? item?.valorPrevisto)} />
+          <input name="valorPago" required inputMode="decimal" placeholder="0,00" value={valorPago} onChange={(e) => setValorPago(e.target.value)} />
+          <span className="dica">Total pago pelo item, já com a quantidade.</span>
+        </label>
+      ) : (
+        <label className="campo">
+          Situação
+          <select value={etapa} onChange={(e) => setEtapa(e.target.value as Exclude<Situacao, "COMPRADO">)}>
+            <option value="PESQUISANDO">Pesquisando</option>
+            <option value="CADASTRADO">Cadastrado, preço da busca</option>
+            <option value="ESCOLHIDO">Escolhido, ainda vou comprar</option>
+          </select>
         </label>
       )}
     </div>

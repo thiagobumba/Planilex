@@ -12,6 +12,21 @@ Cada entrada informa:
 
 ## [Não lançado]
 
+### 2026-11-16 · "Comprado? Sim/Não" e guias "Falta comprar" e "Comprados"
+**Adicionado**
+- Formulário de item: campo **Comprado? Não | Sim**. Com "Não", aparece a etapa (Pesquisando, Cadastrado ou Escolhido). Com "Sim", aparece o **Valor pago**, já preenchido com o valor previsto.
+- Lista de itens separada em duas guias, cada uma com a contagem: **Falta comprar** (padrão) e **Comprados** (`/itens?lista=comprados`). As abas de cômodo e a busca valem nas duas. O filtro de situação aparece só em "Falta comprar".
+- Coluna **Comprado?** na lista, com botão rápido:
+  - **Marcar comprado** usa o valor previsto como valor pago. Item sem valor previsto abre a edição para informar o valor.
+  - **Desmarcar** devolve o item para "Falta comprar" como "Escolhido".
+  - Os dois mostram uma mensagem com link para a outra guia.
+- Rodapé da guia "Falta comprar" mostra o total previsto do que falta. Na guia "Comprados", mostra o previsto e o pago.
+- Server action `alternarComprado` (`apps/web/src/app/(app)/acoes.ts`).
+
+**Por quê:** pedido do dono, para controlar o que já foi comprado e o que falta comprar.
+
+**Decisão:** a marcação "Comprado" usa a situação `COMPRADO` que já existia no banco. Não foi criada uma coluna nova, para não ter dois campos dizendo coisas diferentes sobre o mesmo item. Não há migração, e a API não mudou.
+
 ### 2026-11-16 · Situação "Cadastrado" para itens com preço da busca
 **Adicionado**
 - Nova situação de item **Cadastrado**, entre "Pesquisando" e "Escolhido", com etiqueta amarela na lista de itens e opção no filtro.

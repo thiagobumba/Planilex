@@ -110,6 +110,32 @@ export async function editarItem(_: EstadoAcao, f: FormData): Promise<EstadoAcao
   redirect(`/itens?salvo=${encodeURIComponent(texto(f, "nome"))}`);
 }
 
+/**
+ * Botão rápido da lista: marca como comprado (valor pago = valor previsto) ou desmarca
+ * (volta para "Escolhido"). Volta para a mesma guia com uma mensagem.
+ */
+export async function alternarComprado(f: FormData): Promise<void> {
+  const id = texto(f, "id");
+  const nome = texto(f, "nome");
+  const comprar = texto(f, "comprado") === "sim";
+  const voltar = texto(f, "voltar") || "/itens";
+  const valorPago = lerValor(f.get("valorPrevisto"));
+  const separador = voltar.includes("?") ? "&" : "?";
+  let destino: string;
+  try {
+    await api(`/itens/${id}`, {
+      method: "PATCH",
+      body: comprar ? { situacao: "COMPRADO", valorPago } : { situacao: "ESCOLHIDO" },
+    });
+    ["/", "/itens", "/comodos"].forEach((c) => revalidatePath(c));
+    destino = `${voltar}${separador}${comprar ? "comprado" : "desmarcado"}=${encodeURIComponent(nome)}`;
+  } catch (e) {
+    if (!(e instanceof ErroApi)) throw e;
+    destino = `${voltar}${separador}erro=${encodeURIComponent(e.message)}`;
+  }
+  redirect(destino);
+}
+
 export async function excluirItem(_: EstadoAcao, f: FormData): Promise<EstadoAcao> {
   const id = texto(f, "id");
   const resultado = await tentar(() => api(`/itens/${id}`, { method: "DELETE" }), "Item excluído.");
