@@ -12,6 +12,53 @@ Cada entrada informa:
 
 ## [Não lançado]
 
+### 2026-11-16 · Login com Google e cadastro de orçamento, cômodos e itens
+**Adicionado: API** (`apps/api`)
+- Autenticação: toda rota (menos `/health*`) exige o token do Supabase em `Authorization: Bearer`, validado com `getClaims()` (`plugins/autenticacao.ts`).
+- Controle de acesso: só membros do orçamento leem ou alteram os dados dele; para os outros, a resposta é 404 (`acesso.ts`).
+- Rotas de orçamentos (`GET/POST /orcamentos`, `GET/PATCH /orcamentos/:id`, com o resumo do painel).
+- Rotas de cômodos (`POST /orcamentos/:id/comodos`, `PATCH/DELETE /comodos/:id`).
+- Rotas de itens (`GET /orcamentos/:id/itens` com filtros, `POST /itens`, `PATCH/DELETE /itens/:id`).
+- Validação com zod e erros sempre no formato `{ "erro": "..." }`, em português.
+- Regras de negócio:
+  - "Comprado" exige valor pago;
+  - cômodo com itens não pode ser excluído;
+  - nome de cômodo único por orçamento;
+  - item só pode ser movido para cômodo do mesmo orçamento.
+- Testes de ponta a ponta (`test/api.test.ts`, 10 testes) e o comando `npm test -w @planilex/api`.
+- Dependências: `@supabase/supabase-js` e `zod`.
+
+**Adicionado: site** (`apps/web`)
+- Login com Google (`/login`), callback do OAuth (`/auth/callback`) e saída (`/auth/sair`, por POST).
+- `proxy.ts`: renova a sessão e protege todas as páginas.
+- Painel: cartões de total, previsto, pago e disponível; barra de uso; aviso de cômodo acima do limite; cartões por cômodo. Sem orçamento, mostra o formulário de criação.
+- Itens: formulário de adicionar, abas por cômodo, busca, filtro de situação, tabela com totais; página de edição com exclusão confirmada.
+- Cômodos: editar nome e limite, criar, excluir cômodos vazios, soma dos limites comparada ao total.
+- Configurações: editar os dados do orçamento.
+- Ícone da aba (`icon.svg`).
+- Dependências: `@supabase/ssr` e `@supabase/supabase-js`.
+
+**Alterado**
+- `apps/web/src/app/page.tsx` (página provisória) removida; o painel agora fica em `(app)/page.tsx`.
+- `globals.css` reescrito com os estilos das telas, seguindo os modelos.
+- `docs/api.md`: todas as rotas, convenções, regras de cálculo e como rodar os testes.
+- `docs/arquitetura.md`:
+  - decisão sobre o login com Google e o fluxo de autenticação;
+  - nova estrutura de pastas;
+  - regra dos valores dos itens.
+- `docs/ux-8-regras.md`: o que de cada regra já está implementado e o que falta.
+- `README.md`: seção "Login com Google", comando de testes, status e roadmap (etapa 3 concluída, com duas pendências).
+
+**Por quê:** etapa 3 do roadmap. O login com Google foi a forma escolhida pelo dono do projeto.
+
+**Impacto:**
+- Exige o provedor Google ativo no Supabase, a URL de callback configurada e `NEXT_PUBLIC_SUPABASE_ANON_KEY` no `.env`; a API também lê essa chave.
+- Não há migração nova de banco.
+- Verificado:
+  - typecheck e build de todos os pacotes;
+  - 10 testes da API contra um PostgreSQL local;
+  - navegação real no Chrome (sem rede, com o Supabase simulado): criar item, erro de valor inválido, criar cômodo, editar item, versão de celular e redirecionamentos de login.
+
 ### 2026-11-16 · Segurança: tabelas protegidas da Data API do Supabase
 **Adicionado**
 - Migração `20261116130000_ativa_rls`: ativa o Row Level Security, sem políticas, em todas as tabelas (`orcamentos`, `membros_orcamento`, `comodos`, `itens`, `ofertas`, `historico_precos`, `atividades` e `_prisma_migrations`).

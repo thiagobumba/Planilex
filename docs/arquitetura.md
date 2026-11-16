@@ -34,19 +34,42 @@
 - **Regra:** toda tabela nova precisa de `ALTER TABLE ... ENABLE ROW LEVEL SECURITY` na mesma migração que a cria.
 - **Login:** o site usa a chave pública só para o Supabase Auth; a API valida o token do usuário e decide o que ele pode ver.
 
+### 2026-11-16 · Login com Google e como a API confia no usuário
+- **Escolhido pelo dono do projeto:** login só com conta Google (Supabase Auth). E-mail e senha ou link mágico podem ser somados depois sem mudar a API.
+- **Fluxo:**
+  1. O site chama `signInWithOAuth`, o Google autentica e o Supabase devolve para `/auth/callback` com um código.
+  2. O callback troca o código pela sessão, gravada em cookies (`@supabase/ssr`).
+  3. O `proxy.ts` do Next (o antigo "middleware", renomeado no Next 16) renova a sessão a cada requisição e manda para `/login` quem não está logado.
+  4. As páginas e server actions chamam a API no servidor, enviando o token em `Authorization: Bearer`.
+  5. A API valida o token com `getClaims()` (chaves públicas do projeto) e checa se o usuário é membro do orçamento.
+- **Por que a API valida de novo:** a API é a única porta para os dados (o RLS bloqueia a Data API). Ela não pode confiar em quem chama, só no token assinado pelo Supabase.
+- **Um orçamento por pessoa, por enquanto:** o site usa o primeiro orçamento do usuário. A API já suporta vários orçamentos e vários membros; falta a tela de convite.
+
 ## Estrutura do repositório
 
 ```
 planilex/
 ├── apps/
 │   ├── web/                    # Next.js 16 (App Router), porta 3000
-│   │   └── src/app/            # páginas; globals.css tem as cores dos modelos
+│   │   └── src/
+│   │       ├── proxy.ts        # renova a sessão e protege as páginas
+│   │       ├── app/
+│   │       │   ├── login/      # tela de login (botão Google)
+│   │       │   ├── auth/       # callback do OAuth e "Sair"
+│   │       │   └── (app)/      # telas logadas: painel, itens, cômodos, configurações
+│   │       │       └── acoes.ts  # server actions que chamam a API
+│   │       ├── components/     # menu, formulários e campos reutilizados
+│   │       └── lib/            # cliente Supabase, chamada à API, formatos, tipos
 │   └── api/                    # Fastify 5, porta 3333
 │       └── src/
 │           ├── server.ts       # sobe o servidor
 │           ├── app.ts          # registra plugins e rotas
 │           ├── env.ts          # lê o .env da raiz
-│           └── routes/         # uma pasta/arquivo por grupo de rotas
+│           ├── plugins/        # autenticação (token do Supabase)
+│           ├── acesso.ts       # checagem de membro do orçamento
+│           ├── resumo.ts       # cálculo de previsto, pago e disponível
+│           └── routes/         # saúde, orçamentos, cômodos, itens
+│       └── test/               # testes de ponta a ponta da API
 ├── packages/
 │   └── db/                     # pacote @planilex/db
 │       ├── prisma/
@@ -68,7 +91,7 @@ Definido em `packages/db/prisma/schema.prisma`. Tabelas no banco em português e
 | `Orcamento` (`orcamentos`) | nome, valor total, reserva para imprevistos, data do casamento, voltagem da casa, CEP | Raiz de tudo |
 | `MembroOrcamento` (`membros_orcamento`) | orçamento, usuário, papel (DONO / EDITOR) | `usuario_id` é o id do usuário no Supabase Auth; permite dividir o orçamento |
 | `Comodo` (`comodos`) | orçamento, nome, limite, ordem | Nome único por orçamento |
-| `Item` (`itens`) | cômodo, nome, quantidade, situação (PESQUISANDO / ESCOLHIDO / COMPRADO), valor previsto, valor pago, oferta escolhida, alerta de preço | |
+| `Item` (`itens`) | cômodo, nome, quantidade, situação (PESQUISANDO / ESCOLHIDO / COMPRADO), valor previsto, valor pago, oferta escolhida, alerta de preço | Valores são o **total** do item (já com a quantidade). `COMPRADO` exige valor pago |
 | `Oferta` (`ofertas`) | item, loja, título, preço, frete, total, link, voltagem, data da consulta | Índice por item + total para ordenar pelo preço final |
 | `HistoricoPreco` (`historico_precos`) | item, data, menor preço | Um registro por item por dia (gráfico de 30 dias) |
 | `Atividade` (`atividades`) | orçamento, usuário, ação, descrição, dados, desfeita em | Os `dados` guardam o necessário para o "Desfazer" |

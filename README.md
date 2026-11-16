@@ -3,7 +3,7 @@
 Controle de previsão de gastos para o casamento e a montagem da casa: móveis, eletrodomésticos e materiais.
 Você cadastra um produto (ex.: "micro-ondas"), o sistema busca o melhor preço na web e o item entra no orçamento, organizado por cômodo.
 
-> **Status:** estrutura do projeto pronta (site, API e banco). As telas ainda não foram implementadas.
+> **Status:** login com Google e cadastro de orçamento, cômodos e itens funcionando. Próximo passo: busca de preços.
 
 ## Modelos de telas
 
@@ -31,7 +31,7 @@ Detalhes em [`docs/arquitetura.md`](docs/arquitetura.md). Rotas da API em [`docs
 
 ## Como rodar no seu computador
 
-Pré-requisitos: [Node.js 22 ou mais novo](https://nodejs.org) e um projeto criado no [Supabase](https://supabase.com).
+Pré-requisitos: [Node.js 22 ou mais novo](https://nodejs.org), um projeto criado no [Supabase](https://supabase.com) e o login com Google configurado (veja [Login com Google](#login-com-google)).
 
 ```bash
 # 1. Instalar as dependências
@@ -79,6 +79,7 @@ O `npm install` já compila o pacote do banco automaticamente (script `postinsta
 | `npm run dev:api` | Compila o pacote do banco e sobe a API em modo de desenvolvimento |
 | `npm run build` | Gera as versões de produção (banco, API e site) |
 | `npm run typecheck` | Confere os tipos do TypeScript em todo o projeto |
+| `npm test -w @planilex/api` | Testes da API contra um PostgreSQL de teste (precisa de `TEST_DATABASE_URL`; veja `docs/api.md`) |
 | `npm run db:generate` | Gera o cliente do Prisma e compila o pacote do banco (`packages/db/dist`) |
 | `npm run db:migrate` | Cria uma nova migração depois de alterar o `schema.prisma` e recompila o pacote do banco |
 | `npm run db:deploy` | Aplica as migrações pendentes no banco |
@@ -96,6 +97,22 @@ Se o `npm run db:deploy` mostrar `P1001: Can't reach database server`, rode `npm
 | `endereço inválido` | Colchetes ou caracteres especiais (`@ # / ? $`) na senha | Tire os colchetes; use uma senha só com letras e números |
 | `timeout` ou `ECONNREFUSED` | Rede, firewall ou VPN bloqueando a porta | Teste no PowerShell: `Test-NetConnection <host> -Port 5432` |
 
+## Login com Google
+
+O login é feito pelo Supabase Auth com o provedor Google. Configuração (uma vez só):
+
+1. **Google Cloud** (console.cloud.google.com) › projeto **Planilex** › **Google Auth Platform**:
+   - Tela de consentimento: público **Externo**; em **Público-alvo**, adicione como **usuários de teste** os e-mails que vão usar o app.
+   - **Clientes** › Criar cliente › **Aplicativo da Web**:
+     - Origens JavaScript autorizadas: `http://localhost:3000`
+     - URIs de redirecionamento autorizados: `https://<ID-DO-PROJETO>.supabase.co/auth/v1/callback`
+2. **Supabase** › **Authentication**:
+   - **Sign In / Providers › Google**: ative e cole o ID do cliente e a chave secreta. A chave secreta fica **só** no Supabase.
+   - **URL Configuration**: Site URL `http://localhost:3000`; em Redirect URLs, adicione `http://localhost:3000/auth/callback`.
+3. **`.env`**: preencha `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY`. A API usa os mesmos valores para validar o token.
+
+Enquanto o app estiver em modo de teste no Google, só os e-mails da lista de usuários de teste conseguem entrar.
+
 ## Documentação e histórico
 
 - Todas as alterações ficam registradas em [`CHANGELOG.md`](CHANGELOG.md).
@@ -105,7 +122,9 @@ Se o `npm run db:deploy` mostrar `P1001: Can't reach database server`, rode `npm
 
 1. [x] Modelos de telas
 2. [x] Estrutura do monorepo (web + api + banco)
-3. [ ] Login e cadastro de orçamento, cômodos e itens
+3. [x] Login (Google) e cadastro de orçamento, cômodos e itens
+   - [ ] Convidar outra pessoa para o orçamento
+   - [ ] "Desfazer" depois de excluir ou alterar
 4. [ ] Busca de preços
 5. [ ] Alertas de preço e histórico
 6. [ ] Deploy

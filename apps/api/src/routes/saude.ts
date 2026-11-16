@@ -1,8 +1,6 @@
-import { criarPrisma, type PrismaClient } from "@planilex/db";
 import type { FastifyInstance } from "fastify";
+import { db } from "../db.js";
 import { env } from "../env.js";
-
-let prisma: PrismaClient | undefined;
 
 /** Rotas para conferir se a API e o banco estão no ar. Documentação: docs/api.md */
 export async function rotasSaude(app: FastifyInstance) {
@@ -13,8 +11,7 @@ export async function rotasSaude(app: FastifyInstance) {
       return reply.code(503).send({ status: "erro", mensagem: "DATABASE_URL não configurada no .env" });
     }
     try {
-      prisma ??= criarPrisma(env.databaseUrl);
-      await prisma.$queryRaw`SELECT 1`;
+      await db().$queryRaw`SELECT 1`;
       return { status: "ok" };
     } catch (erro) {
       app.log.error(erro);
