@@ -12,6 +12,24 @@ Cada entrada informa:
 
 ## [Não lançado]
 
+### 2026-11-23 · Nova identidade: G · Planta baixa
+**Alterado**
+- O app inteiro passou para o estilo **G · Planta baixa**: papel quadriculado, tinta azul-marinho (`#13294B`), laranja só para alertas e cantos retos.
+  - Fontes: IBM Plex Sans no texto e IBM Plex Mono nos valores. Saíram Inter e Space Grotesk.
+  - Menu lateral azul-marinho e logo novo, com a planta de uma casa.
+  - Etiquetas de situação em fonte monoespaçada e maiúsculas.
+- **Painel:**
+  - Os cômodos são desenhados como a **planta da casa**: a área de cada um é proporcional ao seu peso no orçamento, a cor sobe conforme o limite é usado e uma hachura mostra o que passou do limite. Clicar num cômodo abre os itens dele. Há uma legenda embaixo.
+  - O resumo virou um "carimbo" de prancha, com "Disponível" em destaque azul-marinho.
+  - O título passou a ser o nome do orçamento, com "Prancha 01 · orçamento por cômodo" acima.
+- **Tela de entrada:** a vitrine ficou azul-marinho quadriculada, e o login fica numa folha com borda.
+
+**Por quê:** o dono escolheu a proposta G entre os cinco estilos novos.
+
+**Impacto:**
+- Só visual: sem mudança na API nem no banco.
+- Contrastes conferidos: texto suave 6,7:1, borda de campos 4,0:1, texto do menu 9,8:1. Detalhes em `docs/ux-8-regras.md`.
+
 ### 2026-11-23 · Cinco estilos novos para o app (propostas)
 **Adicionado**
 - `docs/design/estilos/`: o painel desenhado em cinco visuais para o app inteiro, também na página "Estilos do app" do canvas de design:

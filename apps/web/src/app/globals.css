@@ -1,34 +1,37 @@
 /* Estilos do Planilex. Cores e medidas seguem os modelos de telas (docs/design). */
 :root {
-  /* Identidade B · Casa Nova (docs/design/identidade) */
-  --cor-fundo: #f4f6f3;
+  /* Identidade G · Planta baixa (docs/design/estilos): papel quadriculado, tinta azul-marinho, laranja só para alerta.
+     Contrastes sobre branco: texto 14,5:1 · texto suave 6,7:1 · borda forte 4,0:1 · alerta 5,9:1. */
+  --cor-fundo: #f4f7fb;
   --cor-superficie: #ffffff;
-  --cor-superficie-2: #f8faf8;
-  --cor-texto: #16211c;
-  --cor-texto-2: #2c3a33;
-  --cor-texto-suave: #4a5752;
-  --cor-borda: #e2e8e4;
-  /* Contorno de campos e botões secundários: 3,6:1 sobre branco (mínimo de 3:1 para controles). */
-  --cor-borda-forte: #7d8a83;
-  --cor-linha: #eef2ef;
-  --cor-trilho: #edf1ee;
-  --cor-primaria: #1f5c46;
-  --cor-primaria-escura: #164433;
-  --cor-primaria-suave: #dcefe5;
-  --cor-primaria-borda: #b9dcc9;
-  --cor-primaria-media: #7fb59b;
-  --cor-alerta: #b04a2e;
-  --cor-alerta-texto: #8f3a22;
-  --cor-alerta-forte: #e8704f;
-  --cor-alerta-suave: #fce9e3;
-  --cor-alerta-borda: #f2b9a6;
-  --cor-atencao: #d69a2d;
-  --cor-atencao-suave: #fbf2df;
+  --cor-superficie-2: #f8fafd;
+  --cor-texto: #13294b;
+  --cor-texto-2: #22385c;
+  --cor-texto-suave: #4b5d7a;
+  --cor-borda: #c9d4e3;
+  --cor-borda-forte: #6f80a0;
+  --cor-linha: #e3e9f2;
+  --cor-trilho: #e6ecf4;
+  --cor-primaria: #13294b;
+  --cor-primaria-escura: #0a1830;
+  --cor-primaria-suave: #cfe0f5;
+  --cor-primaria-borda: #9fb8da;
+  --cor-primaria-media: #5b7fb5;
+  --cor-alerta: #b23e0a;
+  --cor-alerta-texto: #8a2e07;
+  --cor-alerta-forte: #e0662a;
+  --cor-alerta-suave: #fce7dd;
+  --cor-alerta-borda: #f0b79c;
+  --cor-atencao: #c98a12;
+  --cor-atencao-suave: #fbf1dc;
   --cor-atencao-texto: #6b4a0e;
   --cor-azul: #1e4a7a;
   --cor-azul-suave: #e3ecf6;
-  --raio: 16px;
-  --raio-p: 12px;
+  /* Hachura de "acima do limite" na planta */
+  --hachura-alerta: repeating-linear-gradient(45deg, #f6c7b1 0 6px, #fce7dd 6px 12px);
+  --fonte-titulo: var(--fonte-texto);
+  --raio: 2px;
+  --raio-p: 2px;
 }
 
 * {
@@ -37,7 +40,10 @@
 
 body {
   margin: 0;
-  background: var(--cor-fundo);
+  background-color: var(--cor-fundo);
+  /* Papel quadriculado */
+  background-image: linear-gradient(rgba(19, 41, 75, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(19, 41, 75, 0.05) 1px, transparent 1px);
+  background-size: 24px 24px;
   color: var(--cor-texto);
   font-family: var(--fonte-texto), system-ui, sans-serif;
   font-size: 15px;
@@ -77,7 +83,7 @@ code {
   font-size: 0.9em;
   background: var(--cor-fundo);
   padding: 1px 4px;
-  border-radius: 4px;
+  border-radius: 2px;
 }
 
 .suave {
@@ -163,7 +169,7 @@ code {
   gap: 12px;
   min-height: 44px;
   padding: 0 12px;
-  border-radius: 8px;
+  border-radius: 2px;
   text-decoration: none;
   color: var(--cor-texto-2);
   font-weight: 500;
@@ -307,7 +313,7 @@ code {
 .barra {
   display: flex;
   height: 8px;
-  border-radius: 999px;
+  border-radius: 2px;
   overflow: hidden;
   background: var(--cor-trilho);
 }
@@ -347,7 +353,7 @@ code {
 .amostra {
   width: 12px;
   height: 12px;
-  border-radius: 3px;
+  border-radius: 2px;
   display: inline-block;
 }
 .amostra-livre {
@@ -414,7 +420,7 @@ select {
   height: 44px;
   padding: 0 12px;
   border: 1px solid var(--cor-borda-forte);
-  border-radius: 8px;
+  border-radius: 2px;
   background: var(--cor-superficie);
   color: var(--cor-texto);
   min-width: 0;
@@ -440,7 +446,7 @@ fieldset.campo legend {
   padding: 3px;
   gap: 3px;
   border: 1px solid var(--cor-borda-forte);
-  border-radius: 8px;
+  border-radius: 2px;
   background: var(--cor-superficie-2);
 }
 .alternador .opcao {
@@ -448,7 +454,7 @@ fieldset.campo legend {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
+  border-radius: 2px;
   font-weight: 600;
   cursor: pointer;
   color: var(--cor-texto-suave);
@@ -570,7 +576,7 @@ fieldset.campo legend {
   gap: 6px;
   min-height: 38px;
   padding: 0 14px;
-  border-radius: 999px;
+  border-radius: 2px;
   border: 1px solid var(--cor-borda-forte);
   background: var(--cor-superficie);
   color: var(--cor-texto-2);
@@ -645,7 +651,7 @@ fieldset.campo legend {
 .etiqueta {
   display: inline-block;
   padding: 3px 10px;
-  border-radius: 999px;
+  border-radius: 2px;
   font-size: 13px;
   font-weight: 600;
 }
@@ -753,7 +759,7 @@ fieldset.campo legend {
   width: 100%;
   max-width: 470px;
   background: var(--cor-superficie);
-  border-radius: 20px;
+  border-radius: 2px;
   padding: 26px;
   box-shadow: 0 30px 60px rgba(8, 30, 22, 0.35);
   display: flex;
@@ -767,7 +773,7 @@ fieldset.campo legend {
 }
 .vitrine-saldo {
   background: var(--cor-primaria-suave);
-  border-radius: 14px;
+  border-radius: 2px;
   padding: 14px 16px;
   display: flex;
   flex-direction: column;
@@ -807,7 +813,7 @@ fieldset.campo legend {
 }
 .vitrine-recursos li {
   padding: 8px 14px;
-  border-radius: 999px;
+  border-radius: 2px;
   background: rgba(220, 239, 229, 0.14);
   color: #eaf6ef;
   font-size: 14px;
@@ -841,7 +847,7 @@ fieldset.campo legend {
   margin: auto;
   background: var(--cor-superficie);
   border: 1px solid var(--cor-borda);
-  border-radius: 20px;
+  border-radius: 2px;
   padding: 32px;
   display: flex;
   flex-direction: column;
@@ -892,7 +898,7 @@ fieldset.campo legend {
 .alternar button {
   min-height: 40px;
   border: 0;
-  border-radius: 8px;
+  border-radius: 2px;
   background: transparent;
   font: inherit;
   font-weight: 500;
@@ -990,45 +996,54 @@ fieldset.campo legend {
 }
 
 /* =====================================================================
-   Identidade B · Casa Nova dentro do app
-   - Menu lateral = painel verde com textura de pontos (como a vitrine do login)
-   - Cartões brancos mais arredondados, com sombra suave
+   Identidade G · Planta baixa dentro do app
+   - Menu lateral azul-marinho liso; item ativo em papel claro
+   - Cantos retos, linhas finas azul-acinzentadas, valores em IBM Plex Mono
    ===================================================================== */
 .menu {
-  background-color: var(--cor-primaria);
-  background-image: radial-gradient(rgba(220, 239, 229, 0.1) 1px, transparent 1px);
-  background-size: 22px 22px;
+  background: var(--cor-primaria);
   border-right: 0;
-  color: #eaf6ef;
+  color: #e8eef7;
+}
+.logo span {
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 17px;
 }
 .logo-claro span {
   color: #ffffff;
 }
 .menu-link {
-  color: rgba(234, 246, 239, 0.88);
+  color: #c9d5e6;
+  border-radius: 0;
 }
 .menu-link:hover {
   background: rgba(255, 255, 255, 0.08);
   color: #ffffff;
 }
 .menu-link.ativo {
-  background: var(--cor-primaria-suave);
-  color: var(--cor-primaria-escura);
+  background: #e8eef7;
+  color: var(--cor-primaria);
 }
 .menu-rodape {
-  border-top: 1px solid rgba(220, 239, 229, 0.18);
+  border-top: 1px solid rgba(232, 238, 247, 0.2);
 }
 .menu .suave {
-  color: rgba(234, 246, 239, 0.78);
+  color: #c9d5e6;
 }
-/* Sobre o fundo do quadro de saldo: 4,7:1 (com 0,78 eram 3,97:1). */
 .menu-saldo .suave {
-  color: rgba(234, 246, 239, 0.9);
+  color: #c9d5e6;
 }
 .menu-saldo {
-  background: rgba(220, 239, 229, 0.12);
-  border-radius: var(--raio-p);
+  background: rgba(232, 238, 247, 0.08);
+  border: 1px solid rgba(232, 238, 247, 0.25);
+  border-radius: 0;
   padding: 12px 14px;
+}
+.menu-saldo strong {
+  font-family: var(--fonte-mono), monospace;
+  font-weight: 600;
 }
 .menu-saldo strong.valor-positivo {
   color: #ffffff;
@@ -1038,7 +1053,7 @@ fieldset.campo legend {
 }
 .botao-sair {
   background: transparent;
-  border-color: rgba(220, 239, 229, 0.35);
+  border-color: rgba(232, 238, 247, 0.45);
   color: #ffffff;
 }
 .botao-sair:hover {
@@ -1050,28 +1065,202 @@ fieldset.campo legend {
   }
 }
 
-/* Cartões */
+/* Cartões: folhas brancas de cantos retos, sem sombra */
 .cartao,
 .tabela-caixa {
-  border-radius: 20px;
+  border-radius: 0;
   border-color: var(--cor-borda);
-  box-shadow: 0 1px 2px rgba(22, 33, 28, 0.04), 0 10px 30px rgba(22, 33, 28, 0.05);
+  box-shadow: none;
 }
 .cartao-destaque {
   background: var(--cor-primaria-suave);
   border-color: var(--cor-primaria-borda);
 }
-.cartao-comodo:hover {
-  box-shadow: 0 1px 2px rgba(22, 33, 28, 0.06), 0 14px 34px rgba(31, 92, 70, 0.12);
+.barra,
+.barra > div,
+.etiqueta,
+.aba,
+.amostra {
+  border-radius: 0 !important;
 }
-.barra:not(.barra-grande) > div {
-  border-radius: 999px;
+.etiqueta {
+  font-family: var(--fonte-mono), monospace;
+  font-weight: 500;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.valor-grande,
+.valor-medio,
+.tabela .num,
+.lista-ofertas .oferta-preco {
+  font-family: var(--fonte-mono), monospace;
+  letter-spacing: -0.01em;
 }
 
-/* Cabeçalho das páginas com o mesmo peso de título da tela inicial */
+/* Cabeçalho das páginas */
 .cabecalho h1 {
-  font-size: 36px;
-  letter-spacing: -0.02em;
+  font-size: 34px;
+  letter-spacing: -0.01em;
+}
+.prancha {
+  display: block;
+  font-family: var(--fonte-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--cor-texto-suave);
+  margin-bottom: 4px;
+}
+
+/* Resumo do painel como o "carimbo" de uma prancha: uma caixa com divisórias */
+/* As divisórias são o fundo azul-marinho aparecendo no vão de 1 px entre as células. */
+.cartoes-resumo {
+  gap: 1px;
+  border: 2px solid var(--cor-primaria);
+  background: var(--cor-primaria);
+}
+.cartoes-resumo .cartao {
+  border: 0;
+}
+.cartoes-resumo .rotulo {
+  font-family: var(--fonte-mono), monospace;
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.cartoes-resumo .cartao-destaque {
+  background: var(--cor-primaria);
+  color: #ffffff;
+}
+.cartoes-resumo .cartao-destaque .valor-grande {
+  color: #ffffff;
+}
+
+/* ---------- Planta dos cômodos (painel) ---------- */
+.planta {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-auto-rows: 132px;
+  grid-auto-flow: dense;
+  border: 6px solid var(--cor-primaria);
+  background: var(--cor-superficie);
+}
+.comodo-planta {
+  grid-column: span var(--colunas);
+  grid-row: span var(--linhas);
+  position: relative;
+  overflow: hidden;
+  border: 2px solid var(--cor-primaria);
+  margin: 0 -2px -2px 0;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--cor-texto);
+  text-decoration: none;
+  min-height: 0;
+}
+.comodo-planta:hover {
+  background: var(--cor-superficie-2);
+  color: var(--cor-texto);
+}
+.comodo-planta .ocupacao {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--cor-primaria-suave);
+}
+.comodo-planta.acima .ocupacao {
+  background: var(--hachura-alerta);
+}
+.comodo-planta > :not(.ocupacao) {
+  position: relative;
+}
+.comodo-planta .nome {
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.comodo-planta .detalhe {
+  font-family: var(--fonte-mono), monospace;
+  font-size: 12px;
+  color: var(--cor-texto-suave);
+}
+.comodo-planta .valor {
+  font-family: var(--fonte-mono), monospace;
+  font-size: 19px;
+  font-weight: 600;
+}
+.comodo-planta.acima .detalhe-status {
+  color: var(--cor-alerta-texto);
+  font-weight: 600;
+}
+.legenda-planta {
+  margin-top: 12px;
+}
+.legenda-planta .amostra {
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--cor-primaria);
+}
+.amostra-ocupado {
+  background: var(--cor-primaria-suave);
+}
+.amostra-hachura {
+  background: var(--hachura-alerta);
+}
+@media (max-width: 700px) {
+  .planta {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: minmax(118px, auto);
+    border-width: 4px;
+  }
+  .comodo-planta {
+    grid-column: span var(--colunas-celular);
+    grid-row: span 1;
+  }
+}
+
+/* ---------- Tela de entrada: prancha azul-marinho ---------- */
+.login-vitrine {
+  background-color: var(--cor-primaria);
+  background-image: linear-gradient(rgba(232, 238, 247, 0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(232, 238, 247, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.vitrine-cartao {
+  border-radius: 0;
+  border: 2px solid var(--cor-primaria);
+  box-shadow: 12px 12px 0 rgba(10, 24, 48, 0.45);
+}
+.vitrine-saldo {
+  border-radius: 0;
+  color: var(--cor-primaria);
+}
+.vitrine-saldo strong {
+  font-family: var(--fonte-mono), monospace;
+}
+.vitrine-recursos li {
+  border-radius: 0;
+  background: transparent;
+  border: 1px solid rgba(232, 238, 247, 0.45);
+  color: #ffffff;
+}
+.login-lado {
+  background: transparent;
+}
+.login-conteudo {
+  background: var(--cor-superficie);
+  border: 2px solid var(--cor-primaria);
+  padding: 32px;
+}
+.login-cartao {
+  border-radius: 0;
+  border: 2px solid var(--cor-primaria);
 }
 
 /* ---------- Busca de preços ---------- */
@@ -1132,7 +1321,7 @@ fieldset.campo legend {
   width: 56px;
   height: 56px;
   object-fit: contain;
-  border-radius: 8px;
+  border-radius: 2px;
   background: var(--cor-fundo);
 }
 .oferta-info {
@@ -1204,7 +1393,7 @@ fieldset.campo legend {
 .pagina {
   min-width: 36px;
   height: 36px;
-  border-radius: 10px;
+  border-radius: 2px;
   border: 1px solid var(--cor-borda-forte);
   background: var(--cor-superficie);
   color: var(--cor-texto);
@@ -1367,7 +1556,7 @@ fieldset.campo legend {
     gap: 0;
     padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
     background-color: var(--cor-primaria);
-    border-top: 1px solid rgba(220, 239, 229, 0.2);
+    border-top: 1px solid rgba(232, 238, 247, 0.2);
   }
   .menu-link {
     flex-direction: column;

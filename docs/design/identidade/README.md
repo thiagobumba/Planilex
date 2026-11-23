@@ -1,6 +1,6 @@
 # Identidade visual — três direções (propostas)
 
-**Escolhida em 2026-11-16: B · Casa Nova**, já aplicada no app (tokens em `apps/web/src/app/globals.css`, logo em `apps/web/src/components/Logo.tsx`, tela inicial em `apps/web/src/app/login/page.tsx`). As outras duas ficam como referência. Fontes dos quadros do canvas de design (página "Identidade visual"):
+**Substituída em 2026-11-23 pela G · Planta baixa** (`docs/design/estilos/`). Antes, de 2026-11-16 a 2026-11-23, a escolhida foi a **B · Casa Nova**, aplicada no app (tokens em `apps/web/src/app/globals.css`, logo em `apps/web/src/components/Logo.tsx`, tela inicial em `apps/web/src/app/login/page.tsx`). As outras duas ficam como referência. Fontes dos quadros do canvas de design (página "Identidade visual"):
 https://claude.ai/artifact/TUjJMSBd4XSLrPrhCijLrX
 
 | Direção | Arquivos | Ideia |

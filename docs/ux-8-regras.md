@@ -23,7 +23,7 @@ Atualizado em 2026-11-23 (revisão pelas diretrizes da Apple: acessibilidade e c
 
 | # | Regra | Implementado | Pendente |
 |---|-------|--------------|----------|
-| 1 | Consistência | Identidade B · Casa Nova em todas as telas: mesmas variáveis de cor, logo, menu, botões e etiquetas (`globals.css`); no celular, barra de abas fixa embaixo (Painel, Itens, Cômodos, Ajustes) no lugar do menu lateral | — |
+| 1 | Consistência | Identidade G · Planta baixa em todas as telas: mesmas variáveis de cor, logo, menu, botões e etiquetas (`globals.css`); no celular, barra de abas fixa embaixo (Painel, Itens, Cômodos, Ajustes) no lugar do menu lateral | — |
 | 2 | Atalhos | Enter no nome do item busca preços; "Usar este preço" preenche o valor; abas por cômodo e filtros na lista de itens; cartões do painel levam direto aos itens do cômodo; botão "Marcar comprado" direto na lista, sem abrir o item | `Ctrl K` para buscar; ações em lote |
 | 3 | Feedback | Ao clicar no menu, a página mostra na hora um esqueleto animado enquanto busca os dados (`loading.tsx`); Busca de preços mostra "Pesquisando…", a data e a hora da consulta e se veio da busca guardada; convite diz se o e-mail foi enviado e, se não foi, o motivo (aviso amarelo); mensagem de sucesso ou erro em todo formulário; página que não carrega explica o motivo e oferece "Tentar de novo"; falha de login explica a causa e o que fazer; botão mostra "Salvando…"; barras de uso por cômodo e aviso de limite estourado | — |
 | 4 | Fechamento | Mensagens específicas ("“Micro-ondas” adicionado.", "“Cama box” foi salvo."); botão de excluir diz o nome do item | Impacto no limite antes de adicionar (tela 3 do modelo) |
@@ -36,10 +36,11 @@ Atualizado em 2026-11-23 (revisão pelas diretrizes da Apple: acessibilidade e c
 
 | Ponto | Valor |
 |-------|-------|
-| Borda de campos e botões secundários (`--cor-borda-forte` `#7d8a83`) | 3,6:1 sobre branco, 3,3:1 sobre o fundo (antes `#d5dcd7`, 1,4:1) |
-| Contorno de foco do teclado (`--cor-primaria`) | 7,8:1 sobre branco (antes `#7fb59b`, 2,3:1) |
-| "Saldo disponível" no menu | 4,7:1 (antes 3,97:1) |
-| Texto secundário (`#4a5752`) | 7,6:1 sobre branco |
+| Borda de campos e botões secundários (`--cor-borda-forte` `#6f80a0`) | 4,0:1 sobre branco (antes, na B, `#d5dcd7` com 1,4:1) |
+| Contorno de foco do teclado (`--cor-primaria` `#13294b`) | 14,5:1 sobre branco |
+| Texto do menu (`#c9d5e6` sobre azul-marinho) | 9,8:1 |
+| Texto secundário (`#4b5d7a`) | 6,7:1 sobre branco, 6,2:1 sobre o papel, 5,0:1 sobre o azul-claro da planta |
+| Alerta (`#8a2e07` sobre a hachura) | 5,6:1 no tom mais escuro da hachura |
 | Etiquetas de situação | de 7,2:1 a 10,5:1 |
 | Alvos de toque no celular | 44 px: abas, "Marcar comprado", "Editar", paginação, "Ver na loja" |
 

@@ -51,7 +51,8 @@ export default async function Painel({ searchParams }: { searchParams: Promise<{
       {avisoSenha}
       <header className="cabecalho">
         <div>
-          <h1>Painel</h1>
+          <span className="prancha">Prancha 01 · orçamento por cômodo</span>
+          <h1>{orcamento.nome}</h1>
           {contagem && <p className="suave">{contagem}</p>}
         </div>
         <Link href="/itens?novo=1#novo-item" className="botao botao-primario">
@@ -127,43 +128,65 @@ export default async function Painel({ searchParams }: { searchParams: Promise<{
           <h2 id="comodos-titulo">Por cômodo</h2>
           <Link href="/comodos">Editar cômodos e limites</Link>
         </div>
-        <div className="grade-comodos">
-          {orcamento.comodos.map((c) => (
-            <CartaoComodo key={c.id} comodo={c} />
-          ))}
-        </div>
+        <Planta comodos={orcamento.comodos} />
+        <ul className="legenda legenda-planta">
+          <li>
+            <span className="amostra amostra-ocupado"></span>Altura da cor: quanto do limite já está previsto
+          </li>
+          <li>
+            <span className="amostra amostra-hachura"></span>Hachura: acima do limite
+          </li>
+        </ul>
       </section>
     </>
   );
 }
 
-function CartaoComodo({ comodo: c }: { comodo: ResumoComodo }) {
-  const cor = c.acimaDoLimite ? "barra-acima" : c.percentualDoLimite >= 90 ? "barra-atencao" : "barra-ok";
+/**
+ * Cômodos desenhados como a planta da casa. Cada cômodo ocupa uma área proporcional ao seu peso
+ * no orçamento (o maior entre limite e previsto); a cor sobe conforme o limite é usado e vira
+ * hachura quando passa dele. Cada cômodo leva aos itens dele.
+ */
+function Planta({ comodos }: { comodos: ResumoComodo[] }) {
+  const pesos = comodos.map((c) => Math.max(c.limite, c.previsto, 1));
+  const total = pesos.reduce((s, p) => s + p, 0) || 1;
+  // Os maiores primeiro, para a planta fechar melhor (grid-auto-flow: dense completa os vãos).
+  const ordem = comodos.map((c, i) => ({ c, fatia: pesos[i] / total })).sort((a, b) => b.fatia - a.fatia);
   return (
-    <Link href={`/itens?comodo=${c.id}`} className={c.acimaDoLimite ? "cartao cartao-comodo acima" : "cartao cartao-comodo"}>
-      <div className="linha-entre">
-        <strong>{c.nome}</strong>
-        <span className="suave">
-          {c.quantidadeItens} {c.quantidadeItens === 1 ? "item" : "itens"}
-        </span>
-      </div>
-      <div>
-        <strong className="valor-medio">{reaisInteiros(c.previsto)}</strong>
-        {c.limite > 0 ? <span className="suave"> de {reaisInteiros(c.limite)}</span> : <span className="suave"> · sem limite</span>}
-      </div>
-      {c.limite > 0 && (
-        <div className="barra" role="img" aria-label={`${c.percentualDoLimite}% do limite`}>
-          <div className={cor} style={{ width: `${Math.min(100, c.percentualDoLimite)}%` }}></div>
-        </div>
-      )}
-      {c.acimaDoLimite ? (
-        <span className="texto-alerta">Acima do limite em {reaisInteiros(c.excedente)}</span>
-      ) : (
-        <span className="suave">
-          {c.limite > 0 ? `${c.percentualDoLimite}% do limite · ` : ""}
-          {c.quantidadeComprados} {c.quantidadeComprados === 1 ? "comprado" : "comprados"}
-        </span>
-      )}
-    </Link>
+    <div className="planta" role="list" aria-label="Planta da casa: gasto previsto por cômodo">
+      {ordem.map(({ c, fatia }) => {
+        const grande = fatia >= 0.22;
+        const colunas = Math.max(3, Math.min(grande ? 6 : 4, Math.round(fatia * 24)));
+        const ocupacao = c.limite > 0 ? Math.min(100, c.percentualDoLimite) : 0;
+        const estilo = {
+          "--colunas": colunas,
+          "--linhas": grande ? 2 : 1,
+          "--colunas-celular": grande ? 2 : 1,
+        } as React.CSSProperties;
+        return (
+          <Link key={c.id} role="listitem" href={`/itens?comodo=${c.id}`} className={c.acimaDoLimite ? "comodo-planta acima" : "comodo-planta"} style={estilo}>
+            <span className="ocupacao" style={{ height: `${c.acimaDoLimite ? 100 : ocupacao}%` }} aria-hidden="true"></span>
+            <span>
+              <span className="nome">{c.nome}</span>
+              <br />
+              <span className="detalhe">
+                {c.quantidadeItens} {c.quantidadeItens === 1 ? "item" : "itens"} · {c.quantidadeComprados} {c.quantidadeComprados === 1 ? "comprado" : "comprados"}
+              </span>
+            </span>
+            <span>
+              <span className="valor">{reaisInteiros(c.previsto)}</span>
+              <br />
+              <span className="detalhe detalhe-status">
+                {c.acimaDoLimite
+                  ? `Acima do limite em ${reaisInteiros(c.excedente)}`
+                  : c.limite > 0
+                    ? `${c.percentualDoLimite}% de ${reaisInteiros(c.limite)}`
+                    : "Sem limite"}
+              </span>
+            </span>
+          </Link>
+        );
+      })}
+    </div>
   );
 }

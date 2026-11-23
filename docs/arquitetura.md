@@ -53,9 +53,19 @@
 - **Chave secreta:** `SUPABASE_SECRET_KEY` fica só no `.env` e só a API lê. O `next.config.ts` repassa ao navegador apenas as variáveis `NEXT_PUBLIC_*`.
 - **Limitação:** o SMTP padrão do Supabase só entrega para membros da equipe do projeto. Para uso real, é preciso SMTP próprio (README › E-mail do convite). O convite vale mesmo quando o e-mail não sai.
 
-### 2026-11-16 · Identidade visual B · Casa Nova
+### 2026-11-16 · Identidade visual B · Casa Nova (substituída pela G em 2026-11-23)
 - **Escolhida pelo dono do projeto** entre três direções (`docs/design/identidade/`).
 - As cores ficam só em variáveis CSS no começo de `globals.css`. As regras não usam cores soltas, o que permite trocar a identidade sem mexer nas telas.
+
+### 2026-11-23 · Identidade visual G · Planta baixa (substitui a B)
+- **Escolhida pelo dono do projeto** entre cinco estilos novos (`docs/design/estilos/`).
+- Papel quadriculado, tinta azul-marinho `#13294B`, laranja só para alerta e cantos retos. Fontes: IBM Plex Sans no texto e IBM Plex Mono nos valores (`next/font`).
+- O painel desenha os cômodos como a **planta da casa** (`Planta` em `apps/web/src/app/(app)/page.tsx`):
+  - A área de cada cômodo é proporcional ao maior valor entre o limite e o previsto, e os maiores ocupam duas linhas. A grade CSS de 12 colunas, com `grid-auto-flow: dense`, fecha os vãos; no celular são 2 colunas.
+  - A cor sobe de baixo para cima conforme o limite é usado, e vira hachura laranja acima do limite.
+  - Cada cômodo leva aos itens dele.
+- O resumo do painel virou um "carimbo" de prancha, com células separadas por linhas azul-marinho e "Disponível" em destaque.
+- Como antes, as cores ficam só nas variáveis do começo de `globals.css`.
 
 ### 2026-11-16 · Busca de preços pelo SerpApi (Google Shopping)
 - **Escolhida pelo dono do projeto** entre SerpApi, Claude com busca na web, API do Mercado Livre e leitura direta dos sites.

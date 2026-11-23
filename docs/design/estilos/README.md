@@ -3,7 +3,7 @@
 O mesmo painel desenhado em cinco visuais para o app inteiro. Os valores são ilustrativos. Estão no canvas de design, na página "Estilos do app":
 https://claude.ai/artifact/TUjJMSBd4XSLrPrhCijLrX
 
-Nenhum foi aplicado ao app. A identidade em uso continua sendo a **B · Casa Nova** (`docs/design/identidade/`).
+**Escolhido em 2026-11-23: G · Planta baixa**, aplicado no app (tokens no começo de `apps/web/src/app/globals.css`, planta dos cômodos no painel). Os outros ficam como referência.
 
 | Estilo | Arquivo | Ideia | Fontes |
 |--------|---------|-------|--------|
