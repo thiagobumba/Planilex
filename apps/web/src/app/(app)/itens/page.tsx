@@ -18,7 +18,7 @@ type Lista = "falta" | "comprados";
 export default async function Itens({
   searchParams,
 }: {
-  searchParams: Promise<{ lista?: string; comodo?: string; situacao?: string; busca?: string; salvo?: string; excluido?: string; comprado?: string; desmarcado?: string; erro?: string }>;
+  searchParams: Promise<{ novo?: string; lista?: string; comodo?: string; situacao?: string; busca?: string; salvo?: string; excluido?: string; comprado?: string; desmarcado?: string; erro?: string }>;
 }) {
   const orcamento = await orcamentoAtual();
   if (!orcamento) redirect("/");
@@ -93,15 +93,20 @@ export default async function Itens({
         </p>
       )}
 
-      <section className="cartao" id="novo-item" aria-labelledby="novo-titulo">
-        <h2 id="novo-titulo">Adicionar item</h2>
+      {/* Fechado por padrão (regra de progressive disclosure): a lista vem primeiro. Abre pelo "+ Novo item" do painel ou quando ainda não há itens. */}
+      <details className="cartao novo-item" id="novo-item" open={p.novo === "1" || orcamento.resumo.quantidadeItens === 0}>
+        <summary>
+          <span className="novo-item-abrir botao botao-primario">+ Novo item</span>
+          <span className="novo-item-titulo">Adicionar item</span>
+          <span className="novo-item-fechar botao-link">Fechar</span>
+        </summary>
         <Formulario acao={criarItem} limparAoSalvar>
           <CamposItem comodos={orcamento.comodos} comodoPadrao={comodoAtual?.id} />
           <div className="acoes">
             <BotaoEnviar carregando="Adicionando…">Adicionar ao orçamento</BotaoEnviar>
           </div>
         </Formulario>
-      </section>
+      </details>
 
       <nav className="guias" aria-label="Listas de compra">
         <Link href={link({ lista: undefined })} className={lista === "falta" ? "guia ativa" : "guia"} aria-current={lista === "falta" ? "page" : undefined}>
@@ -158,7 +163,7 @@ export default async function Itens({
       </form>
 
       <div className="tabela-caixa">
-        <table className="tabela">
+        <table className="tabela tabela-itens">
           <thead>
             <tr>
               <th scope="col">Item</th>
@@ -191,13 +196,13 @@ export default async function Itens({
                       ? "Nenhum item comprado ainda. Marque “Comprado? Sim” num item da guia Falta comprar."
                       : todos.length > 0
                         ? "Tudo comprado! Nada falta na lista."
-                        : "Nenhum item ainda. Adicione o primeiro no formulário acima."}
+                        : "Nenhum item ainda. Adicione o primeiro em “+ Novo item”."}
                 </td>
               </tr>
             )}
             {itens.map((i) => (
               <tr key={i.id}>
-                <td className="forte">
+                <td className="forte c-nome">
                   {i.nome}
                   {i.ofertaEscolhida && (
                     <a className="oferta-na-tabela" href={i.ofertaEscolhida.link} target="_blank" rel="noopener noreferrer">
@@ -205,16 +210,24 @@ export default async function Itens({
                     </a>
                   )}
                 </td>
-                <td>{i.comodo}</td>
+                <td className="c-comodo">{i.comodo}</td>
                 {lista === "falta" && (
-                  <td>
+                  <td className="c-situacao">
                     <span className={`etiqueta etiqueta-${i.situacao.toLowerCase()}`}>{NOMES_SITUACAO[i.situacao]}</span>
                   </td>
                 )}
-                <td className="num">{i.quantidade}</td>
-                <td className="num">{reais(i.valorPrevisto)}</td>
-                {lista === "comprados" && <td className="num">{reais(i.valorPago)}</td>}
-                <td>
+                <td className="num c-qtd" data-rotulo="Qtd.">
+                  {i.quantidade}
+                </td>
+                <td className="num c-previsto" data-rotulo="Previsto">
+                  {reais(i.valorPrevisto)}
+                </td>
+                {lista === "comprados" && (
+                  <td className="num c-pago" data-rotulo="Pago">
+                    {reais(i.valorPago)}
+                  </td>
+                )}
+                <td className="c-acao">
                   {lista === "falta" && i.valorPrevisto == null ? (
                     <Link href={`/itens/${i.id}`} className="botao botao-secundario botao-pequeno" title="Informe o valor pago para marcar como comprado">
                       Marcar comprado
@@ -237,7 +250,7 @@ export default async function Itens({
                     </form>
                   )}
                 </td>
-                <td className="num">
+                <td className="num c-editar">
                   <Link href={`/itens/${i.id}`} aria-label={`Editar ${i.nome}`}>
                     Editar
                   </Link>

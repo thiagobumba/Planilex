@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { CamposOrcamento } from "@/components/CamposOrcamento";
 import { BotaoEnviar, Formulario } from "@/components/Formulario";
 import { api } from "@/lib/api";
-import { orcamentoAtual } from "@/lib/dados";
+import { orcamentoAtual, usuarioAtual } from "@/lib/dados";
 import type { Pessoas } from "@/lib/tipos";
 import { cancelarConvite, convidarPessoa, editarOrcamento, reenviarConvite, removerPessoa } from "../acoes";
 
@@ -13,7 +13,7 @@ export const metadata: Metadata = { title: "Configurações · Planilex" };
 export default async function Configuracoes() {
   const orcamento = await orcamentoAtual();
   if (!orcamento) redirect("/");
-  const pessoas = await api<Pessoas>(`/orcamentos/${orcamento.id}/pessoas`);
+  const [pessoas, usuario] = await Promise.all([api<Pessoas>(`/orcamentos/${orcamento.id}/pessoas`), usuarioAtual()]);
 
   return (
     <>
@@ -108,6 +108,18 @@ export default async function Configuracoes() {
             <BotaoEnviar>Salvar alterações</BotaoEnviar>
           </div>
         </Formulario>
+      </section>
+      {/* No celular o menu lateral vira barra de abas, sem o "Sair": ele fica aqui (no computador, também no menu). */}
+      <section className="cartao conta" aria-labelledby="conta-titulo">
+        <h2 id="conta-titulo">Sua conta</h2>
+        <div className="linha-entre">
+          <span className="suave">Conectado como {usuario.email}</span>
+          <form action="/auth/sair" method="post">
+            <button type="submit" className="botao botao-secundario">
+              Sair
+            </button>
+          </form>
+        </div>
       </section>
     </>
   );

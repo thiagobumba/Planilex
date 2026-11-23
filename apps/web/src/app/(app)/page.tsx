@@ -54,7 +54,7 @@ export default async function Painel({ searchParams }: { searchParams: Promise<{
           <h1>Painel</h1>
           {contagem && <p className="suave">{contagem}</p>}
         </div>
-        <Link href="/itens#novo-item" className="botao botao-primario">
+        <Link href="/itens?novo=1#novo-item" className="botao botao-primario">
           + Novo item
         </Link>
       </header>

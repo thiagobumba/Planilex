@@ -217,7 +217,7 @@ export function CamposItem({
                   </div>
                   <strong className="oferta-preco">{reais(o.preco)}</strong>
                   <div className="oferta-acoes">
-                    <button type="button" className="botao botao-primario" onClick={() => usar(o)}>
+                    <button type="button" className={i === 0 ? "botao botao-primario" : "botao botao-secundario"} onClick={() => usar(o)}>
                       Usar este preço
                     </button>
                     <a href={o.link} target="_blank" rel="noopener noreferrer">

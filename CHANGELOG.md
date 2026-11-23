@@ -12,6 +12,26 @@ Cada entrada informa:
 
 ## [Não lançado]
 
+### 2026-11-23 · Ajustes de design: celular e acessibilidade
+Correções da revisão pelas diretrizes de design da Apple (acessibilidade, layout e botões).
+
+**Alterado**
+- **Celular (até 820 px):**
+  - O menu lateral virou uma **barra de abas fixa embaixo** (Painel, Itens, Cômodos, Ajustes), com 52 px de altura e respeitando a área segura do iPhone.
+  - O topo ficou só com o logo e o saldo, liberando cerca de 250 px de tela. O "Sair" e o e-mail foram para Configurações › **Sua conta**, novo cartão que aparece em todos os tamanhos.
+- **Lista de itens no celular (até 700 px):** cada item vira um cartão com nome, cômodo, situação, quantidade e valores, "Marcar comprado" na largura toda e "Editar". Antes, a tabela de 720 px escondia essas colunas para o lado.
+- **Contraste:**
+  - Borda de campos e botões secundários: de 1,4:1 para 3,6:1 (`#7d8a83`).
+  - Contorno de foco do teclado: de 2,3:1 para 7,8:1 (verde principal).
+  - "Saldo disponível" no menu: de 3,97:1 para 4,7:1.
+- **Busca de preços:** só a oferta de menor preço tem o botão verde cheio. As outras usam o botão com contorno, para não haver 10 botões principais na tela.
+- **"Adicionar item"** fica recolhido atrás de **"+ Novo item"**, e a lista aparece primeiro. O formulário já vem aberto quando ainda não há itens ou quando se chega pelo "+ Novo item" do painel (`/itens?novo=1`).
+- **Alvos de toque de 44 px no celular:** "Marcar comprado", "Editar", números da paginação e "Ver na loja".
+
+**Por quê:** revisão de design pedida pelo dono. A lista de itens no celular escondia a ação principal, e as bordas dos campos e o foco estavam abaixo do contraste mínimo.
+
+**Impacto:** só visual, sem mudança na API nem no banco. Os pendentes da revisão estão em `docs/ux-8-regras.md`.
+
 ### 2026-11-23 · Busca de preços também na Shopee
 **Adicionado**
 - Shopee Brasil como segunda fonte da busca de preços, pela **API de afiliados** (GraphQL `productOfferV2`, assinatura SHA256).

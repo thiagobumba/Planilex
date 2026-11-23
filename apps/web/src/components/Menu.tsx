@@ -32,10 +32,10 @@ const LINKS = [
   { href: "/", rotulo: "Painel", icone: ICONES.painel },
   { href: "/itens", rotulo: "Itens", icone: ICONES.itens },
   { href: "/comodos", rotulo: "Cômodos", icone: ICONES.comodos },
-  { href: "/configuracoes", rotulo: "Configurações", icone: ICONES.configuracoes },
+  { href: "/configuracoes", rotulo: "Configurações", curto: "Ajustes", icone: ICONES.configuracoes },
 ];
 
-/** Menu lateral (no celular vira uma faixa no topo). Marca a página atual. */
+/** Menu lateral; no celular (até 820 px) vira a barra de abas fixa embaixo. Marca a página atual. */
 export function Menu() {
   const caminho = usePathname();
   return (
@@ -48,7 +48,16 @@ export function Menu() {
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 {l.icone}
               </svg>
-              {l.rotulo}
+              {"curto" in l ? (
+                <>
+                  <span className="rotulo-longo">{l.rotulo}</span>
+                  <span className="rotulo-curto" aria-hidden="true">
+                    {l.curto}
+                  </span>
+                </>
+              ) : (
+                l.rotulo
+              )}
             </Link>
           </li>
         );
