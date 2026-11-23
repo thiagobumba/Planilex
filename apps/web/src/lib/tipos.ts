@@ -76,6 +76,8 @@ export interface ResultadoBusca {
   fontes: ("google" | "shopee")[];
   avisos: string[];
   ocultas: number;
+  marca: string | null;
+  marcaSemResultado: boolean;
 }
 
 /** Oferta ligada a um item (o "melhor preço" escolhido). */

@@ -200,10 +200,11 @@ export async function removerPessoa(_: EstadoAcao, f: FormData): Promise<EstadoA
 // ---------- Busca de preços ----------
 
 /** Chamada pelo botão "Buscar preços" do formulário de item. */
-export async function buscarPrecos(termo: string, atualizar = false): Promise<{ erro?: string; resultado?: ResultadoBusca }> {
+export async function buscarPrecos(termo: string, atualizar = false, marca = ""): Promise<{ erro?: string; resultado?: ResultadoBusca }> {
   try {
     const q = new URLSearchParams({ q: termo });
     if (atualizar) q.set("atualizar", "1");
+    if (marca.trim()) q.set("marca", marca.trim());
     return { resultado: await api<ResultadoBusca>(`/precos?${q}`) };
   } catch (e) {
     if (e instanceof ErroApi) return { erro: e.message };

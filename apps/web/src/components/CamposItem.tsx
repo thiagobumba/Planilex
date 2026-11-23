@@ -40,6 +40,8 @@ export function CamposItem({
   const situacao: Situacao = comprado ? "COMPRADO" : etapa;
   const [valorPago, setValorPago] = useState(fmt(item?.valorPago));
   const [nome, setNome] = useState(item?.nome ?? "");
+  // Só refina a busca de preços; não é gravada no item.
+  const [marca, setMarca] = useState("");
   const [quantidade, setQuantidade] = useState(String(item?.quantidade ?? 1));
   const [valorPrevisto, setValorPrevisto] = useState(fmt(item?.valorPrevisto));
 
@@ -62,7 +64,7 @@ export function CamposItem({
     }
     setErroBusca(null);
     iniciar(async () => {
-      const r = await buscarPrecos(termo, atualizar);
+      const r = await buscarPrecos(termo, atualizar, marca);
       if (r.erro) {
         setErroBusca(r.erro);
         setBusca(null);
@@ -105,24 +107,46 @@ export function CamposItem({
   return (
     <div className="grade-campos">
       <div className="campo campo-largo">
-        <label htmlFor="campo-nome-item">Item</label>
         <div className="linha-busca">
-          <input
-            id="campo-nome-item"
-            name="nome"
-            required
-            maxLength={160}
-            placeholder="Ex.: Micro-ondas 30 L inox"
-            value={nome}
-            onChange={(e) => setNome(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                pesquisar();
-              }
-            }}
-            aria-describedby="dica-busca"
-          />
+          <div className="campo campo-item">
+            <label htmlFor="campo-nome-item">Item</label>
+            <input
+              id="campo-nome-item"
+              name="nome"
+              required
+              maxLength={160}
+              placeholder="Ex.: Micro-ondas 30 L inox"
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  pesquisar();
+                }
+              }}
+              aria-describedby="dica-busca"
+            />
+          </div>
+          <div className="campo campo-marca">
+            <label htmlFor="campo-marca">
+              Marca <span className="suave">(opcional)</span>
+            </label>
+            <input
+              id="campo-marca"
+              maxLength={60}
+              placeholder="Ex.: Brastemp"
+              autoComplete="off"
+              value={marca}
+              onChange={(e) => setMarca(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  pesquisar();
+                }
+              }}
+              aria-describedby="dica-busca"
+            />
+          </div>
           <button type="button" className="botao botao-secundario" onClick={() => pesquisar()} disabled={buscando} aria-busy={buscando}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
               <circle cx="11" cy="11" r="6.5"></circle>
@@ -132,13 +156,13 @@ export function CamposItem({
           </button>
         </div>
         <span className="dica" id="dica-busca">
-          Digite o produto e clique em “Buscar preços” (ou aperte Enter) para ver ofertas de várias lojas.
+          Digite o produto e clique em “Buscar preços” (ou aperte Enter) para ver ofertas de várias lojas. A marca, se preenchida, entra na busca e deixa só as ofertas dela.
         </span>
       </div>
 
       {buscando && (
         <p role="status" className="aviso aviso-info campo-largo">
-          Pesquisando “{nome.trim()}” nas lojas…
+          Pesquisando “{nome.trim()}”{marca.trim() && ` da marca ${marca.trim()}`} nas lojas…
         </p>
       )}
       {erroBusca && (
@@ -176,6 +200,7 @@ export function CamposItem({
           <div className="linha-entre">
             <span className="suave">
               {busca.ofertas.length} {busca.ofertas.length === 1 ? "oferta" : "ofertas"} para “{busca.termo}” · consultado {hora(busca.consultadoEm)}
+              {busca.marca && !busca.marcaSemResultado && ` · só ${busca.marca}`}
               {busca.emCache && " (busca guardada)"}
               {busca.fontes.length > 0 && ` · ${busca.fontes.map((f) => NOMES_FONTE[f]).join(" e ")}`}
             </span>
@@ -188,6 +213,11 @@ export function CamposItem({
               </button>
             </span>
           </div>
+          {busca.marca && busca.marcaSemResultado && (
+            <p className="aviso aviso-atencao">
+              Nenhuma oferta citava a marca “{busca.marca}”. Mostrando todas as ofertas encontradas.
+            </p>
+          )}
           {busca.avisos.map((a) => (
             <p key={a} className="aviso aviso-atencao">
               {a}

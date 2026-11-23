@@ -12,6 +12,19 @@ Cada entrada informa:
 
 ## [Não lançado]
 
+### 2026-11-23 · Marca na busca de preços
+**Adicionado**
+- Campo **Marca (opcional)** ao lado do item no formulário. Enter nele também busca.
+  - A marca entra no termo enviado às lojas: "ar condicionado" + "LG" vira "ar condicionado lg".
+  - A lista mostra só as ofertas que citam a marca no título ou no nome da loja, por palavra inteira, sem diferenciar maiúsculas nem acentos. O cabeçalho da lista mostra "· só LG".
+  - Se nenhuma oferta citar a marca, aparecem todas, com um aviso amarelo.
+- API: parâmetro `marca` em `GET /precos` e os campos `marca` e `marcaSemResultado` na resposta.
+- 1 teste novo (18 no total).
+
+**Por quê:** pedido do dono, para refinar os resultados da busca.
+
+**Impacto:** sem migração. A marca não é gravada no item, só refina a busca. Cada combinação de item e marca é uma busca nova no SerpApi e na Shopee, guardada por 24 h.
+
 ### 2026-11-23 · Ajustes de design: celular e acessibilidade
 Correções da revisão pelas diretrizes de design da Apple (acessibilidade, layout e botões).
 

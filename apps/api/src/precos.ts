@@ -17,6 +17,10 @@ export interface ResultadoBusca {
   avisos: string[];
   /** Ofertas escondidas por estarem muito abaixo do preço típico (acessórios, peças). */
   ocultas: number;
+  /** Marca pedida (como digitada), ou null. */
+  marca: string | null;
+  /** true quando nenhuma oferta citava a marca e por isso vieram todas. */
+  marcaSemResultado: boolean;
 }
 
 /** O que fica guardado na tabela buscas_preco. */
@@ -62,6 +66,24 @@ export function juntarOfertas(listas: OfertaEncontrada[][]): { ofertas: OfertaEn
   return { ofertas: ofertas.slice(0, MAX_OFERTAS), ocultas: todas.length - ofertas.length };
 }
 
+/** Minúsculo e sem acento, para comparar marcas: "Brastemp" ≈ "BRASTEMP", "Arno" ≈ "ARNO®". */
+const semAcento = (t: string) =>
+  t
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+/**
+ * Deixa só as ofertas que citam a marca no título ou no nome da loja (palavra inteira, sem acento).
+ * Se nenhuma citar, devolve todas e avisa (melhor mostrar algo do que uma lista vazia).
+ */
+export function filtrarPorMarca(ofertas: OfertaEncontrada[], marca: string) {
+  const alvo = semAcento(marca).trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+");
+  const re = new RegExp(`(^|[^a-z0-9])${alvo}($|[^a-z0-9])`);
+  const daMarca = ofertas.filter((o) => re.test(semAcento(`${o.titulo} ${o.loja}`)));
+  return daMarca.length > 0 ? { ofertas: daMarca, marcaSemResultado: false } : { ofertas, marcaSemResultado: true };
+}
+
 /** Buscas guardadas antes de existirem várias fontes eram só a lista de ofertas do Google. */
 function lerGuardado(resultado: unknown): Guardado {
   if (Array.isArray(resultado)) {
@@ -75,13 +97,18 @@ function lerGuardado(resultado: unknown): Guardado {
  * Reaproveita a mesma busca por 24 h (tabela buscas_preco) para poupar as cotas.
  * Documentação: docs/api.md › Busca de preços
  */
-export async function buscarPrecos(termoDigitado: string, ignorarCache = false): Promise<ResultadoBusca> {
-  const termo = normalizarTermo(termoDigitado);
+export async function buscarPrecos(termoDigitado: string, ignorarCache = false, marcaDigitada?: string): Promise<ResultadoBusca> {
+  const marca = marcaDigitada?.trim() ? marcaDigitada.trim().replace(/\s+/g, " ") : null;
+  // A marca entra na busca das lojas (resultados mais relevantes) e depois filtra as ofertas.
+  const termoItem = normalizarTermo(termoDigitado);
+  const termo = marca && !semAcento(termoItem).includes(semAcento(marca)) ? normalizarTermo(`${termoItem} ${marca}`) : termoItem;
+  const comMarca = (r: Omit<ResultadoBusca, "marca" | "marcaSemResultado">): ResultadoBusca =>
+    marca ? { ...r, ...filtrarPorMarca(r.ofertas, marca), marca } : { ...r, marca: null, marcaSemResultado: false };
 
   if (!ignorarCache) {
     const guardada = await db().buscaPreco.findUnique({ where: { termo } });
     if (guardada && Date.now() - guardada.criadoEm.getTime() < VALIDADE_CACHE_MS) {
-      return { termo, consultadoEm: guardada.criadoEm.toISOString(), emCache: true, avisos: [], ...lerGuardado(guardada.resultado) };
+      return comMarca({ termo, consultadoEm: guardada.criadoEm.toISOString(), emCache: true, avisos: [], ...lerGuardado(guardada.resultado) });
     }
   }
 
@@ -115,5 +142,5 @@ export async function buscarPrecos(termoDigitado: string, ignorarCache = false):
       update: { resultado: guardado as unknown as object, criadoEm: agora },
     });
   }
-  return { termo, consultadoEm: agora.toISOString(), emCache: false, ofertas, fontes, avisos, ocultas };
+  return comMarca({ termo, consultadoEm: agora.toISOString(), emCache: false, ofertas, fontes, avisos, ocultas });
 }

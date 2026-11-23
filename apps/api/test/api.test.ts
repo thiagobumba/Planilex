@@ -341,6 +341,23 @@ describe("API do Planilex", () => {
     assert.equal((await chamar(ana, "GET", `/precos?q=${encodeURIComponent(termoFalha)}`)).json().emCache, false);
   });
 
+  test("busca de preços: marca refina a busca e filtra as ofertas", async () => {
+    const base = `teste-planilex micro-ondas ${randomUUID().slice(0, 8)}`;
+    const r = (await chamar(ana, "GET", `/precos?q=${encodeURIComponent(base)}&marca=${encodeURIComponent("Casas Bahía")}`)).json();
+    assert.equal(r.termo, `${base} casas bahía`, "a marca entra no termo enviado às lojas");
+    assert.equal(r.marca, "Casas Bahía");
+    assert.equal(r.marcaSemResultado, false);
+    assert.deepEqual(r.ofertas.map((o: { loja: string }) => o.loja), ["Casas Bahia"], "sem acento e sem diferenciar maiúsculas");
+
+    const nenhuma = (await chamar(ana, "GET", `/precos?q=${encodeURIComponent(base)}&marca=Electrolux`)).json();
+    assert.equal(nenhuma.marcaSemResultado, true);
+    assert.equal(nenhuma.ofertas.length, 2, "sem oferta da marca, mostra todas");
+
+    const semMarca = (await chamar(ana, "GET", `/precos?q=${encodeURIComponent(base)}`)).json();
+    assert.equal(semMarca.marca, null);
+    assert.equal(semMarca.termo, base);
+  });
+
   test("item guarda a oferta escolhida", async () => {
     const r = await chamar(ana, "POST", "/itens", {
       nome: "Micro-ondas com oferta",

@@ -1080,8 +1080,17 @@ fieldset.campo legend {
   gap: 10px;
   flex-wrap: wrap;
 }
-.linha-busca input {
-  flex: 1 1 320px;
+.linha-busca {
+  align-items: flex-end;
+}
+.linha-busca .campo-item {
+  flex: 3 1 280px;
+}
+.linha-busca .campo-marca {
+  flex: 1 1 180px;
+}
+.linha-busca > .botao {
+  flex: 0 0 auto;
 }
 .aviso-info {
   background: var(--cor-azul-suave);
