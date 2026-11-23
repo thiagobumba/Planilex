@@ -12,6 +12,18 @@ Cada entrada informa:
 
 ## [Não lançado]
 
+### 2026-11-23 · Cinco estilos novos para o app (propostas)
+**Adicionado**
+- `docs/design/estilos/`: o painel desenhado em cinco visuais para o app inteiro, também na página "Estilos do app" do canvas de design:
+  - D · Casa Nova escuro;
+  - E · Noturno âmbar e F · Claro técnico, a partir do sistema de temas do APIcanvas (tema escuro ou claro, mais uma cor de destaque);
+  - G · Planta baixa;
+  - H · Blocos de cor.
+
+**Por quê:** pedido do dono, para comparar mais opções de visual.
+
+**Impacto:** nenhum no app. São só propostas, e a identidade em uso continua sendo a B · Casa Nova.
+
 ### 2026-11-23 · Marca na busca de preços
 **Adicionado**
 - Campo **Marca (opcional)** ao lado do item no formulário. Enter nele também busca.

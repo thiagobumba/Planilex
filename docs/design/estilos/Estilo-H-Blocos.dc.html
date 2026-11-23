@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Planilex — estilo H, Blocos de cor</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F5F6FA}
+a{color:#3A2E8C}a:hover{color:#251C66}
+</style>
+</helmet>
+<div style="min-height: 1080px; background: #F5F6FA; font-family: Inter, sans-serif; color: #1B1A2E; font-size: 15px">
+<header style="max-width: 1180px; margin: 0 auto; box-sizing: border-box; padding: 20px 28px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px">
+<span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 24px; letter-spacing: -0.02em">planilex</span>
+<nav aria-label="Menu principal" style="display: flex; flex-wrap: wrap; gap: 6px; padding: 4px; border-radius: 999px; background: #FFFFFF; border: 1px solid #E3E5EE">
+<a href="#" aria-current="page" style="display: inline-flex; align-items: center; min-height: 40px; padding: 0 16px; border-radius: 999px; background: #1B1A2E; color: #FFFFFF; font-weight: 600; text-decoration: none">Painel</a>
+<a href="#" style="display: inline-flex; align-items: center; min-height: 40px; padding: 0 16px; border-radius: 999px; color: #4A4960; text-decoration: none">Itens</a>
+<a href="#" style="display: inline-flex; align-items: center; min-height: 40px; padding: 0 16px; border-radius: 999px; color: #4A4960; text-decoration: none">Cômodos</a>
+<a href="#" style="display: inline-flex; align-items: center; min-height: 40px; padding: 0 16px; border-radius: 999px; color: #4A4960; text-decoration: none">Configurações</a>
+</nav>
+<button type="button" style="margin-left: auto; min-height: 44px; padding: 0 20px; border: 0; border-radius: 999px; background: #3A2E8C; color: #FFFFFF; font: inherit; font-weight: 600">+ Novo item</button>
+</header>
+<main style="max-width: 1180px; margin: 0 auto; box-sizing: border-box; padding: 8px 28px 56px; display: flex; flex-direction: column; gap: 22px">
+<section style="display: flex; flex-wrap: wrap; gap: 18px; align-items: stretch">
+<div style="flex: 2 1 460px; padding: 28px; border-radius: 28px; background: #1B1A2E; color: #FFFFFF; display: flex; flex-direction: column; gap: 14px">
+<span style="color: #C9C7E0">Casamento em 18/04/2027 · faltam 146 dias</span>
+<h1 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 44px; line-height: 1.05; letter-spacing: -0.03em">Ainda sobram R$ 17.110 para montar a casa.</h1>
+<div style="display: flex; height: 14px; border-radius: 999px; overflow: hidden; background: #3A3954"><div style="width: 31%; background: #B9F27C"></div><div style="width: 40%; background: #8E85F0"></div></div>
+<div style="display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 14px; color: #DCDAF0"><span><b style="color: #B9F27C">●</b> Pago R$ 18.400</span><span><b style="color: #8E85F0">●</b> A pagar R$ 24.490</span><span>○ Livre R$ 17.110 de R$ 60.000</span></div>
+</div>
+<div style="flex: 1 1 260px; display: flex; flex-direction: column; gap: 18px">
+<div style="flex: 1; padding: 22px; border-radius: 28px; background: #FFE2D6; display: flex; flex-direction: column; gap: 6px" role="alert">
+<strong style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 22px">Cozinha estourou</strong>
+<span style="color: #6B2A12">Passou R$ 1.240 do limite de R$ 15.000.</span>
+<a href="#" style="color: #6B2A12; font-weight: 600">Rever itens da cozinha</a>
+</div>
+<div style="flex: 1; padding: 22px; border-radius: 28px; background: #FFFFFF; border: 1px solid #E3E5EE; display: flex; flex-direction: column; gap: 4px">
+<span style="color: #4A4960">Já compraram</span>
+<strong style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 30px">9 de 24 itens</strong>
+<a href="#" style="font-weight: 600">Ver o que falta</a>
+</div>
+</div>
+</section>
+<div style="display: flex; justify-content: space-between; align-items: baseline"><h2 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-size: 26px; letter-spacing: -0.02em">Cada cômodo</h2><a href="#">Editar limites</a></div>
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px">
+<sc-for list="{{comodos}}" as="c">
+<div style="padding: 22px; border-radius: 28px; background: {{c.fundo}}; display: flex; flex-direction: column; gap: 12px; min-height: 170px">
+<div style="display: flex; justify-content: space-between; align-items: baseline"><strong style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 22px">{{c.nome}}</strong><span style="font-size: 14px; color: {{c.tinta}}">{{c.itens}}</span></div>
+<span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 32px; letter-spacing: -0.02em">{{c.previsto}}</span>
+<div style="height: 10px; border-radius: 999px; background: rgba(27,26,46,0.12); overflow: hidden"><div style="height: 100%; width: {{c.pct}}; background: #1B1A2E"></div></div>
+<span style="font-size: 14px; color: {{c.tinta}}">{{c.status}}</span>
+</div>
+</sc-for>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1080}}'>
+class Component extends DCLogic {
+renderVals() {
+return {
+comodos: [
+{ nome: 'Cozinha', itens: '8 itens', previsto: 'R$ 16.240', pct: '100%', status: 'Acima do limite de R$ 15.000', fundo: '#FFE2D6', tinta: '#6B2A12' },
+{ nome: 'Quarto', itens: '4 itens', previsto: 'R$ 8.500', pct: '94%', status: '94% de R$ 9.000 · quase no limite', fundo: '#E7E2FF', tinta: '#3A2E8C' },
+{ nome: 'Sala', itens: '5 itens', previsto: 'R$ 7.800', pct: '65%', status: '65% de R$ 12.000', fundo: '#DCEBFF', tinta: '#1D4477' },
+{ nome: 'Materiais e obra', itens: '3 itens', previsto: 'R$ 4.300', pct: '0%', status: 'Sem limite definido', fundo: '#ECEEF3', tinta: '#4A4960' },
+{ nome: 'Área de serviço', itens: '2 itens', previsto: 'R$ 3.900', pct: '78%', status: '78% de R$ 5.000', fundo: '#FFF0C2', tinta: '#5E4300' },
+{ nome: 'Banheiro', itens: '2 itens', previsto: 'R$ 2.150', pct: '54%', status: '54% de R$ 4.000', fundo: '#D5F4E8', tinta: '#145C42' }
+]
+};
+}
+}
+</script>
+</body>
+</html>

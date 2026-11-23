@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Planilex — estilo G, Planta baixa</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F7FB}
+a{color:#13294B}a:hover{color:#0A1830}
+</style>
+</helmet>
+<div style="min-height: 1080px; display: flex; flex-wrap: wrap; font-family: 'IBM Plex Sans', sans-serif; color: #13294B; font-size: 14px; background-color: #F4F7FB; background-image: linear-gradient(rgba(19,41,75,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(19,41,75,0.06) 1px, transparent 1px); background-size: 24px 24px">
+<nav aria-label="Menu principal" style="flex: 1 1 210px; max-width: 100%; box-sizing: border-box; padding: 24px 14px; display: flex; flex-direction: column; gap: 6px; background: #13294B; color: #E8EEF7">
+<div style="display: flex; align-items: center; gap: 10px; padding: 0 8px 18px">
+<svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="25" fill="none" stroke="#E8EEF7" stroke-width="3"></rect><path d="M1.5 14 H12 M16 14 H26.5 M14 1.5 V9" stroke="#E8EEF7" stroke-width="2"></path></svg>
+<span style="font-weight: 700; font-size: 18px; letter-spacing: 0.02em">PLANILEX</span>
+</div>
+<a href="#" aria-current="page" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; background: #E8EEF7; color: #13294B; font-weight: 600; text-decoration: none">Planta da casa</a>
+<a href="#" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; color: #C9D5E6; text-decoration: none">Itens</a>
+<a href="#" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; color: #C9D5E6; text-decoration: none">Cômodos</a>
+<a href="#" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; color: #C9D5E6; text-decoration: none">Configurações</a>
+</nav>
+<main style="flex: 999 1 560px; min-width: 0; max-width: 1070px; box-sizing: border-box; padding: 32px 40px 56px; display: flex; flex-direction: column; gap: 22px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.08em; color: #4B5D7A">PRANCHA 01 · ORÇAMENTO POR CÔMODO</span>
+<h1 style="margin: 0; font-size: 32px; font-weight: 600">Nossa casa</h1>
+</div>
+<button type="button" style="min-height: 44px; padding: 0 18px; border: 2px solid #13294B; background: #13294B; color: #FFFFFF; font: inherit; font-weight: 600">+ Novo item</button>
+</div>
+<div style="overflow-x: auto">
+<div style="min-width: 680px; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); grid-template-rows: 150px 150px 150px; grid-template-areas: 'cozinha cozinha sala sala sala quarto quarto' 'cozinha cozinha sala sala sala quarto quarto' 'area banheiro sala sala sala quarto quarto'; border: 6px solid #13294B; background: #FFFFFF" role="list" aria-label="Planta: gasto previsto por cômodo">
+<sc-for list="{{comodos}}" as="c">
+<div role="listitem" style="grid-area: {{c.area}}; position: relative; border: 2px solid #13294B; padding: 14px; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden">
+<div style="position: absolute; left: 0; right: 0; bottom: 0; height: {{c.pct}}; background: {{c.fundo}}" aria-hidden="true"></div>
+<div style="position: relative; display: flex; flex-direction: column; gap: 2px">
+<strong style="font-size: 15px; text-transform: uppercase; letter-spacing: 0.06em">{{c.nome}}</strong>
+<span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #4B5D7A">{{c.itens}}</span>
+</div>
+<div style="position: relative; display: flex; flex-direction: column; gap: 2px">
+<span style="font-family: 'IBM Plex Mono', monospace; font-size: 20px; font-weight: 600">{{c.previsto}}</span>
+<span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: {{c.corTexto}}; font-weight: {{c.peso}}">{{c.status}}</span>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 22px; align-items: stretch">
+<div style="flex: 1 1 260px; border: 2px dashed #4B5D7A; padding: 14px; display: flex; flex-direction: column; gap: 4px; background: rgba(255,255,255,0.7)">
+<strong style="font-size: 15px; text-transform: uppercase; letter-spacing: 0.06em">Materiais e obra</strong>
+<span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #4B5D7A">fora da planta · 3 itens · sem limite</span>
+<span style="font-family: 'IBM Plex Mono', monospace; font-size: 20px; font-weight: 600">R$ 4.300</span>
+</div>
+<table style="flex: 2 1 420px; border-collapse: collapse; border: 2px solid #13294B; background: #FFFFFF; font-size: 13px">
+<caption style="text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.08em; color: #4B5D7A; padding-bottom: 6px">CARIMBO · RESUMO</caption>
+<tbody>
+<tr><th scope="row" style="text-align: left; padding: 8px 12px; border: 1px solid #13294B; font-weight: 500">Orçamento total</th><td style="padding: 8px 12px; border: 1px solid #13294B; font-family: 'IBM Plex Mono', monospace; text-align: right">R$ 60.000</td><th scope="row" style="text-align: left; padding: 8px 12px; border: 1px solid #13294B; font-weight: 500">Já pago</th><td style="padding: 8px 12px; border: 1px solid #13294B; font-family: 'IBM Plex Mono', monospace; text-align: right">R$ 18.400</td></tr>
+<tr><th scope="row" style="text-align: left; padding: 8px 12px; border: 1px solid #13294B; font-weight: 500">Previsto</th><td style="padding: 8px 12px; border: 1px solid #13294B; font-family: 'IBM Plex Mono', monospace; text-align: right">R$ 42.890</td><th scope="row" style="text-align: left; padding: 8px 12px; border: 1px solid #13294B; font-weight: 700; background: #13294B; color: #FFFFFF">Disponível</th><td style="padding: 8px 12px; border: 1px solid #13294B; font-family: 'IBM Plex Mono', monospace; text-align: right; font-weight: 700">R$ 17.110</td></tr>
+<tr><th scope="row" style="text-align: left; padding: 8px 12px; border: 1px solid #13294B; font-weight: 500">Casamento</th><td colspan="3" style="padding: 8px 12px; border: 1px solid #13294B; font-family: 'IBM Plex Mono', monospace">18/04/2027 · faltam 146 dias</td></tr>
+</tbody>
+</table>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 13px; color: #4B5D7A">
+<span style="display: inline-flex; align-items: center; gap: 8px"><span style="width: 16px; height: 16px; background: #CFE0F5; border: 1px solid #13294B" aria-hidden="true"></span>Altura da cor = quanto do limite já foi previsto</span>
+<span style="display: inline-flex; align-items: center; gap: 8px"><span style="width: 16px; height: 16px; background: repeating-linear-gradient(45deg, #F6C7B1 0 4px, #FCE7DD 4px 8px); border: 1px solid #13294B" aria-hidden="true"></span>Hachura = acima do limite</span>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1080}}'>
+class Component extends DCLogic {
+renderVals() {
+const ok = { fundo: '#CFE0F5', corTexto: '#4B5D7A', peso: '400' };
+return {
+comodos: [
+{ area: 'cozinha', nome: 'Cozinha', itens: '8 itens · 5 comprados', previsto: 'R$ 16.240', status: 'ACIMA DO LIMITE EM R$ 1.240', pct: '100%', fundo: 'repeating-linear-gradient(45deg, #F6C7B1 0 6px, #FCE7DD 6px 12px)', corTexto: '#8A2E07', peso: '600' },
+Object.assign({ area: 'sala', nome: 'Sala', itens: '5 itens · 3 comprados', previsto: 'R$ 7.800', status: '65% de R$ 12.000', pct: '65%' }, ok),
+Object.assign({ area: 'quarto', nome: 'Quarto', itens: '4 itens · 2 comprados', previsto: 'R$ 8.500', status: '94% de R$ 9.000', pct: '94%' }, ok),
+Object.assign({ area: 'area', nome: 'Serviço', itens: '2 itens', previsto: 'R$ 3.900', status: '78% de R$ 5.000', pct: '78%' }, ok),
+Object.assign({ area: 'banheiro', nome: 'Banho', itens: '2 itens', previsto: 'R$ 2.150', status: '54% de R$ 4.000', pct: '54%' }, ok)
+]
+};
+}
+}
+</script>
+</body>
+</html>
