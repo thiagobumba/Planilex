@@ -18,14 +18,17 @@
     "migrate:dev": "prisma migrate dev",
     "migrate:deploy": "prisma migrate deploy",
     "studio": "prisma studio",
-    "testar": "node scripts/testar-conexao.mjs"
+    "testar": "node scripts/testar-conexao.mjs",
+    "backup": "node scripts/backup.mjs",
+    "importar": "node scripts/importar.mjs"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.1",
     "@prisma/client": "^7.10.1",
     "dotenv": "^18.0.10",
     "pg": "^8.23.1",
-    "prisma": "^7.10.1"
+    "prisma": "^7.10.1",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",

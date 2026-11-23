@@ -211,3 +211,21 @@ export async function buscarPrecos(termo: string, atualizar = false, marca = "")
     throw e;
   }
 }
+
+// ---------- Backup ----------
+
+/** Importa um backup (.json) como o orçamento de quem está logado. Usado na tela inicial sem orçamento. */
+export async function importarBackup(_: EstadoAcao, f: FormData): Promise<EstadoAcao> {
+  const arquivo = f.get("arquivo");
+  if (!(arquivo instanceof File) || arquivo.size === 0) return { erro: "Escolha o arquivo do backup (.json)." };
+  if (arquivo.size > 20 * 1024 * 1024) return { erro: "O arquivo passa de 20 MB. Confira se é mesmo um backup do Planilex." };
+  let conteudo: unknown;
+  try {
+    conteudo = JSON.parse(await arquivo.text());
+  } catch {
+    return { erro: "Esse arquivo não é um backup do Planilex (não é um JSON válido)." };
+  }
+  const resultado = await tentar(() => api("/orcamentos/importar", { method: "POST", body: conteudo }), "Backup importado.");
+  if (resultado.erro) return resultado;
+  redirect("/?importado=1");
+}

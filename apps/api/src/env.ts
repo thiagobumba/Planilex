@@ -2,7 +2,8 @@ import path from "node:path";
 import { config } from "dotenv";
 
 // As variáveis ficam no .env da raiz do repositório.
-config({ path: path.resolve(import.meta.dirname, "../../../.env"), quiet: true });
+const raiz = path.resolve(import.meta.dirname, "../../..");
+config({ path: path.join(raiz, ".env"), quiet: true });
 
 export const env = {
   porta: Number(process.env.API_PORT ?? 3333),
@@ -20,5 +21,9 @@ export const env = {
   shopeeAppId: process.env.SHOPEE_APP_ID?.trim() || undefined,
   shopeeAppSecret: process.env.SHOPEE_APP_SECRET?.trim() || undefined,
   /** Endereço da API de afiliados da Shopee Brasil; só muda nos testes. */
+  /** Backup diário automático (docs/backup.md). BACKUP_AUTOMATICO=0 desliga. */
+  backupAutomatico: process.env.BACKUP_AUTOMATICO !== "0",
+  backupPasta: path.resolve(raiz, process.env.BACKUP_PASTA?.trim() || "backups"),
+  backupManter: Math.max(1, Number(process.env.BACKUP_MANTER ?? 30) || 30),
   shopeeApiUrl: process.env.SHOPEE_API_URL ?? "https://open-api.affiliate.shopee.com.br/graphql",
 };

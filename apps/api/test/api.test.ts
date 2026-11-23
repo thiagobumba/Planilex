@@ -76,7 +76,15 @@ const { db } = await import("../src/db.js");
 const ana = randomUUID();
 const beto = randomUUID();
 const carla = randomUUID();
-const emails: Record<string, string> = { [ana]: "ana@teste.com", [beto]: "beto@teste.com", [carla]: "Carla@Teste.com" };
+const dani = randomUUID();
+const edu = randomUUID();
+const emails: Record<string, string> = {
+  [ana]: "ana@teste.com",
+  [beto]: "beto@teste.com",
+  [carla]: "Carla@Teste.com",
+  [dani]: "dani@teste.com",
+  [edu]: "edu@teste.com",
+};
 
 // Nos testes, o "token" é o próprio id do usuário; o e-mail vem da tabela acima.
 definirVerificadorDeToken(async (token) => (token.startsWith("u-") ? { id: token.slice(2), email: emails[token.slice(2)] } : null));
@@ -102,7 +110,7 @@ describe("API do Planilex", () => {
   });
 
   after(async () => {
-    await db().orcamento.deleteMany({ where: { membros: { some: { usuarioId: { in: [ana, beto, carla] } } } } });
+    await db().orcamento.deleteMany({ where: { membros: { some: { usuarioId: { in: [ana, beto, carla, dani, edu] } } } } });
     await db().buscaPreco.deleteMany({ where: { termo: { startsWith: "teste-planilex " } } });
     await db().$disconnect();
     await app.close();
@@ -379,6 +387,51 @@ describe("API do Planilex", () => {
     assert.equal(sem.ofertaEscolhida, null);
     assert.equal((await chamar(ana, "POST", "/itens", { nome: "x", comodoId: cozinhaId, oferta: { loja: "a", titulo: "b", preco: 1, link: "não é link" } })).statusCode, 400);
     await chamar(ana, "DELETE", `/itens/${id}`);
+  });
+
+  test("backup: baixar, importar numa instalação nova e recuperar o acesso pelo e-mail", async () => {
+    assert.equal((await chamar(dani, "GET", `/orcamentos/${orcamentoId}/backup`)).statusCode, 404, "só quem tem acesso baixa");
+    const r = await chamar(ana, "GET", `/orcamentos/${orcamentoId}/backup`);
+    assert.equal(r.statusCode, 200);
+    assert.match(String(r.headers["content-disposition"]), /attachment; filename="planilex-/);
+    const backup = r.json();
+    assert.equal(backup.formato, "planilex-backup");
+    assert.equal(backup.orcamentos.length, 1);
+    const original = backup.orcamentos[0];
+    const totalItens = original.comodos.reduce((s: number, c: { itens: unknown[] }) => s + c.itens.length, 0);
+    assert.ok(totalItens > 0);
+    assert.ok(original.pessoas.some((p: { email: string; papel: string }) => p.email === "ana@teste.com" && p.papel === "DONO"));
+    const comOferta = original.comodos.flatMap((c: { itens: { ofertaEscolhida: string | null }[] }) => c.itens).filter((i: { ofertaEscolhida: string | null }) => i.ofertaEscolhida);
+
+    // Arquivo que não é backup
+    const ruim = await chamar(dani, "POST", "/orcamentos/importar", { formato: "outra-coisa" });
+    assert.equal(ruim.statusCode, 400);
+    assert.match(ruim.json().erro, /não é um backup do Planilex/);
+
+    // Dani importa (instalação nova): vira DONO; ana e as outras pessoas viram convites com o mesmo papel
+    original.pessoas.push({ email: "edu@teste.com", papel: "DONO" });
+    const imp = await chamar(dani, "POST", "/orcamentos/importar", backup);
+    assert.equal(imp.statusCode, 201, imp.body);
+    const novoId = imp.json().orcamentos[0].id;
+    assert.notEqual(novoId, orcamentoId);
+    const atualDani = (await chamar(dani, "GET", "/orcamentos/atual")).json();
+    assert.equal(atualDani.id, novoId);
+    assert.equal(atualDani.papel, "DONO");
+    assert.equal(atualDani.resumo.quantidadeItens, totalItens);
+    assert.deepEqual(
+      atualDani.comodos.map((c: { nome: string; limite: number }) => [c.nome, c.limite]),
+      original.comodos.map((c: { nome: string; limite: number }) => [c.nome, c.limite]),
+    );
+    const itensNovos = (await chamar(dani, "GET", `/orcamentos/${novoId}/itens`)).json();
+    assert.equal(itensNovos.filter((i: { ofertaEscolhida: unknown }) => i.ofertaEscolhida).length, comOferta.length, "oferta escolhida preservada");
+
+    // Edu entra com o e-mail do backup e recupera o acesso como DONO
+    const lista = (await chamar(edu, "GET", "/orcamentos")).json();
+    assert.equal(lista.length, 1);
+    assert.equal(lista[0].id, novoId);
+    assert.equal(lista[0].papel, "DONO");
+    // O orçamento original não mudou
+    assert.equal((await chamar(ana, "GET", `/orcamentos/${orcamentoId}`)).json().resumo.quantidadeItens, totalItens);
   });
 
   test("excluir item", async () => {

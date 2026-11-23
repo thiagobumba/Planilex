@@ -3,6 +3,7 @@ import Fastify, { type FastifyServerOptions } from "fastify";
 import { ZodError } from "zod";
 import { env } from "./env.js";
 import { ErroHttp } from "./erros.js";
+import { rotasBackup } from "./routes/backup.js";
 import { rotasComodos } from "./routes/comodos.js";
 import { rotasItens } from "./routes/itens.js";
 import { rotasOrcamentos } from "./routes/orcamentos.js";
@@ -36,6 +37,7 @@ export async function criarApp(opcoes: FastifyServerOptions = { logger: true }) 
 
   await app.register(rotasSaude);
   await app.register(rotasOrcamentos);
+  await app.register(rotasBackup);
   await app.register(rotasComodos);
   await app.register(rotasItens);
   await app.register(rotasPessoas);

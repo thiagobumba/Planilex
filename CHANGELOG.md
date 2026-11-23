@@ -12,6 +12,29 @@ Cada entrada informa:
 
 ## [Não lançado]
 
+### 2026-11-23 · Backup e importação do banco
+**Adicionado**
+- **Backup em JSON** (formato `planilex-backup`, versão 1), em `packages/db/src/backup.ts`. Ele inclui orçamentos, pessoas com acesso, convites, cômodos, itens, ofertas e histórico de preços. As contas de login, o cache de buscas e as atividades ficam de fora.
+- **Backup automático:** a API salva um backup por dia em `backups/` enquanto está rodando e mantém os 30 mais recentes. Variáveis opcionais: `BACKUP_AUTOMATICO`, `BACKUP_PASTA` e `BACKUP_MANTER`. A pasta `backups/` entrou no `.gitignore`.
+- **Comandos:** `npm run db:backup` salva o banco inteiro. `npm run db:importar -- arquivo.json` importa numa instalação nova; se o banco já tiver dados, pergunta antes, e `--sim` pula a pergunta.
+- **No site:**
+  - **Configurações › Backup › Baixar backup (.json)**.
+  - Na tela "Vamos começar", **Tem um backup? › Importar backup**: quem importa vira dono.
+- **API:** `GET /orcamentos/:id/backup` e `POST /orcamentos/importar`.
+- 1 teste novo (19 no total): baixar, importar com outro usuário e recuperar o acesso como dono pelo e-mail.
+- `docs/backup.md` com o passo a passo.
+
+**Alterado**
+- A **migração `20261123150000_convite_papel`** adiciona `convites.papel` (`DONO` ou `EDITOR`, padrão `EDITOR`). Ela só adiciona a coluna, sem apagar nem alterar dados. Ao aceitar o convite, a pessoa recebe esse papel. Os convites feitos pelo site continuam como `EDITOR`.
+- Ao importar, as pessoas com acesso viram convites pelo e-mail, com o mesmo papel. Assim o backup funciona num projeto novo do Supabase, onde os ids de usuário mudam.
+
+**Por quê:** pedido do dono, para não perder os dados e conseguir montar uma instalação nova a partir do backup.
+
+**Impacto:**
+- O modo automático aplica a migração e reinicia o site, porque `next.config.ts` mudou (limite de 20 MB no envio do arquivo).
+- Os scripts manuais precisam de `npm run db:deploy`, que o `iniciar-api.cmd` já roda.
+- A importação nunca apaga dados.
+
 ### 2026-11-23 · Nova identidade: G · Planta baixa
 **Alterado**
 - O app inteiro passou para o estilo **G · Planta baixa**: papel quadriculado, tinta azul-marinho (`#13294B`), laranja só para alertas e cantos retos.

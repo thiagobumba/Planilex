@@ -109,6 +109,21 @@ export default async function Configuracoes() {
           </div>
         </Formulario>
       </section>
+      <section className="cartao" aria-labelledby="backup-titulo">
+        <div>
+          <h2 id="backup-titulo">Backup</h2>
+          <p className="suave">
+            Baixe uma cópia do orçamento (cômodos, itens, ofertas, histórico de preços e quem tem acesso) e guarde fora deste computador. Para
+            restaurar numa instalação nova, entre com o seu e-mail e use “Importar backup” na tela inicial.
+          </p>
+        </div>
+        <div>
+          <a className="botao botao-secundario" href="/configuracoes/backup" download>
+            Baixar backup (.json)
+          </a>
+        </div>
+      </section>
+
       {/* No celular o menu lateral vira barra de abas, sem o "Sair": ele fica aqui (no computador, também no menu). */}
       <section className="cartao conta" aria-labelledby="conta-titulo">
         <h2 id="conta-titulo">Sua conta</h2>

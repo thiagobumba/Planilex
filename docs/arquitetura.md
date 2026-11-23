@@ -86,6 +86,12 @@
   - Um projeto do Supabase em São Paulo (sa-east-1) cortaria a maior parte do tempo que sobrou. Exige criar outro projeto e migrar os dados.
   - O modo de produção do site (`npm run site:rapido`) evita a compilação das páginas no primeiro acesso.
 
+### 2026-11-23 · Backup em JSON, com importação por convite
+- **Formato:** JSON próprio e versionado (`planilex-backup` v1), gerado e lido por `packages/db/src/backup.ts`. Não usamos `pg_dump` porque ele exige o PostgreSQL instalado no Windows do dono e copia as tabelas internas do Supabase.
+- **Usos:** o mesmo arquivo serve para o backup automático diário da API, para o comando `npm run db:backup` (banco inteiro) e para o botão "Baixar backup" (um orçamento).
+- **Importação:** cria tudo com ids novos, numa transação, e transforma as pessoas com acesso em convites pelo e-mail, com o papel guardado (`convites.papel`). Assim funciona num projeto novo do Supabase, onde os ids de usuário mudam.
+- **Detalhes:** `docs/backup.md`.
+
 ## Estrutura do repositório
 
 ```
@@ -111,6 +117,7 @@ planilex/
 │           ├── resumo.ts       # cálculo de previsto, pago e disponível
 │           ├── emails.ts       # envio do e-mail do convite pelo Supabase Auth
 │           ├── precos.ts       # busca de preços: junta as fontes, esconde acessórios e guarda o cache
+│           ├── backupAutomatico.ts # backup diário em backups/ enquanto a API roda
 │           ├── fontes/         # google.ts (SerpApi) e shopee.ts (API de afiliados)
 │           └── routes/         # saúde, orçamentos, cômodos, itens
 │       ├── scripts/            # testar-serpapi.mjs (npm run precos:testar)
@@ -157,6 +164,7 @@ Valores em dinheiro usam `DECIMAL(12,2)`, nunca número com vírgula flutuante. 
 | `20261116130000_ativa_rls` | Ativa o Row Level Security em todas as tabelas, sem políticas (bloqueia a Data API do Supabase) |
 | `20261116150000_buscas_preco` | Cria a tabela `buscas_preco` (cache da busca de preços), com RLS. Só adiciona |
 | `20261116160000_situacao_cadastrado` | Adiciona `CADASTRADO` ao enum `SituacaoItem`. Só adiciona |
+| `20261123150000_convite_papel` | Adiciona `convites.papel` (`DONO` ou `EDITOR`, padrão `EDITOR`), usado pela importação de backup. Só adiciona |
 | `20261116140000_convites` | Cria a tabela `convites` (com RLS) e a coluna `email` em `membros_orcamento`. Só adiciona |
 
 ## Busca de preços

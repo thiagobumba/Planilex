@@ -17,6 +17,8 @@ const nextConfig: NextConfig = {
   env: publicas,
   // O indicador do Next (só em desenvolvimento) cobria o "Sair" no canto esquerdo.
   devIndicators: { position: "bottom-right" },
+  // Importar backup envia o arquivo .json por uma server action (padrão: 1 MB).
+  experimental: { serverActions: { bodySizeLimit: "20mb" } },
 };
 
 export default nextConfig;

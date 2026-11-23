@@ -21,3 +21,6 @@ packages/db/src/generated/
 .vscode/
 .idea/
 npm-debug.log*
+
+# backups do banco (têm dados pessoais: nunca versionar)
+backups/

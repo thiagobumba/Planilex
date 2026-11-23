@@ -32,8 +32,9 @@ export async function aceitarConvites(usuario: Usuario, membrosSemEmail = true) 
     ...convites.map((c) =>
       db().membroOrcamento.upsert({
         where: { orcamentoId_usuarioId: { orcamentoId: c.orcamentoId, usuarioId: usuario.id } },
-        create: { orcamentoId: c.orcamentoId, usuarioId: usuario.id, email, papel: "EDITOR" },
-        update: {},
+        create: { orcamentoId: c.orcamentoId, usuarioId: usuario.id, email, papel: c.papel },
+        // Convite de DONO (vindo de um backup importado) promove quem já tinha acesso como EDITOR.
+        update: c.papel === "DONO" ? { papel: "DONO" } : {},
       }),
     ),
     ...(convites.length ? [db().convite.deleteMany({ where: { id: { in: convites.map((c) => c.id) } } })] : []),

@@ -4,14 +4,23 @@ import { BotaoEnviar, Formulario } from "@/components/Formulario";
 import { orcamentoAtual, usuarioAtual } from "@/lib/dados";
 import { reaisInteiros, textoContagem } from "@/lib/formato";
 import type { ResumoComodo } from "@/lib/tipos";
-import { criarOrcamento } from "./acoes";
+import { criarOrcamento, importarBackup } from "./acoes";
 
-export default async function Painel({ searchParams }: { searchParams: Promise<{ senha?: string }> }) {
-  const [orcamento, { senha }] = await Promise.all([orcamentoAtual(), searchParams]);
-  const avisoSenha = senha === "alterada" && (
-    <p role="status" className="aviso aviso-ok">
-      Senha alterada. Use a nova senha no próximo login.
-    </p>
+export default async function Painel({ searchParams }: { searchParams: Promise<{ senha?: string; importado?: string }> }) {
+  const [orcamento, { senha, importado }] = await Promise.all([orcamentoAtual(), searchParams]);
+  const avisoSenha = (
+    <>
+      {senha === "alterada" && (
+        <p role="status" className="aviso aviso-ok">
+          Senha alterada. Use a nova senha no próximo login.
+        </p>
+      )}
+      {importado === "1" && (
+        <p role="status" className="aviso aviso-ok">
+          Backup importado. As outras pessoas do orçamento recuperam o acesso quando entrarem com o mesmo e-mail de antes.
+        </p>
+      )}
+    </>
   );
 
   if (!orcamento) {
@@ -37,6 +46,26 @@ export default async function Painel({ searchParams }: { searchParams: Promise<{
             <BotaoEnviar carregando="Criando…">Criar orçamento</BotaoEnviar>
           </div>
         </Formulario>
+        <section className="cartao" aria-labelledby="importar-titulo">
+          <div>
+            <h2 id="importar-titulo">Tem um backup?</h2>
+            <p className="suave">
+              Numa instalação nova, traga tudo de volta: cômodos, itens, ofertas e histórico de preços. Você vira dono do orçamento importado, e as
+              outras pessoas recuperam o acesso ao entrar com o mesmo e-mail.
+            </p>
+          </div>
+          <Formulario acao={importarBackup}>
+            <div className="campo">
+              <label htmlFor="arquivo-backup">Arquivo do backup (.json)</label>
+              <input id="arquivo-backup" name="arquivo" type="file" accept="application/json,.json" required />
+            </div>
+            <div className="acoes">
+              <BotaoEnviar variante="secundario" carregando="Importando…">
+                Importar backup
+              </BotaoEnviar>
+            </div>
+          </Formulario>
+        </section>
       </>
     );
   }

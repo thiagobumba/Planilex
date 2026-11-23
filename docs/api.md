@@ -177,6 +177,25 @@ Cancela um convite pendente. **204**.
 ### `DELETE /orcamentos/:id/membros/:usuarioId` (só DONO)
 Remove o acesso de alguém. **204** · **409** ao tentar remover a si mesmo.
 
+## Backup
+
+Formato do arquivo, garantias e passo a passo: `docs/backup.md`.
+
+### `GET /orcamentos/:id/backup`
+Backup (JSON) do orçamento, com `content-disposition: attachment`. Qualquer pessoa com acesso pode baixar. **200** · **404** para quem não tem acesso.
+
+### `POST /orcamentos/importar`
+Corpo: o JSON do backup, até 20 MB. Cria os orçamentos do arquivo como novos, com ids novos e numa transação.
+- Quem chama vira `DONO`.
+- As outras pessoas do backup viram convites com o mesmo papel e recuperam o acesso ao entrar com o mesmo e-mail.
+- Nada que já existe é alterado.
+
+**201**
+```json
+{ "orcamentos": [{ "id": "uuid", "nome": "Nossa casa", "comodos": 7, "itens": 24, "convites": 1 }] }
+```
+**400** arquivo que não é backup do Planilex, versão mais nova ou campo inválido (a mensagem diz qual).
+
 ## Busca de preços
 
 ### `GET /precos?q=<termo>[&marca=<marca>][&atualizar=1]`
@@ -207,7 +226,7 @@ Sem resultados, `ofertas` vem vazio.
 
 ## Testes
 
-`apps/api/test/api.test.ts` (18 testes, com um SerpApi e uma API da Shopee simulados) testa todas as rotas contra um PostgreSQL de teste (nunca o banco real):
+`apps/api/test/api.test.ts` (19 testes, com um SerpApi e uma API da Shopee simulados) testa todas as rotas contra um PostgreSQL de teste (nunca o banco real):
 
 ```bash
 TEST_DATABASE_URL="postgresql://postgres@localhost:5432/planilex_teste" npm test -w @planilex/api

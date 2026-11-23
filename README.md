@@ -131,6 +131,8 @@ O `npm install` já compila o pacote do banco automaticamente (script `postinsta
 | `npm run db:deploy` | Aplica as migrações pendentes no banco |
 | `npm run db:studio` | Abre o Prisma Studio para ver os dados |
 | `npm run db:testar` | Testa as conexões `DATABASE_URL` e `DIRECT_URL` e mostra a mensagem exata do servidor, sem exibir a senha |
+| `npm run db:backup` | Salva o backup do banco inteiro em `backups/` (JSON). Veja [Backup](#backup) |
+| `npm run db:importar -- arquivo.json` | Importa um backup numa instalação nova; nunca apaga o que já existe |
 | `npm run precos:testar` | Confere se a `SERPAPI_KEY` é aceita pelo SerpApi, sem gastar busca, e mostra as buscas restantes |
 | `npm run shopee:testar` | Confere se `SHOPEE_APP_ID` e `SHOPEE_APP_SECRET` são aceitos pela Shopee, com uma busca de teste de 3 produtos (o segredo não aparece na tela) |
 
@@ -220,6 +222,14 @@ No formulário de item, digite o produto e clique em **Buscar preços**, ou aper
 - **Conferir a chave:** `npm run precos:testar` pergunta ao SerpApi se a chave é aceita, sem gastar busca, e mostra quantas buscas restam. A chave não aparece inteira na tela. Se o site disser que a chave foi recusada: copie de novo em serpapi.com › *Api Key* (clique no olho antes de copiar, para não levar a versão mascarada), sem aspas nem espaços, e feche e abra a API, que só lê o `.env` ao iniciar.
 - **Cota:** cada termo é guardado por **24 horas** (tabela `buscas_preco`). Repetir a mesma busca nesse prazo não gasta cota. "Atualizar preços" força uma busca nova.
 - **Limites:** os preços são os do Google Shopping no momento da consulta, e o frete pode não estar incluído. O link pode levar à página do produto no Google em vez da loja.
+
+## Backup
+
+- **Automático:** enquanto a API está rodando, ela salva um backup por dia na pasta `backups/` e guarda os 30 mais recentes. A pasta não vai para o GitHub, porque o arquivo tem os e-mails de quem tem acesso.
+- **Na hora:** use `npm run db:backup` para o banco inteiro, ou **Configurações › Backup › Baixar backup** para baixar pelo site.
+- **Instalação nova:** crie as tabelas com `npm run db:deploy` e importe o arquivo. Pelo site, use **"Tem um backup?" › Importar backup** na tela "Vamos começar". Pelo terminal, use `npm run db:importar -- backups/arquivo.json`. Cada pessoa recupera o acesso ao entrar com o mesmo e-mail de antes.
+- **Cópia fora do computador:** guarde uma cópia num Google Drive ou pen drive. Também dá para apontar `BACKUP_PASTA` no `.env` para a pasta do Google Drive.
+- **Detalhes:** [`docs/backup.md`](docs/backup.md).
 
 ## Documentação e histórico
 

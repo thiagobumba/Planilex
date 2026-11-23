@@ -13,3 +13,5 @@ export function criarPrisma(connectionString = process.env.DATABASE_URL): Prisma
   const adapter = new PrismaPg({ connectionString });
   return new PrismaClient({ adapter });
 }
+
+export * from "./backup.js";
