@@ -21,6 +21,8 @@ const hora = (iso: string) => {
 /** Ofertas mostradas por página na lista da busca de preços. */
 const POR_PAGINA = 10;
 
+const NOMES_FONTE = { google: "Google Shopping", shopee: "Shopee" } as const;
+
 export function CamposItem({
   comodos,
   item,
@@ -175,6 +177,7 @@ export function CamposItem({
             <span className="suave">
               {busca.ofertas.length} {busca.ofertas.length === 1 ? "oferta" : "ofertas"} para “{busca.termo}” · consultado {hora(busca.consultadoEm)}
               {busca.emCache && " (busca guardada)"}
+              {busca.fontes.length > 0 && ` · ${busca.fontes.map((f) => NOMES_FONTE[f]).join(" e ")}`}
             </span>
             <span className="acoes-oferta">
               <button type="button" className="botao-link" onClick={() => pesquisar(true)} disabled={buscando}>
@@ -185,6 +188,11 @@ export function CamposItem({
               </button>
             </span>
           </div>
+          {busca.avisos.map((a) => (
+            <p key={a} className="aviso aviso-atencao">
+              {a}
+            </p>
+          ))}
           {busca.ofertas.length === 0 ? (
             <p className="suave">Nenhuma oferta encontrada. Tente uma descrição mais simples (ex.: “micro-ondas 30 litros”).</p>
           ) : (
@@ -248,7 +256,11 @@ export function CamposItem({
               </button>
             </nav>
           )}
-          <p className="dica">Preços do Google Shopping no momento da consulta; o frete pode não estar incluído.</p>
+          <p className="dica">
+            Preços no momento da consulta; o frete pode não estar incluído.
+            {busca.ocultas > 0 &&
+              ` ${busca.ocultas} ${busca.ocultas === 1 ? "oferta muito abaixo do preço típico foi escondida" : "ofertas muito abaixo do preço típico foram escondidas"} (costumam ser peças ou acessórios).`}
+          </p>
         </section>
       )}
 

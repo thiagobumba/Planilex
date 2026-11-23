@@ -180,26 +180,29 @@ Remove o acesso de alguém. **204** · **409** ao tentar remover a si mesmo.
 ## Busca de preços
 
 ### `GET /precos?q=<termo>[&atualizar=1]`
-Busca o termo no Google Shopping pelo SerpApi (`engine=google_shopping`, `gl=br`, `hl=pt-br`). Código: `apps/api/src/precos.ts`.
+Busca o termo, ao mesmo tempo, em cada fonte configurada: Google Shopping pelo SerpApi (`engine=google_shopping`, `gl=br`, `hl=pt-br`) e Shopee Brasil pela API de afiliados (`productOfferV2`, 50 produtos mais relevantes). Código: `apps/api/src/precos.ts` e `apps/api/src/fontes/`.
 
 - `q`: de 3 a 120 caracteres. É normalizado (minúsculo, espaços simples) e usado como chave do cache.
 - O resultado fica guardado por **24 h** na tabela `buscas_preco`; nesse prazo a mesma busca não chama o SerpApi. `atualizar=1` força uma busca nova.
-- Só entram ofertas com preço numérico e link, sem repetições (mesma loja, título e preço), ordenadas do menor preço para o maior, no máximo 60. O site mostra 10 por página.
+- Só entram ofertas com preço numérico e link, sem repetições (mesma fonte, loja, título e preço), ordenadas do menor preço para o maior, no máximo 60. O site mostra 10 por página.
+- Com 6 ofertas ou mais, as que custam menos de 25% da mediana são escondidas (acessórios); a quantidade vem em `ocultas`.
+- Se uma fonte falhar, as outras aparecem e o motivo vem em `avisos`; essa busca não é guardada.
 
 **200**
 ```json
 { "termo": "micro-ondas 30l inox", "consultadoEm": "2026-11-16T16:17:00.000Z", "emCache": false,
+  "fontes": ["google", "shopee"], "avisos": [], "ocultas": 1,
   "ofertas": [{ "titulo": "Micro-ondas 30L Branco", "loja": "Mercado Livre", "preco": 599,
                 "precoTexto": "R$ 599,00", "entrega": "Entrega amanhã",
-                "link": "https://...", "imagem": "https://..." }] }
+                "link": "https://...", "imagem": "https://...", "fonte": "google" }] }
 ```
 Sem resultados, `ofertas` vem vazio.
 
-**400** termo curto · **503** sem `SERPAPI_KEY` no `.env` · **502** o SerpApi recusou (chave inválida, cota do mês esgotada) ou não respondeu. Em todos os casos a mensagem vem em português.
+**400** termo curto · **503** nenhuma fonte configurada no `.env` · **502** todas as fontes falharam (chave inválida, cota esgotada, sem resposta). Em todos os casos a mensagem vem em português.
 
 ## Testes
 
-`apps/api/test/api.test.ts` (15 testes, com um SerpApi simulado) testa todas as rotas contra um PostgreSQL de teste (nunca o banco real):
+`apps/api/test/api.test.ts` (17 testes, com um SerpApi e uma API da Shopee simulados) testa todas as rotas contra um PostgreSQL de teste (nunca o banco real):
 
 ```bash
 TEST_DATABASE_URL="postgresql://postgres@localhost:5432/planilex_teste" npm test -w @planilex/api

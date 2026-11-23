@@ -35,6 +35,40 @@ await new Promise<void>((ok) => serpApi.listen(0, ok));
 process.env.SERPAPI_URL = `http://127.0.0.1:${(serpApi.address() as { port: number }).port}`;
 process.env.SERPAPI_KEY = "chave-de-teste";
 
+// API de afiliados da Shopee simulada: confere a assinatura e responde conforme o termo.
+let chamadasShopee = 0;
+const shopee = http.createServer((req, res) => {
+  chamadasShopee++;
+  let corpo = "";
+  req.on("data", (d) => (corpo += d));
+  req.on("end", async () => {
+    const { assinarShopee } = await import("../src/fontes/shopee.js");
+    const auth = String(req.headers.authorization ?? "");
+    const ts = Number(/Timestamp=(\d+)/.exec(auth)?.[1]);
+    res.setHeader("content-type", "application/json");
+    if (auth !== assinarShopee("123", "segredo-teste", corpo, ts)) {
+      return res.end(JSON.stringify({ errors: [{ message: "Invalid Signature", extensions: { code: 10020 } }] }));
+    }
+    const termo = String(/keyword: ("(?:[^"\\]|\\.)*")/.exec(JSON.parse(corpo).query)?.[1] ?? '""');
+    if (termo.includes("shopee fora")) return res.end(JSON.stringify({ errors: [{ message: "system error", extensions: { code: 11000 } }] }));
+    const nodes = termo.includes("com shopee")
+      ? [
+          { itemId: 1, productName: "Micro-ondas 30L Shopee", priceMin: "650.50", shopName: "Loja Oficial", offerLink: "https://s.shopee.com.br/abc", imageUrl: "https://img/s1" },
+          { itemId: 2, productName: "Prato giratório para micro-ondas", priceMin: "39.90", shopName: "Peças", offerLink: "https://s.shopee.com.br/peca" },
+          { itemId: 3, productName: "Sem preço", shopName: "X", offerLink: "https://s.shopee.com.br/x" },
+          { itemId: 4, productName: "Micro-ondas 20L", priceMin: "599", shopName: "Loja A", productLink: "https://shopee.com.br/a" },
+          { itemId: 5, productName: "Micro-ondas 34L", priceMin: "899", shopName: "Loja B", productLink: "https://shopee.com.br/b" },
+          { itemId: 6, productName: "Micro-ondas 25L", priceMin: "700", shopName: "Loja C", productLink: "https://shopee.com.br/c" },
+        ]
+      : [];
+    res.end(JSON.stringify({ data: { productOfferV2: { nodes } } }));
+  });
+});
+await new Promise<void>((ok) => shopee.listen(0, ok));
+process.env.SHOPEE_API_URL = `http://127.0.0.1:${(shopee.address() as { port: number }).port}/graphql`;
+process.env.SHOPEE_APP_ID = "123";
+process.env.SHOPEE_APP_SECRET = "segredo-teste";
+
 const { criarApp } = await import("../src/app.js");
 const { definirVerificadorDeToken } = await import("../src/plugins/autenticacao.js");
 const { db } = await import("../src/db.js");
@@ -73,6 +107,7 @@ describe("API do Planilex", () => {
     await db().$disconnect();
     await app.close();
     serpApi.close();
+    shopee.close();
   });
 
   test("sem token responde 401", async () => {
@@ -272,12 +307,38 @@ describe("API do Planilex", () => {
     assert.equal(r3.emCache, false);
     assert.equal(chamadasSerpApi, antes + 2);
 
+    // Chave do SerpApi recusada: a Shopee ainda responde, e o motivo vem em "avisos"
     const erro = await chamar(ana, "GET", `/precos?q=${encodeURIComponent("teste-planilex chave errada")}`);
-    assert.equal(erro.statusCode, 502);
-    assert.match(erro.json().erro, /SERPAPI_KEY/);
+    assert.equal(erro.statusCode, 200);
+    assert.deepEqual(erro.json().fontes, ["shopee"]);
+    assert.match(erro.json().avisos[0], /SERPAPI_KEY/);
 
     const vazio = (await chamar(ana, "GET", `/precos?q=${encodeURIComponent("teste-planilex nada")}`)).json();
     assert.deepEqual(vazio.ofertas, []);
+  });
+
+  test("busca de preços: Google e Shopee juntos, acessórios escondidos e falha de uma fonte", async () => {
+    const termo = `teste-planilex com shopee ${randomUUID().slice(0, 8)}`;
+    const r = (await chamar(ana, "GET", `/precos?q=${encodeURIComponent(termo)}`)).json();
+    assert.deepEqual(r.fontes, ["google", "shopee"]);
+    assert.deepEqual(r.avisos, []);
+    // 599 (Shopee) · 650,50 (Shopee) · 689,90 (Google) · 700 · 719 (Google) · 899; o prato de R$ 39,90 fica escondido
+    assert.deepEqual(r.ofertas.map((o: { preco: number }) => o.preco), [599, 650.5, 689.9, 700, 719, 899]);
+    assert.equal(r.ocultas, 1);
+    const daShopee = r.ofertas.find((o: { preco: number }) => o.preco === 650.5);
+    assert.equal(daShopee.fonte, "shopee");
+    assert.equal(daShopee.loja, "Loja Oficial (Shopee)");
+    assert.equal(daShopee.link, "https://s.shopee.com.br/abc");
+    assert.equal(r.ofertas.find((o: { preco: number }) => o.preco === 689.9).fonte, "google");
+    assert.equal((await chamar(ana, "GET", `/precos?q=${encodeURIComponent(termo)}`)).json().emCache, true);
+
+    // Shopee fora do ar: o Google continua aparecendo, com aviso, e a busca não é guardada
+    const termoFalha = `teste-planilex shopee fora ${randomUUID().slice(0, 8)}`;
+    const f = (await chamar(ana, "GET", `/precos?q=${encodeURIComponent(termoFalha)}`)).json();
+    assert.deepEqual(f.fontes, ["google"]);
+    assert.equal(f.ofertas.length, 2);
+    assert.match(f.avisos[0], /Shopee/);
+    assert.equal((await chamar(ana, "GET", `/precos?q=${encodeURIComponent(termoFalha)}`)).json().emCache, false);
   });
 
   test("item guarda a oferta escolhida", async () => {

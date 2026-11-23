@@ -21,7 +21,8 @@
     "db:deploy": "npm run migrate:deploy -w @planilex/db",
     "db:studio": "npm run studio -w @planilex/db",
     "db:testar": "npm run testar -w @planilex/db",
-    "precos:testar": "npm run testar:serpapi -w @planilex/api"
+    "precos:testar": "npm run testar:serpapi -w @planilex/api",
+    "shopee:testar": "npm run testar:shopee -w @planilex/api"
   },
   "allowScripts": {
     "@prisma/engines": true,

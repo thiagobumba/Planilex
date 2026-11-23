@@ -1,81 +1,78 @@
 import { db } from "./db.js";
-import { env } from "./env.js";
 import { ErroHttp } from "./erros.js";
+import { buscarGoogle, googleConfigurado } from "./fontes/google.js";
+import { buscarShopee, shopeeConfigurado } from "./fontes/shopee.js";
+import { ErroFonte, type FontePreco, type OfertaEncontrada } from "./fontes/tipos.js";
 
-/** Uma oferta encontrada no Google Shopping (via SerpApi). */
-export interface OfertaEncontrada {
-  titulo: string;
-  loja: string;
-  preco: number;
-  precoTexto: string;
-  entrega: string | null;
-  link: string;
-  imagem: string | null;
-}
+export type { FontePreco, OfertaEncontrada } from "./fontes/tipos.js";
 
 export interface ResultadoBusca {
   termo: string;
   consultadoEm: string;
   emCache: boolean;
   ofertas: OfertaEncontrada[];
+  /** Fontes que responderam nesta busca. */
+  fontes: FontePreco[];
+  /** Fontes que falharam, com o motivo (as outras continuam aparecendo). */
+  avisos: string[];
+  /** Ofertas escondidas por estarem muito abaixo do preço típico (acessórios, peças). */
+  ocultas: number;
 }
+
+/** O que fica guardado na tabela buscas_preco. */
+type Guardado = Pick<ResultadoBusca, "ofertas" | "fontes" | "ocultas">;
 
 /** Por quanto tempo uma busca guardada é reaproveitada. */
 export const VALIDADE_CACHE_MS = 24 * 60 * 60 * 1000;
 const MAX_OFERTAS = 60;
+/** Abaixo desta fração da mediana, a oferta é tratada como acessório e escondida. */
+const FRACAO_MINIMA_DA_MEDIANA = 0.25;
+/** Só filtra com pelo menos esta quantidade de ofertas (com poucas, a mediana não diz nada). */
+const MINIMO_PARA_FILTRAR = 6;
 
 /** "  Ar  Condicionado 9000 BTU " → "ar condicionado 9000 btu" */
 export const normalizarTermo = (t: string) => t.trim().replace(/\s+/g, " ").toLowerCase();
 
-type ItemSerpApi = {
-  title?: string;
-  source?: string;
-  price?: string;
-  extracted_price?: number;
-  delivery?: string;
-  link?: string;
-  product_link?: string;
-  thumbnail?: string;
-};
+const FONTES: { fonte: FontePreco; configurada: () => boolean; buscar: (termo: string) => Promise<OfertaEncontrada[]> }[] = [
+  { fonte: "google", configurada: googleConfigurado, buscar: buscarGoogle },
+  { fonte: "shopee", configurada: shopeeConfigurado, buscar: buscarShopee },
+];
 
-/** Converte a resposta do SerpApi em ofertas: só as que têm preço, da mais barata para a mais cara. */
-export function extrairOfertas(resposta: { shopping_results?: ItemSerpApi[]; inline_shopping_results?: ItemSerpApi[] }) {
-  const brutos = [...(resposta.shopping_results ?? []), ...(resposta.inline_shopping_results ?? [])];
+/**
+ * Junta as ofertas das fontes: tira repetidas, esconde as muito abaixo do preço típico
+ * (ex.: "suporte para ar-condicionado" numa busca de ar-condicionado) e ordena da mais barata.
+ */
+export function juntarOfertas(listas: OfertaEncontrada[][]): { ofertas: OfertaEncontrada[]; ocultas: number } {
   const vistos = new Set<string>();
-  const ofertas: OfertaEncontrada[] = [];
-  for (const r of brutos) {
-    const link = r.link ?? r.product_link;
-    if (typeof r.extracted_price !== "number" || r.extracted_price <= 0 || !r.title || !link) continue;
-    const chave = `${r.source}|${r.title}|${r.extracted_price}`;
+  const todas: OfertaEncontrada[] = [];
+  for (const o of listas.flat()) {
+    const chave = `${o.fonte}|${o.loja}|${o.titulo}|${o.preco}`;
     if (vistos.has(chave)) continue;
     vistos.add(chave);
-    ofertas.push({
-      titulo: r.title,
-      loja: r.source ?? "Loja não informada",
-      preco: Math.round(r.extracted_price * 100) / 100,
-      precoTexto: r.price ?? "",
-      entrega: r.delivery ?? null,
-      link,
-      imagem: r.thumbnail ?? null,
-    });
+    todas.push(o);
   }
-  return ofertas.sort((a, b) => a.preco - b.preco).slice(0, MAX_OFERTAS);
+  todas.sort((a, b) => a.preco - b.preco);
+
+  let ofertas = todas;
+  if (todas.length >= MINIMO_PARA_FILTRAR) {
+    const meio = Math.floor(todas.length / 2);
+    const mediana = todas.length % 2 ? todas[meio].preco : (todas[meio - 1].preco + todas[meio].preco) / 2;
+    ofertas = todas.filter((o) => o.preco >= mediana * FRACAO_MINIMA_DA_MEDIANA);
+  }
+  return { ofertas: ofertas.slice(0, MAX_OFERTAS), ocultas: todas.length - ofertas.length };
 }
 
-/** Traduz os erros mais comuns do SerpApi. */
-function explicarErro(mensagem: string) {
-  const m = mensagem.toLowerCase();
-  if (m.includes("invalid api key")) return "O SerpApi recusou a SERPAPI_KEY do .env. Rode npm run precos:testar para conferir a chave e reinicie a API depois de corrigir.";
-  if (m.includes("run out of searches") || m.includes("plan") || m.includes("limit")) {
-    return "A cota de buscas do SerpApi deste mês acabou. Ela renova no começo do próximo ciclo (ou troque de plano).";
+/** Buscas guardadas antes de existirem várias fontes eram só a lista de ofertas do Google. */
+function lerGuardado(resultado: unknown): Guardado {
+  if (Array.isArray(resultado)) {
+    return { ofertas: (resultado as OfertaEncontrada[]).map((o) => ({ ...o, fonte: o.fonte ?? "google" })), fontes: ["google"], ocultas: 0 };
   }
-  if (m.includes("hasn't returned any results") || m.includes("no results")) return null; // sem resultados não é erro
-  return `O serviço de preços recusou a busca: ${mensagem}`;
+  return resultado as Guardado;
 }
 
 /**
- * Busca preços no Google Shopping pelo SerpApi, para o Brasil.
- * Reaproveita a mesma busca por 24 h (tabela buscas_preco) para poupar a cota.
+ * Busca preços nas fontes configuradas (Google Shopping pelo SerpApi e Shopee), ao mesmo tempo.
+ * Reaproveita a mesma busca por 24 h (tabela buscas_preco) para poupar as cotas.
  * Documentação: docs/api.md › Busca de preços
  */
 export async function buscarPrecos(termoDigitado: string, ignorarCache = false): Promise<ResultadoBusca> {
@@ -84,45 +81,39 @@ export async function buscarPrecos(termoDigitado: string, ignorarCache = false):
   if (!ignorarCache) {
     const guardada = await db().buscaPreco.findUnique({ where: { termo } });
     if (guardada && Date.now() - guardada.criadoEm.getTime() < VALIDADE_CACHE_MS) {
-      return { termo, consultadoEm: guardada.criadoEm.toISOString(), emCache: true, ofertas: guardada.resultado as unknown as OfertaEncontrada[] };
+      return { termo, consultadoEm: guardada.criadoEm.toISOString(), emCache: true, avisos: [], ...lerGuardado(guardada.resultado) };
     }
   }
 
-  if (!env.serpApiKey) {
-    throw new ErroHttp(503, "A busca de preços não está configurada: falta a SERPAPI_KEY no .env (veja o README › Busca de preços).");
+  const ativas = FONTES.filter((f) => f.configurada());
+  if (ativas.length === 0) {
+    throw new ErroHttp(503, "A busca de preços não está configurada: falta a SERPAPI_KEY ou as chaves da Shopee no .env (veja o README › Busca de preços).");
   }
 
-  const url = new URL("/search.json", env.serpApiUrl);
-  url.search = new URLSearchParams({
-    engine: "google_shopping",
-    q: termo,
-    gl: "br",
-    hl: "pt-br",
-    google_domain: "google.com.br",
-    api_key: env.serpApiKey,
-  }).toString();
-
-  let corpo: { error?: string; shopping_results?: ItemSerpApi[]; inline_shopping_results?: ItemSerpApi[] };
-  try {
-    const resposta = await fetch(url, { signal: AbortSignal.timeout(30_000) });
-    corpo = (await resposta.json()) as typeof corpo;
-  } catch {
-    throw new ErroHttp(502, "Não foi possível falar com o serviço de preços agora. Tente de novo em instantes.");
-  }
-
-  let ofertas: OfertaEncontrada[] = [];
-  if (corpo.error) {
-    const motivo = explicarErro(corpo.error);
-    if (motivo) throw new ErroHttp(502, motivo);
-  } else {
-    ofertas = extrairOfertas(corpo);
-  }
-
-  const agora = new Date();
-  await db().buscaPreco.upsert({
-    where: { termo },
-    create: { termo, resultado: ofertas as unknown as object, criadoEm: agora },
-    update: { resultado: ofertas as unknown as object, criadoEm: agora },
+  const respostas = await Promise.allSettled(ativas.map((f) => f.buscar(termo)));
+  const listas: OfertaEncontrada[][] = [];
+  const fontes: FontePreco[] = [];
+  const avisos: string[] = [];
+  respostas.forEach((r, i) => {
+    if (r.status === "fulfilled") {
+      listas.push(r.value);
+      fontes.push(ativas[i].fonte);
+    } else {
+      avisos.push(r.reason instanceof ErroFonte ? r.reason.message : `Falha inesperada em ${ativas[i].fonte}.`);
+    }
   });
-  return { termo, consultadoEm: agora.toISOString(), emCache: false, ofertas };
+  if (fontes.length === 0) throw new ErroHttp(502, avisos.join(" "));
+
+  const { ofertas, ocultas } = juntarOfertas(listas);
+  const agora = new Date();
+  // Só guarda quando todas as fontes responderam: assim a próxima busca tenta de novo a que falhou.
+  if (avisos.length === 0) {
+    const guardado: Guardado = { ofertas, fontes, ocultas };
+    await db().buscaPreco.upsert({
+      where: { termo },
+      create: { termo, resultado: guardado as unknown as object, criadoEm: agora },
+      update: { resultado: guardado as unknown as object, criadoEm: agora },
+    });
+  }
+  return { termo, consultadoEm: agora.toISOString(), emCache: false, ofertas, fontes, avisos, ocultas };
 }

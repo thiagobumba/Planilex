@@ -16,4 +16,9 @@ export const env = {
   /** Endereço do SerpApi; só muda nos testes. */
   serpApiUrl: process.env.SERPAPI_URL ?? "https://serpapi.com",
   supabaseSecretKey: process.env.SUPABASE_SECRET_KEY?.trim() || undefined,
+  /** API de afiliados da Shopee (affiliate.shopee.com.br › Abrir API). Opcionais. */
+  shopeeAppId: process.env.SHOPEE_APP_ID?.trim() || undefined,
+  shopeeAppSecret: process.env.SHOPEE_APP_SECRET?.trim() || undefined,
+  /** Endereço da API de afiliados da Shopee Brasil; só muda nos testes. */
+  shopeeApiUrl: process.env.SHOPEE_API_URL ?? "https://open-api.affiliate.shopee.com.br/graphql",
 };

@@ -9,7 +9,8 @@
     "start": "node dist/server.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "tsx --test test/*.test.ts",
-    "testar:serpapi": "node scripts/testar-serpapi.mjs"
+    "testar:serpapi": "node scripts/testar-serpapi.mjs",
+    "testar:shopee": "node scripts/testar-shopee.mjs"
   },
   "dependencies": {
     "@fastify/cors": "^11.4.3",

@@ -12,6 +12,23 @@ Cada entrada informa:
 
 ## [Não lançado]
 
+### 2026-11-23 · Busca de preços também na Shopee
+**Adicionado**
+- Shopee Brasil como segunda fonte da busca de preços, pela **API de afiliados** (GraphQL `productOfferV2`, assinatura SHA256).
+  - Configuração: `SHOPEE_APP_ID` e `SHOPEE_APP_SECRET` no `.env`; `SHOPEE_API_URL` é opcional.
+  - As ofertas do Google Shopping e da Shopee vêm juntas, ordenadas pelo preço. As lojas da Shopee aparecem como "Loja (Shopee)", e o cabeçalho da lista diz quais fontes responderam.
+- Comando `npm run shopee:testar`, que confere as chaves com uma busca de teste de 3 produtos sem mostrar o segredo.
+- 2 testes novos (17 no total), com a API da Shopee simulada conferindo a assinatura.
+
+**Alterado**
+- As fontes são consultadas ao mesmo tempo. Se uma falhar, por exemplo com a chave do SerpApi recusada, as outras continuam aparecendo, com o motivo num aviso amarelo. A resposta passou de 502 para 200 com `avisos`, e só dá 502 quando todas as fontes falham. Busca com falha não é guardada no cache.
+- Ofertas abaixo de 25% do preço típico da busca (a mediana) são escondidas como acessórios, e o rodapé da lista informa quantas.
+- O código das fontes foi para `apps/api/src/fontes/` (`google.ts` e `shopee.ts`).
+
+**Por quê:** pedido do dono, que conseguiu o acesso à API de afiliados da Shopee.
+
+**Impacto:** sem migração. As buscas guardadas antes desta mudança continuam válidas até completar 24 h; use "Atualizar preços" para já incluir a Shopee.
+
 ### 2026-11-16 · App mais rápido para navegar e cadastrar
 **Alterado**
 - Cada tela faz bem menos consultas ao banco. Como o banco fica nos EUA (us-east-1), cada consulta custa cerca de 130 ms de ida e volta. Num teste com esse atraso simulado, a API da tela de itens caiu de cerca de 1,9 s para cerca de 0,4 s.

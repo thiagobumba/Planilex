@@ -100,7 +100,8 @@ planilex/
 │           ├── acesso.ts       # checagem de membro do orçamento
 │           ├── resumo.ts       # cálculo de previsto, pago e disponível
 │           ├── emails.ts       # envio do e-mail do convite pelo Supabase Auth
-│           ├── precos.ts       # busca de preços no SerpApi (Google Shopping) e cache
+│           ├── precos.ts       # busca de preços: junta as fontes, esconde acessórios e guarda o cache
+│           ├── fontes/         # google.ts (SerpApi) e shopee.ts (API de afiliados)
 │           └── routes/         # saúde, orçamentos, cômodos, itens
 │       ├── scripts/            # testar-serpapi.mjs (npm run precos:testar)
 │       └── test/               # testes de ponta a ponta da API
@@ -153,13 +154,17 @@ Valores em dinheiro usam `DECIMAL(12,2)`, nunca número com vírgula flutuante. 
 | Fonte | Observação |
 |-------|------------|
 | **Google Shopping via SerpApi** (escolhida) | Cobre várias lojas de uma vez; plano grátis com 250 buscas por mês |
+| **Shopee, API de afiliados** (escolhida, 2026-11-23) | GraphQL `productOfferV2` em `open-api.affiliate.shopee.com.br`, busca por palavra-chave em toda a Shopee Brasil. Assinatura `SHA256 Credential={AppId}, Timestamp={ts}, Signature={sha256(AppId + ts + corpo + Secret)}`. O link devolvido é o de afiliado (`offerLink`). Código: `apps/api/src/fontes/shopee.ts` |
+| Shopee Open Platform (open.shopee.com) | API de vendedor: só enxerga os produtos da própria loja, não serve para comparar preços |
 | API do Mercado Livre | Desde 2025 a busca exige token OAuth (responde 403 sem login) e cobre uma loja só |
 | Claude com busca na web | Entende descrições soltas, mas é mais lento, menos confiável para preço e cobrado por busca e por token |
 | Leitura direta dos sites das lojas | Frágil e muitas vezes vai contra os termos de uso; evitar |
 
 Regras:
 - A busca roda **só quando o usuário pede** (botão ou Enter), nunca a cada tecla, para não gastar a cota.
-- Cache de 24 h por termo normalizado (tabela `buscas_preco`).
+- Cache de 24 h por termo normalizado (tabela `buscas_preco`). Guarda `{ ofertas, fontes, ocultas }`; as buscas guardadas antes da Shopee (só a lista do Google) continuam sendo lidas.
+- As fontes configuradas são consultadas ao mesmo tempo (`Promise.allSettled`). Se uma falhar, as outras aparecem e o motivo vai em `avisos`. Nesse caso a busca não é guardada, para a próxima tentar de novo a fonte que falhou.
+- Ofertas abaixo de 25% da mediana (com pelo menos 6 ofertas) são escondidas como acessórios; o total escondido vai em `ocultas`.
 - Ordenar pelo menor preço. O SerpApi não traz o frete como número, então hoje o total da oferta é igual ao preço.
 - Guardar a data e a hora de cada consulta (a oferta escolhida e o histórico do dia ficam com o item).
 - Pendente: filtrar pela voltagem da casa.

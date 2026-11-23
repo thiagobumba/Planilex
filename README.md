@@ -105,6 +105,7 @@ Para conferir se a API está falando com o banco, abra http://localhost:3333/hea
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase › Project Settings › API › Project URL | Login (Supabase Auth) |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase › Project Settings › API › chave pública (anon/publishable) | Login (Supabase Auth) |
 | `SERPAPI_KEY` | serpapi.com › Dashboard › **Your Private API Key** | Opcional. Só a API usa, para a busca de preços (Google Shopping) |
+| `SHOPEE_APP_ID` e `SHOPEE_APP_SECRET` | affiliate.shopee.com.br › **Abrir API**: "AppID" e "Senha" | Opcionais. Só a API usa, para trazer também as ofertas da Shopee na busca de preços |
 | `SUPABASE_SECRET_KEY` | Supabase › Project Settings › API Keys › **Secret keys** | Opcional. Só a API usa, para enviar o e-mail do convite. **Nunca** com `NEXT_PUBLIC_` e nunca compartilhe |
 | `API_PORT` | — | Porta da API (padrão 3333) |
 | `WEB_ORIGIN` | — | Endereço do site que pode chamar a API (padrão http://localhost:3000) |
@@ -131,6 +132,7 @@ O `npm install` já compila o pacote do banco automaticamente (script `postinsta
 | `npm run db:studio` | Abre o Prisma Studio para ver os dados |
 | `npm run db:testar` | Testa as conexões `DATABASE_URL` e `DIRECT_URL` e mostra a mensagem exata do servidor, sem exibir a senha |
 | `npm run precos:testar` | Confere se a `SERPAPI_KEY` é aceita pelo SerpApi, sem gastar busca, e mostra as buscas restantes |
+| `npm run shopee:testar` | Confere se `SHOPEE_APP_ID` e `SHOPEE_APP_SECRET` são aceitos pela Shopee, com uma busca de teste de 3 produtos (o segredo não aparece na tela) |
 
 ### Problemas de conexão com o banco
 
@@ -212,6 +214,8 @@ A tela de login mostra o que fazer e o "detalhe técnico" (a mensagem original d
 No formulário de item, digite o produto e clique em **Buscar preços**, ou aperte Enter no campo. A API consulta o **Google Shopping pelo SerpApi**, no Brasil, e mostra até 60 ofertas da mais barata para a mais cara, 10 por página, com loja, preço, entrega e link. Trocar de página não gasta busca: as ofertas já vieram na mesma consulta. **Usar este preço** preenche o valor previsto (preço × quantidade) e guarda a oferta no item. A loja e o link aparecem na lista de itens.
 
 - **Configurar:** crie uma conta grátis em serpapi.com, que dá 250 buscas por mês, copie a *Private API Key* para `SERPAPI_KEY` no `.env` e reinicie a API.
+- **Shopee:** com `SHOPEE_APP_ID` e `SHOPEE_APP_SECRET` no `.env`, a mesma busca também consulta a Shopee Brasil pela API de afiliados. As ofertas das duas fontes vêm juntas, ordenadas pelo preço, e as lojas da Shopee aparecem como "Nome da loja (Shopee)". Confira as chaves com `npm run shopee:testar` e reinicie a API. Se uma fonte falhar, a outra continua aparecendo, com um aviso amarelo.
+- **Acessórios escondidos:** ofertas abaixo de 25% do preço típico da busca (a mediana) ficam escondidas, porque costumam ser peças ou acessórios, como um suporte numa busca de ar-condicionado. O rodapé da lista diz quantas foram escondidas.
 - **Conferir a chave:** `npm run precos:testar` pergunta ao SerpApi se a chave é aceita, sem gastar busca, e mostra quantas buscas restam. A chave não aparece inteira na tela. Se o site disser que a chave foi recusada: copie de novo em serpapi.com › *Api Key* (clique no olho antes de copiar, para não levar a versão mascarada), sem aspas nem espaços, e feche e abra a API, que só lê o `.env` ao iniciar.
 - **Cota:** cada termo é guardado por **24 horas** (tabela `buscas_preco`). Repetir a mesma busca nesse prazo não gasta cota. "Atualizar preços" força uma busca nova.
 - **Limites:** os preços são os do Google Shopping no momento da consulta, e o frete pode não estar incluído. O link pode levar à página do produto no Google em vez da loja.

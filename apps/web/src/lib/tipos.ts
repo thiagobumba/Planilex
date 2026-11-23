@@ -65,6 +65,7 @@ export interface OfertaEncontrada {
   entrega: string | null;
   link: string;
   imagem: string | null;
+  fonte: "google" | "shopee";
 }
 
 export interface ResultadoBusca {
@@ -72,6 +73,9 @@ export interface ResultadoBusca {
   consultadoEm: string;
   emCache: boolean;
   ofertas: OfertaEncontrada[];
+  fontes: ("google" | "shopee")[];
+  avisos: string[];
+  ocultas: number;
 }
 
 /** Oferta ligada a um item (o "melhor preço" escolhido). */
