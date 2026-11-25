@@ -234,6 +234,7 @@ No formulário de item, digite o produto e clique em **Buscar preços**, ou aper
 ## Documentação e histórico
 
 - Todas as alterações ficam registradas em [`CHANGELOG.md`](CHANGELOG.md).
+- Resumo técnico para quem for continuar o projeto: [`docs/handoff.md`](docs/handoff.md).
 - As regras do projeto (documentação obrigatória, git, idioma) estão em [`CLAUDE.md`](CLAUDE.md).
 
 ## Roadmap
@@ -243,7 +244,10 @@ No formulário de item, digite o produto e clique em **Buscar preços**, ou aper
 3. [x] Login (Google e e-mail/senha) e cadastro de orçamento, cômodos e itens
    - [x] Compartilhar o orçamento por convite (Configurações › Pessoas com acesso)
    - [ ] "Desfazer" depois de excluir ou alterar
-4. [x] Busca de preços (SerpApi / Google Shopping)
+4. [x] Busca de preços (Google Shopping pelo SerpApi e Shopee), com marca, paginação e situação "Cadastrado"
+   - [x] Controle de compra: "Comprado? Sim/Não" e guias "Falta comprar" e "Comprados"
+   - [x] Backup automático e importação para instalações novas
+   - [ ] Mercado Livre (aguardando aprovação da API oficial)
    - [ ] Filtro pela voltagem da casa e histórico de preço no item
 5. [ ] Alertas de preço e histórico
 6. [ ] Deploy

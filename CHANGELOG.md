@@ -12,6 +12,17 @@ Cada entrada informa:
 
 ## [Não lançado]
 
+### 2026-11-25 · Resumo técnico (handoff)
+**Adicionado**
+- `docs/handoff.md`: resumo técnico estruturado para quem for continuar o projeto. Cobre produto, stack, estrutura, como roda no Windows, variáveis, dados, rotas, decisões, convenções, testes, pendências e riscos. O README aponta para ele.
+
+**Alterado**
+- Roadmap do README atualizado: Shopee, marca, controle de compra e backup concluídos; Mercado Livre aguardando a aprovação da API.
+
+**Por quê:** pedido do dono, para registrar o estado do projeto.
+
+**Impacto:** só documentação.
+
 ### 2026-11-23 · Backup e importação do banco
 **Adicionado**
 - **Backup em JSON** (formato `planilex-backup`, versão 1), em `packages/db/src/backup.ts`. Ele inclui orçamentos, pessoas com acesso, convites, cômodos, itens, ofertas e histórico de preços. As contas de login, o cache de buscas e as atividades ficam de fora.
