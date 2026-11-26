@@ -12,6 +12,15 @@ Cada entrada informa:
 
 ## [Não lançado]
 
+### 2026-11-26 · API e site só acessíveis por este computador
+**Alterado**
+- A API passa a escutar em `127.0.0.1` em vez de `0.0.0.0`, configurável pela nova variável opcional `API_HOST` (`apps/api/src/env.ts`, `server.ts`).
+- O site (`npm run dev:web` e `next start`) passa a usar `-H 127.0.0.1` (`apps/web/package.json`).
+
+**Por quê:** os logs mostravam a API e o site aceitando conexões de toda a rede, inclusive por um endereço público. O app só é usado neste computador, e o pedido foi limitar o acesso a ele.
+
+**Impacto:** outros aparelhos da rede não abrem mais o site nem a API; http://localhost:3000 continua igual. Como o `package.json` do site mudou, o modo automático roda `npm install` e reinicia a API e o site sozinho. Quem usa os atalhos `.cmd` precisa fechar e abrir de novo. Variável nova e opcional: `API_HOST` (README e `.env.example`).
+
 ### 2026-11-26 · Revisão de bugs, segurança e desempenho
 **Corrigido**
 - **Botão "Marcar comprado" e "Desmarcar" voltavam a quantidade do item para 1.** No zod v4, `.partial()` continua aplicando os `.default()` do esquema. Por isso, um `PATCH /itens/:id` só com a situação gravava `quantidade: 1` (e, se viesse sem situação, `PESQUISANDO`). Agora a criação e a edição têm esquemas separados, e a edição só muda o que vier no corpo (`apps/api/src/routes/itens.ts`). O mesmo defeito zerava o limite do cômodo num `PATCH /comodos/:id` só com o nome (`routes/comodos.ts`).

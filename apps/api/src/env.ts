@@ -7,6 +7,8 @@ config({ path: path.join(raiz, ".env"), quiet: true });
 
 export const env = {
   porta: Number(process.env.API_PORT ?? 3333),
+  /** Onde a API escuta. Padrão: só este computador. "0.0.0.0" abre para a rede (outros aparelhos). */
+  host: process.env.API_HOST?.trim() || "127.0.0.1",
   databaseUrl: process.env.DATABASE_URL,
   origemWeb: process.env.WEB_ORIGIN ?? "http://localhost:3000",
   supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,

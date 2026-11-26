@@ -5,7 +5,7 @@ import { env } from "./env.js";
 const app = await criarApp();
 
 try {
-  await app.listen({ port: env.porta, host: "0.0.0.0" });
+  await app.listen({ port: env.porta, host: env.host });
   iniciarBackupAutomatico(app.log);
 } catch (erro) {
   app.log.error(erro);

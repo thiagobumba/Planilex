@@ -108,6 +108,7 @@ Para conferir se a API está falando com o banco, abra http://localhost:3333/hea
 | `SHOPEE_APP_ID` e `SHOPEE_APP_SECRET` | affiliate.shopee.com.br › **Abrir API**: "AppID" e "Senha" | Opcionais. Só a API usa, para trazer também as ofertas da Shopee na busca de preços |
 | `SUPABASE_SECRET_KEY` | Supabase › Project Settings › API Keys › **Secret keys** | Opcional. Só a API usa, para enviar o e-mail do convite. **Nunca** com `NEXT_PUBLIC_` e nunca compartilhe |
 | `API_PORT` | — | Porta da API (padrão 3333) |
+| `API_HOST` | — | Onde a API escuta. Padrão `127.0.0.1`: só este computador. `0.0.0.0` abre para a rede. O site também só aceita conexões deste computador (`next dev -H 127.0.0.1` em `apps/web/package.json`) |
 | `WEB_ORIGIN` | — | Endereço do site que pode chamar a API (padrão http://localhost:3000) |
 | `NEXT_PUBLIC_API_URL` | — | Endereço da API usado pelo site |
 
