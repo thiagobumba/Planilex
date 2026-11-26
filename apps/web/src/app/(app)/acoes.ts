@@ -118,7 +118,9 @@ export async function alternarComprado(f: FormData): Promise<void> {
   const id = texto(f, "id");
   const nome = texto(f, "nome");
   const comprar = texto(f, "comprado") === "sim";
-  const voltar = texto(f, "voltar") || "/itens";
+  // Só volta para páginas da lista de itens (o campo vem do formulário e poderia apontar para outro site).
+  const pedido = texto(f, "voltar");
+  const voltar = pedido.startsWith("/itens") ? pedido : "/itens";
   const valorPago = lerValor(f.get("valorPrevisto"));
   const separador = voltar.includes("?") ? "&" : "?";
   let destino: string;

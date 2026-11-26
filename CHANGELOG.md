@@ -12,6 +12,24 @@ Cada entrada informa:
 
 ## [Não lançado]
 
+### 2026-11-26 · Revisão de bugs, segurança e desempenho
+**Corrigido**
+- **Botão "Marcar comprado" e "Desmarcar" voltavam a quantidade do item para 1.** No zod v4, `.partial()` continua aplicando os `.default()` do esquema. Por isso, um `PATCH /itens/:id` só com a situação gravava `quantidade: 1` (e, se viesse sem situação, `PESQUISANDO`). Agora a criação e a edição têm esquemas separados, e a edição só muda o que vier no corpo (`apps/api/src/routes/itens.ts`). O mesmo defeito zerava o limite do cômodo num `PATCH /comodos/:id` só com o nome (`routes/comodos.ts`).
+- **"1.500" num campo de valor era lido como R$ 1,50.** Sem vírgula, pontos em grupos de 3 dígitos agora são separador de milhar, como se escreve no Brasil ("1.500" → 1500; "12.50" continua 12,50). Arquivo: `apps/web/src/lib/formato.ts`.
+- **Redirecionamento aberto no botão rápido de comprado:** o campo `voltar` do formulário aceitava qualquer endereço, inclusive de outro site. Agora só volta para `/itens…` (`acoes.ts`).
+- **Escolher uma oferta podia gravar pela metade:** oferta, histórico do dia e ligação com o item agora entram numa transação só, no `POST` e no `PATCH` de itens.
+- Registro excluído entre a conferência e a gravação (erro P2025 do Prisma) agora responde **404** com mensagem clara, em vez de 500.
+- **Os testes da API falavam com o Supabase real:** a suíte lia a `SUPABASE_SECRET_KEY` do `.env`, e os testes de convite disparavam convites de verdade para endereços `@teste.com`. Agora o teste zera essa chave antes de subir a API.
+- Comentários trocados em `apps/api/src/env.ts` (a descrição da chave do Supabase estava em cima da do SerpApi).
+
+**Adicionado**
+- `GET /itens/:id`: um item só. A tela "Editar item" usava a lista inteira do orçamento para achar um item; agora busca só ele, ao mesmo tempo que o orçamento (`itens/[id]/page.tsx`). Documentado em `docs/api.md`.
+- Teste de regressão "edição parcial não volta campos para o padrão" (20 testes no total). Rodando com o código antigo, ele falha (quantidade 1 em vez de 6).
+
+**Por quê:** revisão geral do código pedida pelo dono, em busca de bugs, segurança e desempenho.
+
+**Impacto:** nenhuma migração nem variável nova. Itens que já tiveram a quantidade trocada para 1 pelo botão rápido **não** são corrigidos sozinhos: confira a quantidade dos itens comprados ou desmarcados pela lista. Verificado com `npm run typecheck`, os builds da API e do site e os 20 testes da API, num Postgres temporário.
+
 ### 2026-11-25 · Resumo técnico (handoff)
 **Adicionado**
 - `docs/handoff.md`: resumo técnico estruturado para quem for continuar o projeto. Cobre produto, stack, estrutura, como roda no Windows, variáveis, dados, rotas, decisões, convenções, testes, pendências e riscos. O README aponta para ele.

@@ -12,6 +12,10 @@ if (!url) {
   process.exit(0);
 }
 process.env.DATABASE_URL = url;
+// Nunca falar com o Supabase real: sem a chave secreta, os convites não disparam e-mails nem criam contas.
+// (Vazio, e não apagado: o dotenv não sobrescreve uma variável que já existe, então o .env não a traz de volta.)
+process.env.SUPABASE_SECRET_KEY = "";
+process.env.BACKUP_AUTOMATICO = "0";
 
 // SerpApi simulado: conta as chamadas e responde conforme o termo.
 let chamadasSerpApi = 0;
@@ -220,6 +224,34 @@ describe("API do Planilex", () => {
     assert.equal(busca.length, 1);
     const comprados = (await chamar(ana, "GET", `/orcamentos/${orcamentoId}/itens?situacao=COMPRADO`)).json();
     assert.equal(comprados.length, 1);
+  });
+
+  test("edição parcial não volta campos para o padrão", async () => {
+    // Regressão: no zod v4, .partial() aplicava os .default() e o PATCH só com a situação voltava a quantidade para 1.
+    const novo = await chamar(ana, "POST", "/itens", { nome: "Cadeiras", comodoId: salaId, quantidade: 6, situacao: "CADASTRADO", valorPrevisto: 1200 });
+    assert.equal(novo.statusCode, 201, novo.body);
+    const id = novo.json().id;
+    const comprado = (await chamar(ana, "PATCH", `/itens/${id}`, { situacao: "COMPRADO", valorPago: 1100 })).json();
+    assert.equal(comprado.quantidade, 6);
+    const desmarcado = (await chamar(ana, "PATCH", `/itens/${id}`, { situacao: "ESCOLHIDO" })).json();
+    assert.equal(desmarcado.quantidade, 6);
+    const renomeado = (await chamar(ana, "PATCH", `/itens/${id}`, { nome: "Cadeiras de jantar" })).json();
+    assert.equal(renomeado.situacao, "ESCOLHIDO");
+    assert.equal(renomeado.quantidade, 6);
+
+    // GET /itens/:id devolve só o item; quem não é membro recebe 404.
+    const um = await chamar(ana, "GET", `/itens/${id}`);
+    assert.equal(um.statusCode, 200, um.body);
+    assert.equal(um.json().nome, "Cadeiras de jantar");
+    assert.equal(um.json().comodo, "Sala");
+    assert.equal((await chamar(beto, "GET", `/itens/${id}`)).statusCode, 404);
+    assert.equal((await chamar(ana, "DELETE", `/itens/${id}`)).statusCode, 204);
+    assert.equal((await chamar(ana, "GET", `/itens/${id}`)).statusCode, 404);
+
+    // Cômodo: PATCH só com o nome mantém o limite.
+    const antes = (await chamar(ana, "PATCH", `/comodos/${cozinhaId}`, { nome: "Cozinha nova" })).json();
+    assert.equal(antes.limite, 15000);
+    assert.equal((await chamar(ana, "PATCH", `/comodos/${cozinhaId}`, { nome: "Cozinha" })).json().limite, 15000);
   });
 
   test("não exclui cômodo com itens", async () => {

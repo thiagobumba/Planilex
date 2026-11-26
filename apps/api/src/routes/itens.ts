@@ -17,17 +17,28 @@ const ofertaEscolhida = z.object({
   consultadoEm: z.iso.datetime().optional(),
 });
 
-const dadosItem = z.object({
+/**
+ * Campos do item, sem valores padrão. A edição (PATCH) usa estes campos todos opcionais.
+ * Os padrões ficam só na criação: no zod v4, `.partial()` ainda aplicaria um `.default()`,
+ * e um PATCH só com a situação voltaria a quantidade para 1.
+ */
+const camposItem = z.object({
   nome: z.string().trim().min(1, "Informe o nome do item.").max(160),
   comodoId: z.uuid(),
-  quantidade: z.coerce.number().int().min(1, "A quantidade mínima é 1.").max(9999).default(1),
-  situacao: situacao.default("PESQUISANDO"),
+  quantidade: z.coerce.number().int().min(1, "A quantidade mínima é 1.").max(9999),
+  situacao,
   valorPrevisto: dinheiro.nullish(),
   valorPago: dinheiro.nullish(),
   alertaPreco: z.boolean().optional(),
   /** Oferta escolhida na busca de preços: vira o "Melhor preço" do item. */
   oferta: ofertaEscolhida.nullish(),
 });
+
+export const criarItem = camposItem.extend({
+  quantidade: camposItem.shape.quantidade.default(1),
+  situacao: situacao.default("PESQUISANDO"),
+});
+export const editarItem = camposItem.partial();
 
 const filtros = z.object({
   comodoId: z.uuid().optional(),
@@ -73,16 +84,21 @@ const serializar = (i: ItemDb) => ({
     : null,
 });
 
-/** Grava a oferta escolhida, liga ao item e registra o preço do dia no histórico. */
-async function guardarOferta(itemId: string, o: z.infer<typeof ofertaEscolhida>) {
+type Transacao = Parameters<Parameters<ReturnType<typeof db>["$transaction"]>[0]>[0];
+
+/**
+ * Grava a oferta escolhida e registra o preço do dia no histórico (o menor do dia).
+ * Roda dentro da transação de quem chama: se algo falhar, nada fica pela metade.
+ */
+async function guardarOferta(tx: Transacao, itemId: string, o: z.infer<typeof ofertaEscolhida>) {
   const consultadoEm = o.consultadoEm ? new Date(o.consultadoEm) : new Date();
-  const oferta = await db().oferta.create({
+  const oferta = await tx.oferta.create({
     data: { itemId, loja: o.loja, titulo: o.titulo, preco: o.preco, frete: 0, total: o.preco, url: o.link, consultadoEm },
   });
   const dia = new Date(Date.UTC(consultadoEm.getUTCFullYear(), consultadoEm.getUTCMonth(), consultadoEm.getUTCDate()));
-  const anterior = await db().historicoPreco.findUnique({ where: { itemId_data: { itemId, data: dia } } });
+  const anterior = await tx.historicoPreco.findUnique({ where: { itemId_data: { itemId, data: dia } } });
   if (!anterior || Number(anterior.menorPreco.toString()) > o.preco) {
-    await db().historicoPreco.upsert({
+    await tx.historicoPreco.upsert({
       where: { itemId_data: { itemId, data: dia } },
       create: { itemId, data: dia, menorPreco: o.preco },
       update: { menorPreco: o.preco },
@@ -124,29 +140,33 @@ export async function rotasItens(app: FastifyInstance) {
     return itens.map(serializar);
   });
 
+  /** Um item só (tela de edição), sem baixar a lista inteira. */
+  app.get("/itens/:id", async (req) => {
+    const params = id.parse(req.params);
+    await exigirItem(params.id, req.usuario.id);
+    return serializar(await db().item.findUniqueOrThrow({ where: { id: params.id }, include: incluir }));
+  });
+
   app.post("/itens", async (req, reply) => {
-    const dados = dadosItem.parse(req.body);
+    const dados = criarItem.parse(req.body);
     regrasSituacao(dados);
     await exigirComodo(dados.comodoId, req.usuario.id);
     const { oferta, ...campos } = dados;
-    let item = await db().item.create({
-      data: { ...campos, valorPago: campos.situacao === "COMPRADO" ? campos.valorPago : null },
-      include: incluir,
-    });
-    if (oferta) {
-      item = await db().item.update({
-        where: { id: item.id },
-        data: { ofertaEscolhidaId: await guardarOferta(item.id, oferta) },
-        include: incluir,
-      });
-    }
+    const data = { ...campos, valorPago: campos.situacao === "COMPRADO" ? campos.valorPago : null };
+    const item = oferta
+      ? // Item, oferta e histórico entram juntos: se a oferta falhar, o item não fica criado pela metade.
+        await db().$transaction(async (tx) => {
+          const novo = await tx.item.create({ data });
+          return tx.item.update({ where: { id: novo.id }, data: { ofertaEscolhidaId: await guardarOferta(tx, novo.id, oferta) }, include: incluir });
+        })
+      : await db().item.create({ data, include: incluir });
     return reply.code(201).send(serializar(item));
   });
 
   app.patch("/itens/:id", async (req) => {
     const params = id.parse(req.params);
     const atual = await exigirItem(params.id, req.usuario.id);
-    const dados = dadosItem.partial().parse(req.body);
+    const dados = editarItem.parse(req.body);
 
     // Mover de cômodo: só para outro cômodo do mesmo orçamento.
     if (dados.comodoId && dados.comodoId !== atual.comodoId) {
@@ -161,13 +181,12 @@ export async function rotasItens(app: FastifyInstance) {
     regrasSituacao({ situacao: situacaoFinal, valorPago: valorPagoFinal });
 
     const { oferta, ...campos } = dados;
-    const ofertaEscolhidaId =
-      oferta === undefined ? undefined : oferta === null ? null : await guardarOferta(params.id, oferta);
-    const item = await db().item.update({
-      where: { id: params.id },
-      data: { ...campos, ofertaEscolhidaId, valorPago: situacaoFinal === "COMPRADO" ? valorPagoFinal : null },
-      include: incluir,
-    });
+    const data = { ...campos, valorPago: situacaoFinal === "COMPRADO" ? valorPagoFinal : null };
+    const item = oferta
+      ? await db().$transaction(async (tx) =>
+          tx.item.update({ where: { id: params.id }, data: { ...data, ofertaEscolhidaId: await guardarOferta(tx, params.id, oferta) }, include: incluir }),
+        )
+      : await db().item.update({ where: { id: params.id }, data: { ...data, ofertaEscolhidaId: oferta }, include: incluir });
     return serializar(item);
   });
 

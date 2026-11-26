@@ -6,11 +6,15 @@ import { ErroHttp } from "../erros.js";
 import { num } from "../formatos.js";
 import { exigirLogin } from "../plugins/autenticacao.js";
 
-const dadosComodo = z.object({
+const camposComodo = z.object({
   nome: z.string().trim().min(1, "Informe um nome.").max(80),
-  limite: z.coerce.number().min(0, "O limite não pode ser negativo.").max(9_999_999_999.99).default(0),
+  limite: z.coerce.number().min(0, "O limite não pode ser negativo.").max(9_999_999_999.99),
   ordem: z.coerce.number().int().min(0).optional(),
 });
+// O padrão do limite fica só na criação: no zod v4, `.partial()` ainda aplicaria o `.default(0)`
+// e um PATCH só com o nome zeraria o limite.
+const criarComodo = camposComodo.extend({ limite: camposComodo.shape.limite.default(0) });
+const editarComodo = camposComodo.partial();
 const idOrcamento = z.object({ orcamentoId: z.uuid() });
 const id = z.object({ id: z.uuid() });
 
@@ -31,7 +35,7 @@ export async function rotasComodos(app: FastifyInstance) {
   app.post("/orcamentos/:orcamentoId/comodos", async (req, reply) => {
     const { orcamentoId } = idOrcamento.parse(req.params);
     await exigirMembro(orcamentoId, req.usuario.id);
-    const dados = dadosComodo.parse(req.body);
+    const dados = criarComodo.parse(req.body);
     const ordem =
       dados.ordem ?? ((await db().comodo.aggregate({ where: { orcamentoId }, _max: { ordem: true } }))._max.ordem ?? -1) + 1;
     try {
@@ -46,7 +50,7 @@ export async function rotasComodos(app: FastifyInstance) {
   app.patch("/comodos/:id", async (req) => {
     const params = id.parse(req.params);
     await exigirComodo(params.id, req.usuario.id);
-    const dados = dadosComodo.partial().parse(req.body);
+    const dados = editarComodo.parse(req.body);
     try {
       return serializar(await db().comodo.update({ where: { id: params.id }, data: dados }));
     } catch (e) {

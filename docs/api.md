@@ -96,7 +96,7 @@ Altera qualquer campo do `POST` (menos `comodosPadrao`). **200** com o orçament
 **201** com o cômodo · **409** se o nome já existe no orçamento.
 
 ### `PATCH /comodos/:id`
-Altera `nome`, `limite` e/ou `ordem`. **200** com o cômodo · **409** nome repetido.
+Altera `nome`, `limite` e/ou `ordem`. Só muda o que vier no corpo: mandar só o `nome` mantém o limite. **200** com o cômodo · **409** nome repetido.
 
 ### `DELETE /comodos/:id`
 **204**. Só exclui cômodo **sem itens**; com itens responde **409** pedindo para mover ou excluir os itens antes.
@@ -114,6 +114,9 @@ Filtros opcionais na query: `comodoId`, `situacao` (`PESQUISANDO`, `CADASTRADO`,
 ```
 Ordenados pela ordem do cômodo e pela data de criação.
 
+### `GET /itens/:id`
+Um item só, no mesmo formato da lista. Usado pela tela de edição, para não baixar a lista inteira. **200** com o item · **404** se não existe ou se a pessoa não é membro do orçamento.
+
 ### `POST /itens`
 | Campo | Tipo | Obrigatório |
 |-------|------|-------------|
@@ -127,17 +130,19 @@ Ordenados pela ordem do cômodo e pela data de criação.
 | `oferta` | `{ loja, titulo, preco, link, consultadoEm? }` ou `null` | não. A oferta escolhida na busca de preços; `null` (no PATCH) remove |
 
 Regras:
-- Com `oferta`, a API grava a oferta (tabela `ofertas`), liga ao item (`ofertaEscolhida` na resposta) e registra o menor preço do dia em `historico_precos`.
+- Com `oferta`, a API grava a oferta (tabela `ofertas`), liga ao item (`ofertaEscolhida` na resposta) e registra o menor preço do dia em `historico_precos`, tudo numa transação só: se algo falhar, nada fica gravado pela metade.
 - `COMPRADO` exige `valorPago` (senão **400**).
 - Fora de `COMPRADO`, o `valorPago` é descartado.
 
 **201** com o item.
 
 ### `PATCH /itens/:id`
-Altera qualquer campo do `POST`. Mover para outro cômodo só é permitido dentro do mesmo orçamento. Ao sair de `COMPRADO`, o `valorPago` é apagado. **200** com o item.
+Altera qualquer campo do `POST`. Só muda o que vier no corpo: os padrões do `POST` (quantidade 1, situação `PESQUISANDO`) **não** são aplicados, então `{ "situacao": "ESCOLHIDO" }` mantém a quantidade. Mover para outro cômodo só é permitido dentro do mesmo orçamento. Ao sair de `COMPRADO`, o `valorPago` é apagado. **200** com o item.
 
 ### `DELETE /itens/:id`
 **204**.
+
+Se o registro some entre a conferência e a gravação (por exemplo, excluído em outra aba), qualquer rota responde **404** em vez de 500.
 
 ## Pessoas (compartilhar o orçamento)
 
@@ -226,10 +231,10 @@ Sem resultados, `ofertas` vem vazio.
 
 ## Testes
 
-`apps/api/test/api.test.ts` (19 testes, com um SerpApi e uma API da Shopee simulados) testa todas as rotas contra um PostgreSQL de teste (nunca o banco real):
+`apps/api/test/api.test.ts` (20 testes, com um SerpApi e uma API da Shopee simulados) testa todas as rotas contra um PostgreSQL de teste (nunca o banco real):
 
 ```bash
 TEST_DATABASE_URL="postgresql://postgres@localhost:5432/planilex_teste" npm test -w @planilex/api
 ```
 
-O banco de teste precisa estar com as migrações aplicadas (`DIRECT_URL=<mesmo endereço> npm run db:deploy`). Nos testes, a verificação do token é trocada por uma falsa (`definirVerificadorDeToken`), então o Supabase não é necessário.
+O banco de teste precisa estar com as migrações aplicadas (`DIRECT_URL=<mesmo endereço> npm run db:deploy`). Nos testes, a verificação do token é trocada por uma falsa (`definirVerificadorDeToken`), então o Supabase não é necessário. O teste também zera a `SUPABASE_SECRET_KEY`, para que os convites nunca disparem e-mails nem criem contas no Supabase real (antes ele lia a chave do `.env`).

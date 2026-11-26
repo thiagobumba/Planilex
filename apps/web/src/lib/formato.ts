@@ -36,11 +36,18 @@ export function textoContagem(dataCasamento: string | null) {
   return `Casamento em ${data}`;
 }
 
-/** Converte "1.234,56", "1234,56" ou "1234.56" em número. Vazio vira null. */
+/**
+ * Converte "1.234,56", "1234,56", "1234.56" ou "1.500" (mil e quinhentos) em número. Vazio vira null.
+ * Sem vírgula, pontos em grupos de 3 dígitos são separador de milhar, como se escreve no Brasil.
+ */
 export function lerValor(texto: FormDataEntryValue | null): number | null {
   const s = String(texto ?? "").trim().replace(/[R$\s]/g, "");
   if (!s) return null;
-  const normalizado = s.includes(",") ? s.replace(/\./g, "").replace(",", ".") : s;
+  const normalizado = s.includes(",")
+    ? s.replace(/\./g, "").replace(",", ".")
+    : /^-?\d{1,3}(\.\d{3})+$/.test(s)
+      ? s.replace(/\./g, "")
+      : s;
   const n = Number(normalizado);
   return Number.isFinite(n) ? n : NaN;
 }

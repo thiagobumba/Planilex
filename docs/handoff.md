@@ -104,7 +104,7 @@ Rotas documentadas em `docs/api.md`. Todas exigem `Authorization: Bearer <token 
 
 - `GET /orcamentos/atual`: orçamento com o resumo numa chamada só, usado em toda tela. Também aceita os convites pendentes.
 - Orçamentos: `GET/POST /orcamentos`, `GET/PATCH /orcamentos/:id`.
-- Cômodos e itens: `POST /orcamentos/:id/comodos`, `PATCH/DELETE /comodos/:id`, `GET /orcamentos/:id/itens`, `POST /itens`, `PATCH/DELETE /itens/:id`. O item aceita `oferta`, que grava a oferta escolhida e o histórico do dia.
+- Cômodos e itens: `POST /orcamentos/:id/comodos`, `PATCH/DELETE /comodos/:id`, `GET /orcamentos/:id/itens`, `GET /itens/:id`, `POST /itens`, `PATCH/DELETE /itens/:id`. O item aceita `oferta`, que grava a oferta escolhida e o histórico do dia.
 - Pessoas: `GET /orcamentos/:id/pessoas`, `POST /orcamentos/:id/convites`, `POST /convites/:id/reenviar`, `DELETE /convites/:id`, `DELETE /orcamentos/:id/membros/:usuarioId`. Só o DONO convida ou remove.
 - Busca: `GET /precos?q=&marca=&atualizar=1`, que responde `{ ofertas, fontes, avisos, ocultas, marca, marcaSemResultado, emCache }`.
 - Backup: `GET /orcamentos/:id/backup` e `POST /orcamentos/importar`.
@@ -133,7 +133,7 @@ Rotas documentadas em `docs/api.md`. Todas exigem `Authorization: Bearer <token 
 
 ## 9. Testes
 
-- **API:** 19 testes de ponta a ponta em `apps/api/test/api.test.ts`, contra um Postgres de teste, com o SerpApi e a Shopee simulados. A Shopee simulada confere a assinatura.
+- **API:** 20 testes de ponta a ponta em `apps/api/test/api.test.ts`, contra um Postgres de teste, com o SerpApi e a Shopee simulados. A Shopee simulada confere a assinatura.
 - **Site:** não há testes automatizados no repositório. As verificações foram feitas com Puppeteer fora dele.
 - **Ambiente de teste usado nesta sessão** (fora do repositório, não persiste):
   - Postgres 16 local;

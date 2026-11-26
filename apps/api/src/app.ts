@@ -25,6 +25,10 @@ export async function criarApp(opcoes: FastifyServerOptions = { logger: true }) 
     if (erro instanceof ErroHttp) {
       return reply.code(erro.status).send({ erro: erro.message });
     }
+    // Prisma P2025: o registro sumiu entre a conferência e a gravação (ex.: excluído em outra aba).
+    if ((erro as { code?: string }).code === "P2025") {
+      return reply.code(404).send({ erro: "Registro não encontrado. Ele pode ter sido excluído; recarregue a página." });
+    }
     const status = (erro as { statusCode?: number }).statusCode;
     if (status && status < 500) {
       return reply.code(status).send({ erro: (erro as Error).message });

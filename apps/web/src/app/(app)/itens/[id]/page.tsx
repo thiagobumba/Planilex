@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { CamposItem } from "@/components/CamposItem";
 import { BotaoEnviar, Formulario } from "@/components/Formulario";
-import { api } from "@/lib/api";
+import { api, ErroApi } from "@/lib/api";
 import { orcamentoAtual } from "@/lib/dados";
 import type { Item } from "@/lib/tipos";
 import { editarItem, excluirItem } from "../../acoes";
@@ -12,10 +12,17 @@ export const metadata: Metadata = { title: "Editar item · Planilex" };
 
 export default async function EditarItem({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const orcamento = await orcamentoAtual();
+  // Endereço com id malformado: nem chama a API.
+  if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
+  // O orçamento (para a lista de cômodos) e o item vêm ao mesmo tempo; a API só manda o item pedido.
+  const [orcamento, item] = await Promise.all([
+    orcamentoAtual(),
+    api<Item>(`/itens/${id}`).catch((e: unknown) => {
+      if (e instanceof ErroApi && e.status === 404) return null;
+      throw e;
+    }),
+  ]);
   if (!orcamento) redirect("/");
-  const itens = await api<Item[]>(`/orcamentos/${orcamento.id}/itens`);
-  const item = itens.find((i) => i.id === id);
   if (!item) notFound();
 
   return (
